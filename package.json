@@ -1,0 +1,35 @@
+{
+  "name": "react-timeline-9000",
+  "version": "1.0.0",
+  "description": "Performance focused timeline for react",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lilfolr/react-timeline-9000.git"
+  },
+  "keywords": [
+    "react",
+    "timeline"
+  ],
+  "engines": {
+    "node": ">=4.2.4"
+  },
+  "author": "Leighton",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lilfolr/react-timeline-9000/issues"
+  },
+  "homepage": "https://github.com/lilfolr/react-timeline-9000#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "chai": "^4.1.2",
+    "eslint": "^4.19.1",
+    "mocha": "^5.2.0"
+  }
+}
