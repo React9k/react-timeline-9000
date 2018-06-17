@@ -1,33 +1,15 @@
-SRC = $(wildcard src/*.js)
+mocha := node_modules/.bin/mocha
 
 .PHONY: all clean
 
-# Build process:
-#  1. copy all .js from src to lib and add .flow ext
-#  2. use bable to transpile files to .js
+all:
+	npm run build
 
-babel := node_modules/.bin/babel
-mocha := node_modules/.bin/mocha
+run:
+	npm run start
 
-src_files := $(shell find src/ -name '*.js')
-transpiled_files := $(patsubst src/%,lib/%,$(src_files))
-orig_files := $(patsubst %.js,%.js.orig,$(transpiled_files))
-
-all: node_modules $(orig_files) $(transpiled_files)
-
-test: 
+test:
 	$(mocha) --compilers js:babel-core/register src
 
-lib/%: src/%
-	mkdir -p $(dir $@)
-	$(babel) $< --out-file $@ --source-maps
-
-lib/%.js.orig: src/%.js
-	mkdir -p $(dir $@)
-	cp $< $@
-
 clean:
-	rm -rf lib
-
-node_modules: package.json yarn.lock
-	yarn install
+	rm -rf dist

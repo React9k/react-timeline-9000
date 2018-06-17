@@ -2,18 +2,20 @@
   "name": "react-timeline-9000",
   "version": "1.0.0",
   "description": "Performance focused timeline for react",
-  "main": "index.js",
+  "private": true,
   "scripts": {
+    "build": "webpack --config webpack.prod.js",
+    "start": "webpack-dev-server --open --config webpack.dev.js",
     "test": "mocha --reporter spec",
     "pretty": "prettier --write --tab-width 4 \"src/**/*.js\"",
     "precommit": "lint-staged && make test"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,json,css}": [
-          "prettier --single-quote --write",
-          "git add"
-        ]
-      },
+      "prettier --single-quote --write",
+      "git add"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lilfolr/react-timeline-9000.git"
@@ -34,13 +36,20 @@
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.4",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
     "chai": "^4.1.2",
+    "clean-webpack-plugin": "^0.1.19",
     "eslint": "^4.19.1",
+    "html-webpack-plugin": "^3.2.0",
     "husky": "^0.14.3",
     "lint-staged": "^7.2.0",
     "mocha": "^5.2.0",
-    "prettier": "^1.13.5"
+    "prettier": "^1.13.5",
+    "webpack": "^4.12.0",
+    "webpack-cli": "^3.0.8",
+    "webpack-dev-server": "^3.1.4",
+    "webpack-merge": "^4.1.3"
   }
 }
