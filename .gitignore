@@ -1,5 +1,5 @@
 # Build dir
-lib/
+dist/
 
 # Logs
 npm-debug.log*

@@ -1,15 +1,18 @@
 mocha := node_modules/.bin/mocha
 
-.PHONY: all clean
+.PHONY: all clean install
 
-all:
+all: install
 	npm run build
 
-run:
+run: install
 	npm run start
 
-test:
+test: install
 	$(mocha) --compilers js:babel-core/register src
+
+install:
+	yarn
 
 clean:
 	rm -rf dist
