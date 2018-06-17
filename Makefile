@@ -9,7 +9,7 @@ run: install
 	npm run start
 
 test: install
-	$(mocha) --compilers js:babel-core/register src
+	env NODE_PATH=$$NODE_PATH:$$PWD/src/ $(mocha) --require babel-core/register "./src/**/*.test.js"
 
 install:
 	yarn
