@@ -7,6 +7,7 @@
       "plugin:import/warnings"
     ],
     "plugins": [
+      "babel",
       "react",
       "prettier"
     ],
@@ -18,6 +19,7 @@
         "experimentalObjectRestSpread": true
       }
     },
+    "parser": "babel-eslint",
     "env": {
       "es6": true,
       "browser": true,
@@ -35,7 +37,7 @@
       "no-trailing-spaces": 0,
       "eol-last": 0,
       "no-unused-vars": 0,
-      "import/no-unresolved": 0, // Returning false positives
+      "import/no-unresolved": 0,
       "no-underscore-dangle": 0,
       "no-alert": 0,
       "no-lone-blocks": 0,
@@ -48,7 +50,7 @@
       "react/jsx-indent-props": 0,
       "react/jsx-key": 1,
       "react/jsx-max-props-per-line": 0,
-      "react/jsx-no-bind": 0,   //This is a silly rule :P
+      "react/jsx-no-bind": 0,
       "react/jsx-no-duplicate-props": 1,
       "react/jsx-no-literals": 0,
       "react/jsx-no-undef": 1,
