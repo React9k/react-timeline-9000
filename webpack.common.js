@@ -11,15 +11,34 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin(['dist']),
+
     new HtmlWebpackPlugin({
-      title: 'React Timeline 9000'
+      title: 'React Timeline 9000',
+      template: 'src/demo.html',
+      chunksSortMode: 'dependency',
+      inject: 'body',
+      minify: {
+        removeComments: false,
+        collapseWhitespace: false,
+      }
     })
   ],
   module: {
     rules: [
-      { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" }
+      { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" },
+      {test: /\.css$/,
+      use: [
+        { loader: "style-loader" },
+        { loader: "css-loader" }
+      ]}
     ]
   },
+  resolve: {
+    modules: [
+      path.resolve(__dirname, './node_modules'),
+      path.resolve(__dirname, './src')
+    ],
+},
   stats: {
     colors: true
   }

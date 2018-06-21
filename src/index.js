@@ -1,10 +1,8 @@
 'use strict';
 
-/**
- * sample function
- * @param {string} text
- * @return {string}
- */
-export default function(text) {
-    return text;
-};
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+import Timeline from 'timeline';
+
+ReactDOM.render(<Timeline />, document.getElementById('root'));
