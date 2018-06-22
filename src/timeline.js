@@ -1,8 +1,7 @@
 'use strict';
 
-import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-
+import PropTypes from 'prop-types';
 import {Collection, AutoSizer} from 'react-virtualized';
 
 import './style.css';
@@ -20,54 +19,50 @@ export default class Timeline extends Component {
     super(props);
     this.state = {};
 
-    this.items = Array(ITEM_COUNT)
-      .fill()
-      .map((val, id) => {
-        return {
-          id: id
-          // title: `item ${id}`,
-          // length: Math.floor(Math.random()*10)    //between 1 and 10
-        };
-      });
+    this.cellRenderer = this.cellRenderer.bind(this);
+    this.cellSizeAndPositionGetter = this.cellSizeAndPositionGetter.bind(this);
+    this.list = [];
+    for (let i = 0; i < 100; i++) {
+      for (let j = 0; j < 100; j++) {
+        this.list.push({
+          name: `Roster item ${i}-${j}`,
+          x: 13 + ITEM_WIDTH * j,
+          y: 34 + ITEM_HEIGHT * i,
+          width: ITEM_WIDTH,
+          height: ITEM_HEIGHT
+        });
+      }
+    }
   }
 
-  _cellRenderer({index, key, style}) {
+  cellRenderer({index, key, style}) {
     return (
-      <div key={key} style={{backgroundColor: 'blue'}}>
-        {index}
+      <div key={key} style={style}>
+        <div style={{padding: '3px', margin: '3px', backgroundColor: 'blue'}}>{this.list[index].name}</div>
       </div>
     );
   }
 
-  _cellSizeAndPositionGetter({index}) {
-    const columnCount = 4;
+  cellSizeAndPositionGetter({index}) {
+    const datum = this.list[index];
 
-    const columnNumber = (index % columnCount) + 1;
-
-    const rowNumber = Math.floor(index / (columnCount * columnNumber)) + 1;
-
-    const x = columnNumber * (ITEM_WIDTH + ITEM_PADDING);
-    const y = rowNumber * (ITEM_HEIGHT + ITEM_PADDING);
-    console.log('C: ' + columnNumber + 'R: ' + rowNumber);
-    console.log('X: ' + x + ' Y: ' + y);
     return {
-      height: ITEM_HEIGHT,
-      width: ITEM_WIDTH,
-      x,
-      y
+      height: datum.height,
+      width: datum.width,
+      x: datum.x,
+      y: datum.y
     };
   }
 
   render() {
-    const items = this.items;
     return (
       <div className="rct-timeline-div">
         <AutoSizer>
           {({height, width}) => (
             <Collection
-              cellCount={items.length}
-              cellRenderer={this._cellRenderer}
-              cellSizeAndPositionGetter={this._cellSizeAndPositionGetter}
+              cellCount={this.list.length}
+              cellRenderer={this.cellRenderer}
+              cellSizeAndPositionGetter={this.cellSizeAndPositionGetter}
               height={height}
               width={width}
             />
