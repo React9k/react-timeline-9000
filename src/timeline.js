@@ -13,8 +13,12 @@ const ITEM_WIDTH = 150;
 const DISTRIBUTION = 80 / 100;
 
 export default class Timeline extends Component {
-  static propTypes = {};
-  static defaultProps = {};
+  static propTypes = {
+    items: PropTypes.arrayOf(PropTypes.object)
+  };
+  static defaultProps = {
+    items: []
+  };
 
   constructor(props) {
     super(props);
@@ -46,7 +50,9 @@ export default class Timeline extends Component {
     const {color} = this.list[index];
     return (
       <div key={key} style={style}>
-        <div style={{padding: '3px', margin: '3px', backgroundColor: color}}>{this.list[index].name}</div>
+        <div className="rct9k-items-outer" style={{backgroundColor: color}}>
+          {this.list[index].name}
+        </div>
       </div>
     );
   }
@@ -64,7 +70,7 @@ export default class Timeline extends Component {
 
   render() {
     return (
-      <div className="rct-timeline-div">
+      <div className="rct9k-timeline-div">
         <AutoSizer>
           {({height, width}) => (
             <Collection
