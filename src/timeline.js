@@ -22,8 +22,8 @@ export default class Timeline extends Component {
     this.cellRenderer = this.cellRenderer.bind(this);
     this.cellSizeAndPositionGetter = this.cellSizeAndPositionGetter.bind(this);
     this.list = [];
-    for (let i = 0; i < 100; i++) {
-      for (let j = 0; j < 100; j++) {
+    for (let i = 0; i < 1000; i++) {
+      for (let j = 0; j < 1000; j++) {
         this.list.push({
           name: `Roster item ${i}-${j}`,
           x: 13 + ITEM_WIDTH * j,
@@ -36,9 +36,10 @@ export default class Timeline extends Component {
   }
 
   cellRenderer({index, key, style}) {
+    let color = index % 3 == 1 ? 'blue' : 'green';
     return (
       <div key={key} style={style}>
-        <div style={{padding: '3px', margin: '3px', backgroundColor: 'blue'}}>{this.list[index].name}</div>
+        <div style={{padding: '3px', margin: '3px', backgroundColor: color}}>{this.list[index].name}</div>
       </div>
     );
   }
