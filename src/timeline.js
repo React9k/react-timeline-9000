@@ -6,10 +6,11 @@ import {Collection, AutoSizer} from 'react-virtualized';
 
 import './style.css';
 
-const ITEM_COUNT = 2000;
-const ITEM_PADDING = 10;
+const ITEM_COUNT = [1000, 1000];
 const ITEM_HEIGHT = 40;
 const ITEM_WIDTH = 150;
+
+const DISTRIBUTION = 80 / 100;
 
 export default class Timeline extends Component {
   static propTypes = {};
@@ -19,24 +20,30 @@ export default class Timeline extends Component {
     super(props);
     this.state = {};
 
+    const colors = ['lightblue', 'red', 'green', 'yellow', 'orange', 'pink'];
+
     this.cellRenderer = this.cellRenderer.bind(this);
     this.cellSizeAndPositionGetter = this.cellSizeAndPositionGetter.bind(this);
     this.list = [];
-    for (let i = 0; i < 1000; i++) {
-      for (let j = 0; j < 1000; j++) {
-        this.list.push({
-          name: `Roster item ${i}-${j}`,
-          x: 13 + ITEM_WIDTH * j,
-          y: 34 + ITEM_HEIGHT * i,
-          width: ITEM_WIDTH,
-          height: ITEM_HEIGHT
-        });
+    for (let i = 0; i < ITEM_COUNT[0]; i++) {
+      for (let j = 0; j < ITEM_COUNT[1]; j++) {
+        if (Math.random() < DISTRIBUTION) {
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          this.list.push({
+            name: `Roster item ${i}-${j}`,
+            x: 13 + ITEM_WIDTH * j,
+            y: 34 + ITEM_HEIGHT * i,
+            width: ITEM_WIDTH,
+            height: ITEM_HEIGHT,
+            color
+          });
+        }
       }
     }
   }
 
   cellRenderer({index, key, style}) {
-    let color = index % 3 == 1 ? 'blue' : 'green';
+    const {color} = this.list[index];
     return (
       <div key={key} style={style}>
         <div style={{padding: '3px', margin: '3px', backgroundColor: color}}>{this.list[index].name}</div>
