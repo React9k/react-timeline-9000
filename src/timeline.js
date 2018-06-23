@@ -3,6 +3,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {Collection, AutoSizer} from 'react-virtualized';
+import interact from 'interactjs';
 
 import './style.css';
 
@@ -44,27 +45,40 @@ export default class Timeline extends Component {
         }
       }
     }
+    this.setUpDragging();
+  }
+
+  setUpDragging() {
+    interact('.item_draggable').draggable({
+      onmove: e => {
+        const index = parseInt(e.target.getAttribute('item-index'));
+        this.list[index].x = this.list[index].x + e.dx;
+        this.list[index].y = this.list[index].y + e.dy;
+        this._collection.recomputeCellSizesAndPositions();
+      }
+    });
   }
 
   cellRenderer({index, key, style}) {
-    const {color} = this.list[index];
+    const item = this.list[index];
+    const {color} = item;
     return (
-      <div key={key} style={style}>
-        <div className="rct9k-items-outer" style={{backgroundColor: color}}>
-          {this.list[index].name}
+      <div item-index={index} key={key} style={style} className="rct9k-items-outer item_draggable">
+        <div className="rct9k-items-inner" style={{backgroundColor: color}}>
+          {item.name}
         </div>
       </div>
     );
   }
 
   cellSizeAndPositionGetter({index}) {
-    const datum = this.list[index];
+    const {height, width, x, y} = this.list[index];
 
     return {
-      height: datum.height,
-      width: datum.width,
-      x: datum.x,
-      y: datum.y
+      height,
+      width,
+      x,
+      y
     };
   }
 
@@ -74,6 +88,7 @@ export default class Timeline extends Component {
         <AutoSizer>
           {({height, width}) => (
             <Collection
+              ref={ref => (this._collection = ref)}
               cellCount={this.list.length}
               cellRenderer={this.cellRenderer}
               cellSizeAndPositionGetter={this.cellSizeAndPositionGetter}
