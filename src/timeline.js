@@ -7,7 +7,7 @@ import interact from 'interactjs';
 
 import './style.css';
 
-const ITEM_COUNT = [1000, 1000];
+const ITEM_COUNT = [500, 20]; //Rows, Cols
 const ITEM_HEIGHT = 40;
 const ITEM_WIDTH = 150;
 
@@ -56,6 +56,7 @@ export default class Timeline extends Component {
         this.list[index].y = this.list[index].y + e.dy;
         this._collection.recomputeCellSizesAndPositions();
       }
+      // ,onend: e => {}
     });
   }
 
