@@ -7,7 +7,7 @@ import interact from 'interactjs';
 
 import './style.css';
 
-const ITEM_COUNT = [500, 20]; //Rows, Cols
+const ITEM_COUNT = [1000, 1000]; //Rows, Cols
 const ITEM_HEIGHT = 40;
 const ITEM_WIDTH = 150;
 
@@ -49,14 +49,24 @@ export default class Timeline extends Component {
   }
 
   setUpDragging() {
+    function move_style(px_style, delta) {
+      px_style = parseInt(px_style.replace('px', ''));
+      px_style += delta;
+      return px_style + 'px';
+    }
     interact('.item_draggable').draggable({
       onmove: e => {
         const index = parseInt(e.target.getAttribute('item-index'));
         this.list[index].x = this.list[index].x + e.dx;
         this.list[index].y = this.list[index].y + e.dy;
+        e.target.style.left = move_style(e.target.style.left, e.dx);
+        e.target.style.top = move_style(e.target.style.top, e.dy);
+      },
+      onend: e => {
+        // for 1000 by 1000 this takes ~2sec to run
+        // hence we only call it on drag end, and 'fake it' when moving
         this._collection.recomputeCellSizesAndPositions();
       }
-      // ,onend: e => {}
     });
   }
 
