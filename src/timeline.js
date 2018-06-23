@@ -4,54 +4,57 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {CellMeasurer, CellMeasurerCache, Grid, AutoSizer} from 'react-virtualized';
 
+import moment from 'moment';
 import interact from 'interactjs';
+import _ from 'lodash';
+
+import {getItemMarginClass} from 'utils/itemUtils';
 
 import './style.css';
 
-const ITEM_COUNT = [5000, 200]; //Rows, Cols
 const ITEM_HEIGHT = 40;
 const ITEM_WIDTH = 150;
 
-const DISTRIBUTION = 80 / 100;
-
-const cache = new CellMeasurerCache({
-  defaultWidth: 100,
-  minWidth: 75,
-  fixedHeight: true
-});
+const RESOLUTION = moment.duration(15, 'minutes');
+const VISIBLE_START = moment('2000-01-01');
 
 export default class Timeline extends Component {
   static propTypes = {
-    items: PropTypes.arrayOf(PropTypes.object)
+    items: PropTypes.arrayOf(PropTypes.object).isRequired
   };
-  static defaultProps = {
-    items: []
-  };
+  static defaultProps = {};
 
   constructor(props) {
     super(props);
     this.state = {};
-
-    const colors = ['lightblue', 'red', 'green', 'yellow', 'orange', 'pink'];
+    this.setTimeMap(this.props.items);
 
     this.cellRenderer = this.cellRenderer.bind(this);
     this.cellSizeAndPositionGetter = this.cellSizeAndPositionGetter.bind(this);
-    this.list = [];
-    for (let i = 0; i < ITEM_COUNT[0]; i++) {
-      this.list[i] = [];
-      for (let j = 0; j < ITEM_COUNT[1]; j++) {
-        if (Math.random() < DISTRIBUTION) {
-          const color = colors[Math.floor(Math.random() * colors.length)];
-          this.list[i][j] = {
-            name: `Roster item ${i}-${j}`,
-            color
-          };
-        }
-      }
-    }
+    this.setTimeMap = this.setTimeMap.bind(this);
     // this.setUpDragging();
   }
 
+  componentWillReceiveProps(nextProps) {
+    this.setTimeMap(nextProps.items);
+  }
+
+  setTimeMap(items) {
+    this.itemGridMap = {}; // timeline elements (key) => grid coordinates (row, col).
+    this.gridItemMap = []; // grid coordinates (row, col) => timeline elements (key)
+    items.forEach(i => {
+      const row = i.row;
+      const col_start = Math.floor(i.start.diff(VISIBLE_START, 'minutes') / 15);
+      const col_end = Math.floor(i.end.diff(VISIBLE_START, 'minutes') / 15);
+      for (let col = col_start; col < col_end; col++) {
+        if (this.itemGridMap[i.key] === undefined) this.itemGridMap[i.key] = [];
+        this.itemGridMap[i.key].push([row, col]);
+        if (this.gridItemMap[row] === undefined) this.gridItemMap[row] = [];
+        if (this.gridItemMap[row][col] === undefined) this.gridItemMap[row][col] = [];
+        this.gridItemMap[row][col].push(i);
+      }
+    });
+  }
   // setUpDragging() {
   //   interact('.item_draggable').draggable({
   //     onmove: e => {
@@ -65,15 +68,20 @@ export default class Timeline extends Component {
   // }
 
   cellRenderer({columnIndex, key, parent, rowIndex, style}) {
-    const item = this.list[columnIndex][rowIndex];
-    if (item)
-      return (
-        <div key={key} style={style} className="rct9k-items-outer item_draggable">
-          <div className="rct9k-items-inner" style={{backgroundColor: item.color}}>
-            {item.name}
+    const items = this.gridItemMap[rowIndex] === undefined ? undefined : this.gridItemMap[rowIndex][columnIndex];
+    if (items)
+      if (items[0]) {
+        //only support 1 item per row atm
+        let itemInCols = _.map(this.itemGridMap[items[0].key], a => a[1]); // all the column indexes the item is in
+        const className = getItemMarginClass(itemInCols, columnIndex);
+        return (
+          <div key={key} style={style} className="rct9k-items-outer item_draggable">
+            <div className={className} style={{backgroundColor: items[0].color}}>
+              {items[0].title}
+            </div>
           </div>
-        </div>
-      );
+        );
+      }
     return <div style={style} key={key} />;
   }
 
@@ -95,10 +103,10 @@ export default class Timeline extends Component {
           {({height, width}) => (
             <Grid
               cellRenderer={this.cellRenderer}
-              columnCount={ITEM_COUNT[0]}
+              columnCount={1000}
               columnWidth={ITEM_WIDTH}
               height={height}
-              rowCount={ITEM_COUNT[1]}
+              rowCount={100}
               rowHeight={ITEM_HEIGHT}
               width={width}
             />
