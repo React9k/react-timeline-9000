@@ -2,16 +2,23 @@
 
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {Collection, AutoSizer} from 'react-virtualized';
+import {CellMeasurer, CellMeasurerCache, Grid, AutoSizer} from 'react-virtualized';
+
 import interact from 'interactjs';
 
 import './style.css';
 
-const ITEM_COUNT = [500, 20]; //Rows, Cols
+const ITEM_COUNT = [5000, 200]; //Rows, Cols
 const ITEM_HEIGHT = 40;
 const ITEM_WIDTH = 150;
 
 const DISTRIBUTION = 80 / 100;
+
+const cache = new CellMeasurerCache({
+  defaultWidth: 100,
+  minWidth: 75,
+  fixedHeight: true
+});
 
 export default class Timeline extends Component {
   static propTypes = {
@@ -31,45 +38,43 @@ export default class Timeline extends Component {
     this.cellSizeAndPositionGetter = this.cellSizeAndPositionGetter.bind(this);
     this.list = [];
     for (let i = 0; i < ITEM_COUNT[0]; i++) {
+      this.list[i] = [];
       for (let j = 0; j < ITEM_COUNT[1]; j++) {
         if (Math.random() < DISTRIBUTION) {
           const color = colors[Math.floor(Math.random() * colors.length)];
-          this.list.push({
+          this.list[i][j] = {
             name: `Roster item ${i}-${j}`,
-            x: 13 + ITEM_WIDTH * j,
-            y: 34 + ITEM_HEIGHT * i,
-            width: ITEM_WIDTH,
-            height: ITEM_HEIGHT,
             color
-          });
+          };
         }
       }
     }
-    this.setUpDragging();
+    // this.setUpDragging();
   }
 
-  setUpDragging() {
-    interact('.item_draggable').draggable({
-      onmove: e => {
-        const index = parseInt(e.target.getAttribute('item-index'));
-        this.list[index].x = this.list[index].x + e.dx;
-        this.list[index].y = this.list[index].y + e.dy;
-        this._collection.recomputeCellSizesAndPositions();
-      }
-      // ,onend: e => {}
-    });
-  }
+  // setUpDragging() {
+  //   interact('.item_draggable').draggable({
+  //     onmove: e => {
+  //       const index = parseInt(e.target.getAttribute('item-index'));
+  //       this.list[index].x = this.list[index].x + e.dx;
+  //       this.list[index].y = this.list[index].y + e.dy;
+  //       this._collection.recomputeCellSizesAndPositions();
+  //     }
+  //     // ,onend: e => {}
+  //   });
+  // }
 
-  cellRenderer({index, key, style}) {
-    const item = this.list[index];
-    const {color} = item;
-    return (
-      <div item-index={index} key={key} style={style} className="rct9k-items-outer item_draggable">
-        <div className="rct9k-items-inner" style={{backgroundColor: color}}>
-          {item.name}
+  cellRenderer({columnIndex, key, parent, rowIndex, style}) {
+    const item = this.list[columnIndex][rowIndex];
+    if (item)
+      return (
+        <div key={key} style={style} className="rct9k-items-outer item_draggable">
+          <div className="rct9k-items-inner" style={{backgroundColor: item.color}}>
+            {item.name}
+          </div>
         </div>
-      </div>
-    );
+      );
+    return <div style={style} key={key} />;
   }
 
   cellSizeAndPositionGetter({index}) {
@@ -88,12 +93,13 @@ export default class Timeline extends Component {
       <div className="rct9k-timeline-div">
         <AutoSizer>
           {({height, width}) => (
-            <Collection
-              ref={ref => (this._collection = ref)}
-              cellCount={this.list.length}
+            <Grid
               cellRenderer={this.cellRenderer}
-              cellSizeAndPositionGetter={this.cellSizeAndPositionGetter}
+              columnCount={ITEM_COUNT[0]}
+              columnWidth={ITEM_WIDTH}
               height={height}
+              rowCount={ITEM_COUNT[1]}
+              rowHeight={ITEM_HEIGHT}
               width={width}
             />
           )}
