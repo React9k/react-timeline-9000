@@ -10,15 +10,5 @@
 | Test | `$ make test`|
 | Run dev server | `$ make run`|
 
-## Props
-### Items
-```javascript
-items = [
-    {
-        text: <STRING>
-        start: <MOMENT>
-        end: <MOMENT>
-        row: <INT>
-    }
-]
-```
+## Demo
+* http://bhp-react-timeline-9k.s3-website-ap-southeast-2.amazonaws.com/
