@@ -23,6 +23,7 @@ jobs:
       local-dir: dist
       acl: public_read
       skip_cleanup: true
+      region: ap-southeast-2
       on:
         repo: lilfolr/react-timeline-9000
         branch: master
