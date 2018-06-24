@@ -15,14 +15,13 @@ jobs:
       script: make
       deploy:
         provider: s3
-        access_key_id:
-          secure: VRgVxl3wfN36Zd8CVhEbEeT0jXBGg9Fsr1jNybAIf/raioLBOSTYrR2fLx/ic8XfW39oYm3E48+TI8nfCbqT3rMQZmLP6whI9cj7izKZr2IgcIymKpgzMbW1wFgbSsycRLjWmdtlIuWmkkodJi3hYRLppniPMNV6nPhgkO+OdWlYSRLv3rbVjnvf21sKEith9jrqMTL9XSciNidziuv+w3mR/7hvAB1LPAEdmrYHX7PVuCaXv/X+dfC/RVgK+PCbNlskKT3FsulnygD7ZTkYxLqhgTlzFnTxBOAZakvmZ0UqkowpI3ses9p7+AgTTRpfYPRyPXDuSGcr/G1+WAV9wA5Zk6BJElqPberp3VWYANxJXISuwMp3nYkIAOrUAZKdwe8SXptZOkB+8/IRyWW6qUmI4fz0/FwMviCx2OsWeNSXtdcClBZuQZ4HxKOOSv6IoC4FHsJj6va8PqJXjf9zUxupd6UsodY8JS5ikXIvbCp4dLqSqu6rmaBbyRQV3g/g8nE4fF5859EMiYPZF6Wdpz+E9473XIf4qGj516qvnYNwXgs+tnoQvL+Ch3/6uqnnM/Ve8FVl+UEHneuBwoKQAoKaf8MdV7iDPDecfmFjM6JD6cPYwaOj9yg8mbrpQZScxlmb8tyGVaGcISdT0CF407nGyh8EnZ7HG45UvNnN73U=
-        secret_access_key:
-          secure: K4SHiOiD4yybAuS35oiAhZa+h69YPmVPt8Qm7qGG0nDaWZENAeAonqBSRiC86J4Y6Jw3O1nYdV8UgpNmwv8ylf18sb25qAZI33H0KxQxxd07b9JtSLJPkZRBnkaRsDGZZZCZwIylBVeL2Etb5wSlYFbIK/KLjEDdCaEQO3ErNC//pt6S4AfmXMeQdobeyJH3/xy8ESumaxizKn0sWpChSe93HfXv3eJ6zGsoUOXYByQIKI9JQJmP76b8YxYWcSzpik3LfPlphQopefPU4RG8SlzhqxDT7noCyc8vmhBMoaYtyxuueSdXCD/beoj+EmeUaLIzg4E4hY8411CWGOFtgHrQLiv8l6aASdOpFILTMLY2P8cCQqVBc00OV66OKG3jgV72T+nDhan9JsoyyFl97arCue0xSW7cNSTou+NP38pNbp4VHuPp2NA0Efa75QruGCqGQD3t8JadzLa7js/kHZxZuOZZkc3SwmhaoqGVFMqh945VeJVa4k6/Xfj8QCHmdX7m+4Ak4j3l29O8Oh++He/EzGCRg1nrAQwTwSNLZn6mPARl87I7exvm1fh3IgZNUSh5u70DLr8X/7hnMOyDlAD8CLawSBT3vOQs4nHaUufwVUVSWAQqIP2QsM8pbfW7wLhr0z3E04LhHO1DroVLvEUHKmazKu0YuGLGpDBu0E4=
+        access_key_id: $AWS_KEY
+        secret_access_key: $AWS_AWS_SECREY
         bucket: bhp-react-timeline-9k
         local-dir: dist
         acl: public_read
         skip_cleanup: true
+        region: ap-southeast-2
         on:
           repo: lilfolr/react-timeline-9000
           branch: master
