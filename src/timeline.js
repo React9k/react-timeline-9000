@@ -66,14 +66,15 @@ export default class Timeline extends Component {
         e.target.style.top = sumStyle(curTop, e.dy);
       },
       onend: e => {
-        e.target.style['z-index'] = 1;
         const index = e.target.getAttribute('item-index');
         const rowNo = this.itemRowMap[index];
         const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == index);
         const item = this.rowItemMap[rowNo][itemIndex];
         // Change row (TODO)
         let offset = e.target.style.top;
+        console.log('From ' + rowNo);
         let newRow = getNearestRowHeight(rowNo, ITEM_HEIGHT, pixToInt(offset));
+        console.log('From ' + newRow);
         this.changeGroup(item, rowNo, newRow);
         // Update time
         let itemDuration = item.end.diff(item.start);
@@ -86,6 +87,9 @@ export default class Timeline extends Component {
         let newEnd = newStart.clone().add(itemDuration);
         item.start = newStart;
         item.end = newEnd;
+        //reset styles
+        e.target.style['z-index'] = 1;
+        e.target.style['top'] = '0px';
         this._grid.forceUpdate();
       }
     });
