@@ -4,7 +4,7 @@ node_js:
 stages:
   - test
   - name: deploy
-    if: branch = master
+    if: (NOT type IN (pull_request)) AND (branch = master)
 install:
 - make install
 jobs:
