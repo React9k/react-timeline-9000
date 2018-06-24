@@ -2,76 +2,118 @@
 
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {Collection, AutoSizer} from 'react-virtualized';
+import {Grid, AutoSizer} from 'react-virtualized';
+
+import moment from 'moment';
+import interact from 'interactjs';
+import _ from 'lodash';
+
+import {sumStyle, pixToInt} from 'utils/common';
+import {rowItemsRenderer, getTimeAtPixel, getDurationFromPixels} from 'utils/itemUtils';
 
 import './style.css';
 
-const ITEM_COUNT = [1000, 1000];
 const ITEM_HEIGHT = 40;
-const ITEM_WIDTH = 150;
 
-const DISTRIBUTION = 80 / 100;
+const VISIBLE_START = moment('2000-01-01');
+const VISIBLE_END = VISIBLE_START.clone().add(1, 'days');
 
 export default class Timeline extends Component {
-  static propTypes = {};
+  static propTypes = {
+    items: PropTypes.arrayOf(PropTypes.object).isRequired,
+    groups: PropTypes.arrayOf(PropTypes.number).isRequired
+  };
   static defaultProps = {};
 
   constructor(props) {
     super(props);
     this.state = {};
+    this.setTimeMap(this.props.items);
 
-    const colors = ['lightblue', 'red', 'green', 'yellow', 'orange', 'pink'];
+    this.rowRenderer = this.rowRenderer.bind(this);
+    this.setTimeMap = this.setTimeMap.bind(this);
+    this.setUpDragging();
+  }
 
-    this.cellRenderer = this.cellRenderer.bind(this);
-    this.cellSizeAndPositionGetter = this.cellSizeAndPositionGetter.bind(this);
-    this.list = [];
-    for (let i = 0; i < ITEM_COUNT[0]; i++) {
-      for (let j = 0; j < ITEM_COUNT[1]; j++) {
-        if (Math.random() < DISTRIBUTION) {
-          const color = colors[Math.floor(Math.random() * colors.length)];
-          this.list.push({
-            name: `Roster item ${i}-${j}`,
-            x: 13 + ITEM_WIDTH * j,
-            y: 34 + ITEM_HEIGHT * i,
-            width: ITEM_WIDTH,
-            height: ITEM_HEIGHT,
-            color
-          });
-        }
+  componentWillReceiveProps(nextProps) {
+    this.setTimeMap(nextProps.items);
+  }
+
+  setTimeMap(items) {
+    this.itemRowMap = {}; // timeline elements (key) => (rowNo).
+    this.rowItemMap = {}; // (rowNo) => timeline elements
+    items.forEach(i => {
+      this.itemRowMap[i.key] = i.row;
+      if (this.rowItemMap[i.row] === undefined) this.rowItemMap[i.row] = [];
+      this.rowItemMap[i.row].push(i);
+    });
+  }
+  setUpDragging() {
+    interact('.item_draggable').draggable({
+      onstart: e => {
+        e.target.style['z-index'] = 2;
+      },
+      onmove: e => {
+        e.target.style.left = sumStyle(e.target.style.left, e.dx);
+        e.target.style.top = sumStyle(e.target.style.top, e.dy);
+      },
+      onend: e => {
+        e.target.style['z-index'] = 1;
+        const index = e.target.getAttribute('item-index');
+        const rowNo = this.itemRowMap[index];
+        const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == index);
+        const item = this.rowItemMap[rowNo][itemIndex];
+        // Change row (TODO)
+        // Update time
+        let itemDuration = item.end.diff(item.start);
+        let newStart = getTimeAtPixel(
+          pixToInt(e.target.style.left),
+          VISIBLE_START,
+          VISIBLE_END,
+          this._grid.props.width
+        );
+        let newEnd = newStart.clone().add(itemDuration);
+        item.start = newStart;
+        item.end = newEnd;
+        this._grid.forceUpdate();
       }
-    }
+    });
   }
-
-  cellRenderer({index, key, style}) {
-    const {color} = this.list[index];
-    return (
-      <div key={key} style={style}>
-        <div style={{padding: '3px', margin: '3px', backgroundColor: color}}>{this.list[index].name}</div>
-      </div>
-    );
-  }
-
-  cellSizeAndPositionGetter({index}) {
-    const datum = this.list[index];
-
-    return {
-      height: datum.height,
-      width: datum.width,
-      x: datum.x,
-      y: datum.y
+  /**
+   * @param  {} width container width (in px)
+   */
+  rowRenderer(width) {
+    /**
+     * @param  {} columnIndex Always 1
+     * @param  {} key Unique key within array of cells
+     * @param  {} parent Reference to the parent Grid (instance)
+     * @param  {} rowIndex Vertical (row) index of cell
+     * @param  {} style Style object to be applied to cell (to position it);
+     */
+    return ({columnIndex, key, parent, rowIndex, style}) => {
+      let itemsInRow = this.rowItemMap[rowIndex];
+      return (
+        <div key={key} style={style} className="rct9k-row">
+          {rowItemsRenderer(itemsInRow, VISIBLE_START, VISIBLE_END, width)}
+        </div>
+      );
     };
   }
 
   render() {
     return (
-      <div className="rct-timeline-div">
+      <div className="rct9k-timeline-div">
         <AutoSizer>
           {({height, width}) => (
-            <Collection
-              cellCount={this.list.length}
-              cellRenderer={this.cellRenderer}
-              cellSizeAndPositionGetter={this.cellSizeAndPositionGetter}
+            <Grid
+              ref={ref => (this._grid = ref)}
+              autoContainerWidth
+              cellRenderer={this.rowRenderer(width)}
+              columnCount={1}
+              columnWidth={width}
               height={height}
+              rowCount={this.props.groups.length}
+              rowHeight={ITEM_HEIGHT}
               width={width}
             />
           )}

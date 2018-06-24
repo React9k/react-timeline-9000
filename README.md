@@ -10,3 +10,15 @@
 | Test | `$ make test`|
 | Run dev server | `$ make run`|
 
+## Props
+### Items
+```javascript
+items = [
+    {
+        text: <STRING>
+        start: <MOMENT>
+        end: <MOMENT>
+        row: <INT>
+    }
+]
+```

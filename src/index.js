@@ -3,6 +3,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import Timeline from 'timeline';
+import DemoTimeline from 'demo';
 
-ReactDOM.render(<Timeline />, document.getElementById('root'));
+ReactDOM.render(<DemoTimeline />, document.getElementById('root'));
