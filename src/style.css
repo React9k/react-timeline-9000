@@ -5,14 +5,18 @@
 }
 
 /* Timeline items */
+
 .rct9k-items-inner {
   padding: 3px;
-  margin-top: 3px;
-  margin-bottom: 3px;
+  margin: 3px;
+  white-space: nowrap;
+  display: inline-block;
+  overflow: hidden;
 }
-.rct9k-items-inner-left {
-  margin-left: 3px;
+.rct9k-row {
+  white-space: nowrap;
 }
-.rct9k-items-inner-right {
-  margin-right: 3px;
+
+.ReactVirtualized__Grid {
+  overflow-x: hidden;
 }

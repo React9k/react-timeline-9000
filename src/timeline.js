@@ -2,25 +2,25 @@
 
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {CellMeasurer, CellMeasurerCache, Grid, AutoSizer} from 'react-virtualized';
+import {List, CellMeasurerCache, Grid, AutoSizer} from 'react-virtualized';
 
 import moment from 'moment';
 import interact from 'interactjs';
 import _ from 'lodash';
 
-import {getItemMarginClass} from 'utils/itemUtils';
+import {rowItemsRenderer} from 'utils/itemUtils';
 
 import './style.css';
 
 const ITEM_HEIGHT = 40;
-const ITEM_WIDTH = 150;
 
-const RESOLUTION = moment.duration(15, 'minutes');
 const VISIBLE_START = moment('2000-01-01');
+const VISIBLE_END = VISIBLE_START.clone().add(1, 'days');
 
 export default class Timeline extends Component {
   static propTypes = {
-    items: PropTypes.arrayOf(PropTypes.object).isRequired
+    items: PropTypes.arrayOf(PropTypes.object).isRequired,
+    groups: PropTypes.arrayOf(PropTypes.number).isRequired
   };
   static defaultProps = {};
 
@@ -29,8 +29,7 @@ export default class Timeline extends Component {
     this.state = {};
     this.setTimeMap(this.props.items);
 
-    this.cellRenderer = this.cellRenderer.bind(this);
-    this.cellSizeAndPositionGetter = this.cellSizeAndPositionGetter.bind(this);
+    this.rowRenderer = this.rowRenderer.bind(this);
     this.setTimeMap = this.setTimeMap.bind(this);
     // this.setUpDragging();
   }
@@ -40,19 +39,12 @@ export default class Timeline extends Component {
   }
 
   setTimeMap(items) {
-    this.itemGridMap = {}; // timeline elements (key) => grid coordinates (row, col).
-    this.gridItemMap = []; // grid coordinates (row, col) => timeline elements (key)
+    this.itemRowMap = {}; // timeline elements (key) => (rowNo).
+    this.rowItemMap = {}; // (rowNo) => timeline elements
     items.forEach(i => {
-      const row = i.row;
-      const col_start = Math.floor(i.start.diff(VISIBLE_START, 'minutes') / 15);
-      const col_end = Math.floor(i.end.diff(VISIBLE_START, 'minutes') / 15);
-      for (let col = col_start; col < col_end; col++) {
-        if (this.itemGridMap[i.key] === undefined) this.itemGridMap[i.key] = [];
-        this.itemGridMap[i.key].push([row, col]);
-        if (this.gridItemMap[row] === undefined) this.gridItemMap[row] = [];
-        if (this.gridItemMap[row][col] === undefined) this.gridItemMap[row][col] = [];
-        this.gridItemMap[row][col].push(i);
-      }
+      this.itemRowMap[i.key] = i.row;
+      if (this.rowItemMap[i.row] === undefined) this.rowItemMap[i.row] = [];
+      this.rowItemMap[i.row].push(i);
     });
   }
   // setUpDragging() {
@@ -66,33 +58,24 @@ export default class Timeline extends Component {
   //     // ,onend: e => {}
   //   });
   // }
-
-  cellRenderer({columnIndex, key, parent, rowIndex, style}) {
-    const items = this.gridItemMap[rowIndex] === undefined ? undefined : this.gridItemMap[rowIndex][columnIndex];
-    if (items)
-      if (items[0]) {
-        //only support 1 item per row atm
-        let itemInCols = _.map(this.itemGridMap[items[0].key], a => a[1]); // all the column indexes the item is in
-        const className = getItemMarginClass(itemInCols, columnIndex);
-        return (
-          <div key={key} style={style} className="rct9k-items-outer item_draggable">
-            <div className={className} style={{backgroundColor: items[0].color}}>
-              {items[0].title}
-            </div>
-          </div>
-        );
-      }
-    return <div style={style} key={key} />;
-  }
-
-  cellSizeAndPositionGetter({index}) {
-    const {height, width, x, y} = this.list[index];
-
-    return {
-      height,
-      width,
-      x,
-      y
+  /**
+   * @param  {} width container width (in px)
+   */
+  rowRenderer(width) {
+    /**
+     * @param  {} columnIndex Always 1
+     * @param  {} key Unique key within array of cells
+     * @param  {} parent Reference to the parent Grid (instance)
+     * @param  {} rowIndex Vertical (row) index of cell
+     * @param  {} style Style object to be applied to cell (to position it);
+     */
+    return ({columnIndex, key, parent, rowIndex, style}) => {
+      let itemsInRow = this.rowItemMap[rowIndex];
+      return (
+        <div key={key} style={style} className="rct9k-row">
+          {rowItemsRenderer(itemsInRow, VISIBLE_START, VISIBLE_END, width)}
+        </div>
+      );
     };
   }
 
@@ -102,11 +85,12 @@ export default class Timeline extends Component {
         <AutoSizer>
           {({height, width}) => (
             <Grid
-              cellRenderer={this.cellRenderer}
-              columnCount={1000}
-              columnWidth={ITEM_WIDTH}
+              autoContainerWidth
+              cellRenderer={this.rowRenderer(width)}
+              columnCount={1}
+              columnWidth={width}
               height={height}
-              rowCount={100}
+              rowCount={this.props.groups.length}
               rowHeight={ITEM_HEIGHT}
               width={width}
             />

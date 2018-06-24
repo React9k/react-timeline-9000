@@ -5,7 +5,7 @@ import moment from 'moment';
 
 import Timeline from './timeline';
 
-const ROWS = 100;
+const ROWS = 1000;
 const ITEMS_PER_ROW = 100;
 const ITEM_DURATIONS = [
   moment.duration(15, 'minutes'),
@@ -22,8 +22,10 @@ export default class DemoTimeline extends Component {
     this.state = {};
 
     this.list = [];
+    this.groups = [];
     for (let i = 0; i < ROWS; i++) {
       let last_moment = moment('2000-01-01');
+      this.groups.push(i);
       for (let j = 0; j < ITEMS_PER_ROW; j++) {
         const color = COLORS[(i + j) % COLORS.length];
         const duration = ITEM_DURATIONS[Math.floor(Math.random() * ITEM_DURATIONS.length)];
@@ -44,6 +46,7 @@ export default class DemoTimeline extends Component {
 
   render() {
     const items = this.list;
-    return <Timeline items={items} />;
+    const groups = this.groups;
+    return <Timeline items={items} groups={groups} />;
   }
 }
