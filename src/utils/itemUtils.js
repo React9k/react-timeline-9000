@@ -37,6 +37,17 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width) {
   });
 }
 /**
+ * Gets the new row number after vertical dragging
+ * @param  {number} currentRow the current row number of the item
+ * @param  {number} ITEM_HEIGHT the height of a row, in pixels
+ * @param  {number} offset the offset from dragging, in pixels
+ * @returns {number} the new row
+ */
+export function getNearestRowHeight(currentRow, ITEM_HEIGHT, offset) {
+  let rowChange = offset / ITEM_HEIGHT;
+  return currentRow + Math.round(rowChange);
+}
+/**
  * Get the time at a pixel location
  * @param  {number} pixel_location the pixel location (generally from left css style)
  * @param  {moment} vis_start The visible start of the timeline

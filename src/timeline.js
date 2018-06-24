@@ -9,7 +9,7 @@ import interact from 'interactjs';
 import _ from 'lodash';
 
 import {sumStyle, pixToInt} from 'utils/common';
-import {rowItemsRenderer, getTimeAtPixel, getDurationFromPixels} from 'utils/itemUtils';
+import {rowItemsRenderer, getTimeAtPixel, getNearestRowHeight} from 'utils/itemUtils';
 
 import './style.css';
 
@@ -32,6 +32,7 @@ export default class Timeline extends Component {
 
     this.rowRenderer = this.rowRenderer.bind(this);
     this.setTimeMap = this.setTimeMap.bind(this);
+    this.changeGroup = this.changeGroup.bind(this);
     this.setUpDragging();
   }
 
@@ -48,6 +49,12 @@ export default class Timeline extends Component {
       this.rowItemMap[i.row].push(i);
     });
   }
+  changeGroup(item, curRow, newRow) {
+    item.row = newRow;
+    this.itemRowMap[item.key] = newRow;
+    this.rowItemMap[curRow] = this.rowItemMap[curRow].filter(i => i.key !== item.key);
+    this.rowItemMap[newRow].push(item);
+  }
   setUpDragging() {
     interact('.item_draggable').draggable({
       onstart: e => {
@@ -55,7 +62,8 @@ export default class Timeline extends Component {
       },
       onmove: e => {
         e.target.style.left = sumStyle(e.target.style.left, e.dx);
-        e.target.style.top = sumStyle(e.target.style.top, e.dy);
+        let curTop = e.target.style.top ? e.target.style.top : '0px';
+        e.target.style.top = sumStyle(curTop, e.dy);
       },
       onend: e => {
         e.target.style['z-index'] = 1;
@@ -64,6 +72,9 @@ export default class Timeline extends Component {
         const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == index);
         const item = this.rowItemMap[rowNo][itemIndex];
         // Change row (TODO)
+        let offset = e.target.style.top;
+        let newRow = getNearestRowHeight(rowNo, ITEM_HEIGHT, pixToInt(offset));
+        this.changeGroup(item, rowNo, newRow);
         // Update time
         let itemDuration = item.end.diff(item.start);
         let newStart = getTimeAtPixel(

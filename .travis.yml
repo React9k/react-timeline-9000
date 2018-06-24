@@ -2,32 +2,30 @@ language: node_js
 node_js:
 - '8'
 stages:
-  - test
-  - name: deploy
-    if: (NOT type IN (pull_request)) AND (branch = master)
+- test
+- name: deploy
+  if: "(NOT type IN (pull_request)) AND (branch = master)"
 install:
 - make install
 jobs:
   include:
-    - stage: test
-      script: make test
-    - stage: deploy
-      script: make
-      deploy:
-        provider: s3
-        access_key_id:
-          secure: VRgVxl3wfN36Zd8CVhEbEeT0jXBGg9Fsr1jNybAIf/raioLBOSTYrR2fLx/ic8XfW39oYm3E48+TI8nfCbqT3rMQZmLP6whI9cj7izKZr2IgcIymKpgzMbW1wFgbSsycRLjWmdtlIuWmkkodJi3hYRLppniPMNV6nPhgkO+OdWlYSRLv3rbVjnvf21sKEith9jrqMTL9XSciNidziuv+w3mR/7hvAB1LPAEdmrYHX7PVuCaXv/X+dfC/RVgK+PCbNlskKT3FsulnygD7ZTkYxLqhgTlzFnTxBOAZakvmZ0UqkowpI3ses9p7+AgTTRpfYPRyPXDuSGcr/G1+WAV9wA5Zk6BJElqPberp3VWYANxJXISuwMp3nYkIAOrUAZKdwe8SXptZOkB+8/IRyWW6qUmI4fz0/FwMviCx2OsWeNSXtdcClBZuQZ4HxKOOSv6IoC4FHsJj6va8PqJXjf9zUxupd6UsodY8JS5ikXIvbCp4dLqSqu6rmaBbyRQV3g/g8nE4fF5859EMiYPZF6Wdpz+E9473XIf4qGj516qvnYNwXgs+tnoQvL+Ch3/6uqnnM/Ve8FVl+UEHneuBwoKQAoKaf8MdV7iDPDecfmFjM6JD6cPYwaOj9yg8mbrpQZScxlmb8tyGVaGcISdT0CF407nGyh8EnZ7HG45UvNnN73U=
-        secret_access_key:
-          secure: K4SHiOiD4yybAuS35oiAhZa+h69YPmVPt8Qm7qGG0nDaWZENAeAonqBSRiC86J4Y6Jw3O1nYdV8UgpNmwv8ylf18sb25qAZI33H0KxQxxd07b9JtSLJPkZRBnkaRsDGZZZCZwIylBVeL2Etb5wSlYFbIK/KLjEDdCaEQO3ErNC//pt6S4AfmXMeQdobeyJH3/xy8ESumaxizKn0sWpChSe93HfXv3eJ6zGsoUOXYByQIKI9JQJmP76b8YxYWcSzpik3LfPlphQopefPU4RG8SlzhqxDT7noCyc8vmhBMoaYtyxuueSdXCD/beoj+EmeUaLIzg4E4hY8411CWGOFtgHrQLiv8l6aASdOpFILTMLY2P8cCQqVBc00OV66OKG3jgV72T+nDhan9JsoyyFl97arCue0xSW7cNSTou+NP38pNbp4VHuPp2NA0Efa75QruGCqGQD3t8JadzLa7js/kHZxZuOZZkc3SwmhaoqGVFMqh945VeJVa4k6/Xfj8QCHmdX7m+4Ak4j3l29O8Oh++He/EzGCRg1nrAQwTwSNLZn6mPARl87I7exvm1fh3IgZNUSh5u70DLr8X/7hnMOyDlAD8CLawSBT3vOQs4nHaUufwVUVSWAQqIP2QsM8pbfW7wLhr0z3E04LhHO1DroVLvEUHKmazKu0YuGLGpDBu0E4=
-        bucket: bhp-react-timeline-9k
-        local-dir: dist
-        acl: public_read
-        skip_cleanup: true
-        on:
-          repo: lilfolr/react-timeline-9000
-          branch: master
-
-
+  - stage: test
+    script: make test
+  - stage: deploy
+    script: make
+    deploy:
+      provider: s3
+      access_key_id:
+        secure: rtOXg64h10Yy5EjarsuLYFvkdQWTdEQNwXLas65I6LM+XaVCFgCVcqQ1DC90DUrGGGAH04BF8MSLKsbHLRBkl48Zo3c2N5OfZS944ahJSrgFJSR9QO7GnVEx/OG2wrEx6pck+AFTcirfb29rBZ1a6kszG3hMqVDlyFfTuL/C3FokCEEbxhEVFWhSUAIAOxRY263b3tW2xTdP/LEZWAmoskZ/HmfuknNQ85waQkrgnsqaxfYgUkFzxSu06Za02SF2OGBmvtmchX2IEL1jqrQ4bcAjh74XWCRisaMHFRpwLZnFlSx1Q5CtGfHtDcXckVWsBds/B2Ip0yrwMCDiYjlKnaQkoOcWOi7ChyiOZDE/fgyejxbe9P7mElwDJwEhISRxncUZuez5kIbYSzDGXe0LbdeeTesnaTCOeIBZ53zKMBDHisZx4fsvbggJXky99O/LYLWfgnzXwNF1wSWUirSg5Bm/gQXPZ2yq2SCOAKl0ZrhqgwPOQTA8y5ZIiuzr8gOIvCbhObF3DOYBtSUTy0SL/NYxyxb+lZBJkuXpreKz3Iwf/gxJw29yr5bJsct/H4jTqqZW2fO6lFusXLxeeLZz6LAPOZdTowpo/WN2E88TxVILx9ziMuMHDvvx4woWc9ZMjE526cN94YyA0BUv4m66MBHBZYQzRUb1XlKRpx9SEf8=
+      secret_access_key:
+        secure: m+KyoT7iZHk3YkFKcHjcHHTCm9OlVxcupdoq8m70fSTcdOMA6QvKMLGkAFei9f4da58vMDkqeK6Fcvcl17RxTdjoj29oKdL626QA5d61Ky8J12DYGfLNCMOfHhxUJmdSyCExDZVvoLC3WJwwBeYLR2Pxeefn2MJrzC30vIyfKRGycPTbesBXmF1I1qQkznxWghuq9XPDSG8yhqY/oD9vYX2Scc2Y7L91SGtQfZehq8flwmqtXdddwJ1DYljBmBS0xCaGSStPee3x5QycSQYDgJqri4LZ3WUd+xZj0VuZvIFO5x7OqV6vNOByMPssMDuTRqHTKMM9l9uQMQ1qLW7fv//XiGxZGdcHNd7Ulr+jVl9g6UIxSLCujPLHOpYp+RmHT+rmS7d7W2LDy/oF28gBlDGAzTwRd7Q0QNhxcFSXUTV3HjYbW/EX+EkXqK4UeeLn7x4j5LbAHzX1rsGx8Ct21n2ycdzv3Vb4NA8AHBmU8440k0BVFupoced8bV6om9rNZ1xf4wj6uRiojQqSL9lXbcBaJcHNTZYZ+y0AlCgudRBA+JkrjJEw8Te8GXrMMx/QBeN3IQAVk8HDrQvhg0/wziTZrS90ldEFnZ5Bkgy9F0IZOHSkHhWx7PXXNOdePkiXu3G0GoaMZu34mDHXFf6DQ61VduMonaiB8Rz0YDN4XNA=
+      bucket: bhp-react-timeline-9k
+      local-dir: dist
+      acl: public_read
+      skip_cleanup: true
+      on:
+        repo: lilfolr/react-timeline-9000
+        branch: master
 cache:
   yarn: true
   directories:
