@@ -2,13 +2,14 @@
 
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {List, CellMeasurerCache, Grid, AutoSizer} from 'react-virtualized';
+import {Grid, AutoSizer} from 'react-virtualized';
 
 import moment from 'moment';
 import interact from 'interactjs';
 import _ from 'lodash';
 
-import {rowItemsRenderer} from 'utils/itemUtils';
+import {sumStyle, pixToInt} from 'utils/common';
+import {rowItemsRenderer, getTimeAtPixel, getDurationFromPixels} from 'utils/itemUtils';
 
 import './style.css';
 
@@ -31,7 +32,7 @@ export default class Timeline extends Component {
 
     this.rowRenderer = this.rowRenderer.bind(this);
     this.setTimeMap = this.setTimeMap.bind(this);
-    // this.setUpDragging();
+    this.setUpDragging();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -47,17 +48,37 @@ export default class Timeline extends Component {
       this.rowItemMap[i.row].push(i);
     });
   }
-  // setUpDragging() {
-  //   interact('.item_draggable').draggable({
-  //     onmove: e => {
-  //       const index = parseInt(e.target.getAttribute('item-index'));
-  //       this.list[index].x = this.list[index].x + e.dx;
-  //       this.list[index].y = this.list[index].y + e.dy;
-  //       this._collection.recomputeCellSizesAndPositions();
-  //     }
-  //     // ,onend: e => {}
-  //   });
-  // }
+  setUpDragging() {
+    interact('.item_draggable').draggable({
+      onstart: e => {
+        e.target.style['z-index'] = 2;
+      },
+      onmove: e => {
+        e.target.style.left = sumStyle(e.target.style.left, e.dx);
+        e.target.style.top = sumStyle(e.target.style.top, e.dy);
+      },
+      onend: e => {
+        e.target.style['z-index'] = 1;
+        const index = e.target.getAttribute('item-index');
+        const rowNo = this.itemRowMap[index];
+        const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == index);
+        const item = this.rowItemMap[rowNo][itemIndex];
+        // Change row (TODO)
+        // Update time
+        let itemDuration = item.end.diff(item.start);
+        let newStart = getTimeAtPixel(
+          pixToInt(e.target.style.left),
+          VISIBLE_START,
+          VISIBLE_END,
+          this._grid.props.width
+        );
+        let newEnd = newStart.clone().add(itemDuration);
+        item.start = newStart;
+        item.end = newEnd;
+        this._grid.forceUpdate();
+      }
+    });
+  }
   /**
    * @param  {} width container width (in px)
    */
@@ -85,6 +106,7 @@ export default class Timeline extends Component {
         <AutoSizer>
           {({height, width}) => (
             <Grid
+              ref={ref => (this._grid = ref)}
               autoContainerWidth
               cellRenderer={this.rowRenderer(width)}
               columnCount={1}

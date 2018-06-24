@@ -14,6 +14,12 @@ const ITEM_DURATIONS = [
   moment.duration(3, 'hours'),
   moment.duration(30, 'minutes')
 ];
+const SPACE_DURATIONS = [
+  moment.duration(0, 'minutes'),
+  moment.duration(1, 'hours'),
+  moment.duration(3, 'hours'),
+  moment.duration(30, 'minutes')
+];
 const COLORS = ['lightblue', 'red', 'green', 'yellow', 'orange', 'pink'];
 
 export default class DemoTimeline extends Component {
@@ -31,7 +37,7 @@ export default class DemoTimeline extends Component {
         const duration = ITEM_DURATIONS[Math.floor(Math.random() * ITEM_DURATIONS.length)];
         let start = last_moment;
         let end = start.clone().add(duration);
-        last_moment = end.clone();
+        last_moment = end.clone().add(SPACE_DURATIONS[Math.floor(Math.random() * SPACE_DURATIONS.length)]);
         this.list.push({
           key: `${i}${j}`,
           title: duration.humanize(),
