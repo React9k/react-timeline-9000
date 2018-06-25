@@ -10,6 +10,7 @@ import _ from 'lodash';
 
 import {sumStyle, pixToInt} from 'utils/common';
 import {rowItemsRenderer, getTimeAtPixel, getNearestRowHeight} from 'utils/itemUtils';
+import {groupRenderer} from 'utils/groupUtils';
 
 import './style.css';
 
@@ -21,9 +22,12 @@ const VISIBLE_END = VISIBLE_START.clone().add(1, 'days');
 export default class Timeline extends Component {
   static propTypes = {
     items: PropTypes.arrayOf(PropTypes.object).isRequired,
-    groups: PropTypes.arrayOf(PropTypes.number).isRequired
+    groups: PropTypes.arrayOf(PropTypes.object).isRequired,
+    renderGroups: PropTypes.bool
   };
-  static defaultProps = {};
+  static defaultProps = {
+    renderGroups: true
+  };
 
   constructor(props) {
     super(props);
@@ -106,16 +110,41 @@ export default class Timeline extends Component {
      * @param  {} style Style object to be applied to cell (to position it);
      */
     return ({columnIndex, key, parent, rowIndex, style}) => {
-      let itemsInRow = this.rowItemMap[rowIndex];
-      return (
-        <div key={key} style={style} className="rct9k-row">
-          {rowItemsRenderer(itemsInRow, VISIBLE_START, VISIBLE_END, width)}
-        </div>
-      );
+      let itemCol = this.props.renderGroups ? 1 : 0;
+      if (itemCol == columnIndex) {
+        let itemsInRow = this.rowItemMap[rowIndex];
+        return (
+          <div key={key} style={style} className="rct9k-row">
+            {rowItemsRenderer(itemsInRow, VISIBLE_START, VISIBLE_END, width)}
+          </div>
+        );
+      } else {
+        let group = _.find(this.props.groups, g => g.id == rowIndex);
+        return (
+          <div key={key} style={style} className="rct9k-group">
+            {groupRenderer(group)}
+          </div>
+        );
+      }
     };
   }
 
   render() {
+    const {renderGroups} = this.props;
+    const columnCount = renderGroups ? 2 : 1;
+
+    function columnWidth(width) {
+      return ({index}) => {
+        if (columnCount == 1) return width;
+        if (columnCount == 2) {
+          let groupWidth = 100;
+
+          if (index == 0) return groupWidth;
+          return width - groupWidth;
+        }
+      };
+    }
+
     return (
       <div className="rct9k-timeline-div">
         <AutoSizer>
@@ -124,8 +153,8 @@ export default class Timeline extends Component {
               ref={ref => (this._grid = ref)}
               autoContainerWidth
               cellRenderer={this.rowRenderer(width)}
-              columnCount={1}
-              columnWidth={width}
+              columnCount={columnCount}
+              columnWidth={columnWidth(width)}
               height={height}
               rowCount={this.props.groups.length}
               rowHeight={ITEM_HEIGHT}

@@ -20,9 +20,30 @@
   z-index: 1;
 }
 .rct9k-row {
-  white-space: nowrap;
+  /* white-space: nowrap; */
+  box-sizing: border-box;
+  border: 1px solid black;
+  border-top: 0px;
+  /* Must be the same as .rct9k-group > border-width */
+  /* margin-left: 1px */
+}
+.rct9k-row:nth-child(2) {
+  border-top: 1px solid black;
 }
 
 .ReactVirtualized__Grid {
   overflow-x: hidden;
+}
+
+/* Timeline groups */
+.rct9k-group {
+  text-align: center;
+  box-sizing: border-box;
+  border: 1px solid black;
+  border-top: 0px;
+  background-color: white;
+}
+
+.rct9k-group:first-child {
+  border-top: 1px solid black;
 }

@@ -31,7 +31,7 @@ export default class DemoTimeline extends Component {
     this.groups = [];
     for (let i = 0; i < ROWS; i++) {
       let last_moment = moment('2000-01-01');
-      this.groups.push(i);
+      this.groups.push({id: i, title: `Row ${i}`});
       for (let j = 0; j < ITEMS_PER_ROW; j++) {
         const color = COLORS[(i + j) % COLORS.length];
         const duration = ITEM_DURATIONS[Math.floor(Math.random() * ITEM_DURATIONS.length)];
