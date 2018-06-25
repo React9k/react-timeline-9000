@@ -23,7 +23,7 @@
   /* white-space: nowrap; */
   box-sizing: border-box;
   border: 1px solid black;
-  border-top: 0px;
+  border-top: 0;
   /* Must be the same as .rct9k-group > border-width */
   /* margin-left: 1px */
 }
@@ -40,7 +40,7 @@
   text-align: center;
   box-sizing: border-box;
   border: 1px solid black;
-  border-top: 0px;
+  border-top: 0;
   background-color: white;
 }
 
