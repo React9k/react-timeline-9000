@@ -50,7 +50,7 @@ export default class Timeline extends Component {
     this.rowItemMap = {}; // (rowNo) => timeline elements
     this.rowHeightCache = {}; // (rowNo) => max number of stacked items
     let itemRows = _.groupBy(items, 'row');
-    _.forEach(itemRows, (row, items) => {
+    _.forEach(itemRows, (items, row) => {
       if (this.rowItemMap[row] === undefined) this.rowItemMap[row] = [];
       _.forEach(items, item => {
         this.itemRowMap[item.key] = row;

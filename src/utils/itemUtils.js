@@ -75,6 +75,14 @@ export function getDurationFromPixels(pixels, vis_start, vis_end, total_width) {
  */
 export function getMaxOverlappingItems(items) {
   let max = 1;
-
-  return 1;
+  _.forEach(items, i => {
+    let intersects = 1;
+    _.forEach(items, ii => {
+      if (i.key !== ii.key) {
+        if (i.start < ii.end && i.end > ii.start) intersects++;
+      }
+    });
+    max = Math.max(max, intersects);
+  });
+  return max;
 }

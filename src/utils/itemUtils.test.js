@@ -17,16 +17,20 @@ describe('getMaxOverlappingItems', function() {
         title: '1',
         color: 'blue',
         row: 1,
-        start: moment('2000-01-01'),
-        end: moment('2000-01-01').add(1, 'days')
+        start: moment('2000-01-01').startOf('day'),
+        end: moment('2000-01-01')
+          .startOf('day')
+          .add(1, 'days')
       },
       {
         key: '2',
         title: '2',
         color: 'blue',
         row: 1,
-        start: moment('2000-01-03'),
-        end: moment('2000-01-03').add(1, 'days')
+        start: moment('2000-01-03').startOf('day'),
+        end: moment('2000-01-03')
+          .startOf('day')
+          .add(1, 'days')
       }
     ];
     const result = getMaxOverlappingItems(items);
@@ -84,8 +88,8 @@ describe('getMaxOverlappingItems', function() {
           .add(1, 'days')
       },
       {
-        key: '2',
-        title: '2',
+        key: '3',
+        title: '3',
         color: 'blue',
         row: 1,
         start: moment('2000-01-01').add(2, 'hours'),
@@ -121,8 +125,8 @@ describe('getMaxOverlappingItems', function() {
           .add(1, 'days')
       },
       {
-        key: '2',
-        title: '2',
+        key: '3',
+        title: '3',
         color: 'blue',
         row: 1,
         start: moment('2000-01-01')
