@@ -68,3 +68,13 @@ export function getDurationFromPixels(pixels, vis_start, vis_end, total_width) {
   let mins = pixels_per_min * pixels;
   return moment.duration(mins, 'minutes');
 }
+/**
+ * Use to find the height of a row, given a set of items
+ * @param  {} items list it items
+ * @returns {number} max row height
+ */
+export function getMaxOverlappingItems(items) {
+  let max = 1;
+
+  return 1;
+}

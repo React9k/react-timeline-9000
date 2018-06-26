@@ -9,7 +9,7 @@ import interact from 'interactjs';
 import _ from 'lodash';
 
 import {sumStyle, pixToInt} from 'utils/common';
-import {rowItemsRenderer, getTimeAtPixel, getNearestRowHeight} from 'utils/itemUtils';
+import {rowItemsRenderer, getTimeAtPixel, getNearestRowHeight, getMaxOverlappingItems} from 'utils/itemUtils';
 import {groupRenderer} from 'utils/groupUtils';
 
 import './style.css';
@@ -48,10 +48,15 @@ export default class Timeline extends Component {
   setTimeMap(items) {
     this.itemRowMap = {}; // timeline elements (key) => (rowNo).
     this.rowItemMap = {}; // (rowNo) => timeline elements
-    items.forEach(i => {
-      this.itemRowMap[i.key] = i.row;
-      if (this.rowItemMap[i.row] === undefined) this.rowItemMap[i.row] = [];
-      this.rowItemMap[i.row].push(i);
+    this.rowHeightCache = {}; // (rowNo) => max number of stacked items
+    let itemRows = _.groupBy(items, 'row');
+    _.forEach(itemRows, (row, items) => {
+      if (this.rowItemMap[row] === undefined) this.rowItemMap[row] = [];
+      _.forEach(items, item => {
+        this.itemRowMap[item.key] = row;
+        this.rowItemMap[row].push(item);
+      });
+      this.rowHeightCache[row] = getMaxOverlappingItems(items, VISIBLE_START, VISIBLE_END);
     });
   }
   changeGroup(item, curRow, newRow) {
