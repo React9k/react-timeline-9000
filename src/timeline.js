@@ -37,6 +37,7 @@ export default class Timeline extends Component {
     this.rowRenderer = this.rowRenderer.bind(this);
     this.setTimeMap = this.setTimeMap.bind(this);
     this.changeGroup = this.changeGroup.bind(this);
+    this._itemRowClickHandler = this._itemRowClickHandler.bind(this);
     this.setUpDragging();
   }
 
@@ -98,6 +99,15 @@ export default class Timeline extends Component {
       }
     });
   }
+  _itemRowClickHandler(e) {
+    if (e.target.hasAttribute('item-index') || e.target.parentElement.hasAttribute('item-index')) {
+      console.log('Clicking item');
+    } else {
+      let row = e.target.getAttribute('row-index');
+      let clickedTime = getTimeAtPixel(e.clientX, VISIBLE_START, VISIBLE_END, this._grid.props.width);
+      console.log('Clicking row ' + row + ' at ' + clickedTime.format());
+    }
+  }
   /**
    * @param  {} width container width (in px)
    */
@@ -114,7 +124,7 @@ export default class Timeline extends Component {
       if (itemCol == columnIndex) {
         let itemsInRow = this.rowItemMap[rowIndex];
         return (
-          <div key={key} style={style} className="rct9k-row">
+          <div key={key} style={style} className="rct9k-row" onClick={this._itemRowClickHandler}>
             {rowItemsRenderer(itemsInRow, VISIBLE_START, VISIBLE_END, width)}
           </div>
         );
