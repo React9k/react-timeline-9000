@@ -9,7 +9,7 @@ import moment from 'moment';
  * @param  {moment} vis_end The visible end of the timeline
  * @param  {number} total_width pixel width of the timeline
  */
-export function rowItemsRenderer(items, vis_start, vis_end, total_width) {
+export function rowItemsRenderer(items, vis_start, vis_end, total_width, ITEM_HEIGHT) {
   const start_end_min = vis_end.diff(vis_start, 'minutes');
   const pixels_per_min = total_width / start_end_min;
 
@@ -17,7 +17,20 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width) {
     // if end not before window && start not after window
     return !i.end.isBefore(vis_start) && !i.start.isAfter(vis_end);
   });
-  return _.map(filtered_items, i => {
+  _.forEach(filtered_items, i => {
+    let offsetCount = 0;
+    if (i.rowOffset === undefined) {
+      i['rowOffset'] = offsetCount;
+      _.forEach(filtered_items, ii => {
+        if (ii.rowOffset === undefined && i.start < ii.end && i.end > ii.start) {
+          ii['rowOffset'] = ++offsetCount;
+        }
+      });
+    }
+  });
+  return _.map(_.sortBy(filtered_items, 'start'), i => {
+    let top = ITEM_HEIGHT * i['rowOffset'];
+    i['rowOffset'] = undefined;
     let item_offset_mins = i.start.diff(vis_start, 'minutes');
     let item_duration_mins = i.end.diff(i.start, 'minutes');
     let left = Math.round(item_offset_mins * pixels_per_min);
@@ -46,18 +59,28 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width) {
  */
 export function getNearestRowHeight(currentRow, ITEM_HEIGHT, offset, rowHeights) {
   let rowChange = 0;
-  let offsetLeft = offset;
-  if (offsetLeft > 0) {
-    while (offsetLeft > 0 + ITEM_HEIGHT / 2) {
-      offsetLeft -= ITEM_HEIGHT * rowHeights[currentRow + rowChange];
+  let offsetRemaining = offset;
+  // Moving down
+  if (offsetRemaining > ITEM_HEIGHT / 2) {
+    let keepGoing = true;
+    do {
       rowChange++;
-    }
-  } else {
-    while (offsetLeft < 0 - ITEM_HEIGHT / 2) {
-      offsetLeft += ITEM_HEIGHT * rowHeights[currentRow + rowChange];
-      rowChange--;
-    }
+      let nextUpperRowBoundaryOffset = ITEM_HEIGHT * rowHeights[currentRow + rowChange];
+      offsetRemaining -= nextUpperRowBoundaryOffset;
+      keepGoing = offsetRemaining > ITEM_HEIGHT / 2;
+    } while (keepGoing);
   }
+  // Moving up
+  else if (offsetRemaining < -(ITEM_HEIGHT / 2)) {
+    let keepGoing = true;
+    do {
+      rowChange--;
+      let nextLowerRowBoundaryOffset = ITEM_HEIGHT * rowHeights[currentRow + rowChange];
+      offsetRemaining += nextLowerRowBoundaryOffset;
+      keepGoing = offsetRemaining < -(ITEM_HEIGHT / 2);
+    } while (keepGoing);
+  }
+  console.log(offsetRemaining);
   return currentRow + rowChange;
 }
 /**

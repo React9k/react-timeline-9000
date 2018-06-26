@@ -82,6 +82,7 @@ export default class Timeline extends Component {
         const rowNo = this.itemRowMap[index];
         const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == index);
         const item = this.rowItemMap[rowNo][itemIndex];
+        if (item === undefined) debugger;
         // Change row (TODO)
         let offset = e.target.style.top;
         console.log('From ' + rowNo);
@@ -104,12 +105,16 @@ export default class Timeline extends Component {
         e.target.style['top'] = '0px';
         // Check row height doesn't need changing
         let need_recompute = false;
+        console.log('Overlap item: ', this.rowItemMap[newRow]);
         let new_to_row_height = getMaxOverlappingItems(this.rowItemMap[newRow], VISIBLE_START, VISIBLE_END);
+        console.log(` > Overlap for row ${newRow}=${new_to_row_height}`);
         if (new_to_row_height !== this.rowHeightCache[newRow]) {
           this.rowHeightCache[newRow] = new_to_row_height;
           need_recompute = true;
         }
+        console.log('Overlap item: ', this.rowItemMap[newRow]);
         let new_from_row_height = getMaxOverlappingItems(this.rowItemMap[rowNo], VISIBLE_START, VISIBLE_END);
+        console.log(` > Overlap for row ${rowNo}=${new_from_row_height}`);
         if (new_from_row_height !== this.rowHeightCache[rowNo]) {
           this.rowHeightCache[rowNo] = new_from_row_height;
           need_recompute = true;
@@ -121,11 +126,11 @@ export default class Timeline extends Component {
   }
   _itemRowClickHandler(e) {
     if (e.target.hasAttribute('item-index') || e.target.parentElement.hasAttribute('item-index')) {
-      console.log('Clicking item');
+      // console.log('Clicking item');
     } else {
       let row = e.target.getAttribute('row-index');
       let clickedTime = getTimeAtPixel(e.clientX, VISIBLE_START, VISIBLE_END, this._grid.props.width);
-      console.log('Clicking row ' + row + ' at ' + clickedTime.format());
+      // console.log('Clicking row ' + row + ' at ' + clickedTime.format());
     }
   }
   /**
@@ -145,7 +150,7 @@ export default class Timeline extends Component {
         let itemsInRow = this.rowItemMap[rowIndex];
         return (
           <div key={key} style={style} className="rct9k-row" onClick={this._itemRowClickHandler}>
-            {rowItemsRenderer(itemsInRow, VISIBLE_START, VISIBLE_END, width)}
+            {rowItemsRenderer(itemsInRow, VISIBLE_START, VISIBLE_END, width, ITEM_HEIGHT)}
           </div>
         );
       } else {
