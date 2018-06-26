@@ -41,11 +41,24 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width) {
  * @param  {number} currentRow the current row number of the item
  * @param  {number} ITEM_HEIGHT the height of a row, in pixels
  * @param  {number} offset the offset from dragging, in pixels
+ * @param  {number} rowHeights list of row heights (number of items)
  * @returns {number} the new row
  */
-export function getNearestRowHeight(currentRow, ITEM_HEIGHT, offset) {
-  let rowChange = offset / ITEM_HEIGHT;
-  return currentRow + Math.round(rowChange);
+export function getNearestRowHeight(currentRow, ITEM_HEIGHT, offset, rowHeights) {
+  let rowChange = 0;
+  let offsetLeft = offset;
+  if (offsetLeft > 0) {
+    while (offsetLeft > 0 + ITEM_HEIGHT / 2) {
+      offsetLeft -= ITEM_HEIGHT * rowHeights[currentRow + rowChange];
+      rowChange++;
+    }
+  } else {
+    while (offsetLeft < 0 - ITEM_HEIGHT / 2) {
+      offsetLeft += ITEM_HEIGHT * rowHeights[currentRow + rowChange];
+      rowChange--;
+    }
+  }
+  return currentRow + rowChange;
 }
 /**
  * Get the time at a pixel location

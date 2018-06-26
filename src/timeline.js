@@ -34,7 +34,8 @@ export default class Timeline extends Component {
     this.state = {};
     this.setTimeMap(this.props.items);
 
-    this.rowRenderer = this.rowRenderer.bind(this);
+    this.cellRenderer = this.cellRenderer.bind(this);
+    this.rowHeight = this.rowHeight.bind(this);
     this.setTimeMap = this.setTimeMap.bind(this);
     this.changeGroup = this.changeGroup.bind(this);
     this._itemRowClickHandler = this._itemRowClickHandler.bind(this);
@@ -51,12 +52,13 @@ export default class Timeline extends Component {
     this.rowHeightCache = {}; // (rowNo) => max number of stacked items
     let itemRows = _.groupBy(items, 'row');
     _.forEach(itemRows, (items, row) => {
-      if (this.rowItemMap[row] === undefined) this.rowItemMap[row] = [];
+      const rowInt = parseInt(row);
+      if (this.rowItemMap[rowInt] === undefined) this.rowItemMap[rowInt] = [];
       _.forEach(items, item => {
-        this.itemRowMap[item.key] = row;
-        this.rowItemMap[row].push(item);
+        this.itemRowMap[item.key] = rowInt;
+        this.rowItemMap[rowInt].push(item);
       });
-      this.rowHeightCache[row] = getMaxOverlappingItems(items, VISIBLE_START, VISIBLE_END);
+      this.rowHeightCache[rowInt] = getMaxOverlappingItems(items, VISIBLE_START, VISIBLE_END);
     });
   }
   changeGroup(item, curRow, newRow) {
@@ -83,8 +85,8 @@ export default class Timeline extends Component {
         // Change row (TODO)
         let offset = e.target.style.top;
         console.log('From ' + rowNo);
-        let newRow = getNearestRowHeight(rowNo, ITEM_HEIGHT, pixToInt(offset));
-        console.log('From ' + newRow);
+        let newRow = getNearestRowHeight(rowNo, ITEM_HEIGHT, pixToInt(offset), this.rowHeightCache);
+        console.log('To ' + newRow);
         this.changeGroup(item, rowNo, newRow);
         // Update time
         let itemDuration = item.end.diff(item.start);
@@ -100,7 +102,20 @@ export default class Timeline extends Component {
         //reset styles
         e.target.style['z-index'] = 1;
         e.target.style['top'] = '0px';
-        this._grid.forceUpdate();
+        // Check row height doesn't need changing
+        let need_recompute = false;
+        let new_to_row_height = getMaxOverlappingItems(this.rowItemMap[newRow], VISIBLE_START, VISIBLE_END);
+        if (new_to_row_height !== this.rowHeightCache[newRow]) {
+          this.rowHeightCache[newRow] = new_to_row_height;
+          need_recompute = true;
+        }
+        let new_from_row_height = getMaxOverlappingItems(this.rowItemMap[rowNo], VISIBLE_START, VISIBLE_END);
+        if (new_from_row_height !== this.rowHeightCache[rowNo]) {
+          this.rowHeightCache[rowNo] = new_from_row_height;
+          need_recompute = true;
+        }
+        if (need_recompute) this._grid.recomputeGridSize({rowIndex: Math.min(newRow, rowNo)});
+        else this._grid.forceUpdate();
       }
     });
   }
@@ -116,7 +131,7 @@ export default class Timeline extends Component {
   /**
    * @param  {} width container width (in px)
    */
-  rowRenderer(width) {
+  cellRenderer(width) {
     /**
      * @param  {} columnIndex Always 1
      * @param  {} key Unique key within array of cells
@@ -144,6 +159,10 @@ export default class Timeline extends Component {
     };
   }
 
+  rowHeight({index}) {
+    return this.rowHeightCache[index] * ITEM_HEIGHT;
+  }
+
   render() {
     const {renderGroups} = this.props;
     const columnCount = renderGroups ? 2 : 1;
@@ -167,12 +186,12 @@ export default class Timeline extends Component {
             <Grid
               ref={ref => (this._grid = ref)}
               autoContainerWidth
-              cellRenderer={this.rowRenderer(width)}
+              cellRenderer={this.cellRenderer(width)}
               columnCount={columnCount}
               columnWidth={columnWidth(width)}
               height={height}
               rowCount={this.props.groups.length}
-              rowHeight={ITEM_HEIGHT}
+              rowHeight={this.rowHeight}
               width={width}
             />
           )}
