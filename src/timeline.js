@@ -8,7 +8,7 @@ import moment from 'moment';
 import interact from 'interactjs';
 import _ from 'lodash';
 
-import {sumStyle, pixToInt} from 'utils/common';
+import {sumStyle, pixToInt, intToPix} from 'utils/common';
 import {rowItemsRenderer, getTimeAtPixel, getNearestRowHeight, getMaxOverlappingItems} from 'utils/itemUtils';
 import {groupRenderer} from 'utils/groupUtils';
 
@@ -102,7 +102,8 @@ export default class Timeline extends Component {
         item.end = newEnd;
         //reset styles
         e.target.style['z-index'] = 1;
-        e.target.style['top'] = '0px';
+        e.target.style['top'] = intToPix(ITEM_HEIGHT * Math.round(pixToInt(e.target.style['top']) / ITEM_HEIGHT));
+        // e.target.style['top'] = '0px';
         // Check row height doesn't need changing
         let need_recompute = false;
         let new_to_row_height = getMaxOverlappingItems(this.rowItemMap[newRow], VISIBLE_START, VISIBLE_END);
