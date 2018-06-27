@@ -9,10 +9,10 @@ const ROWS = 1000;
 const ITEMS_PER_ROW = 100;
 const ITEM_DURATIONS = [
   moment.duration(15, 'minutes'),
+  moment.duration(30, 'minutes'),
   moment.duration(1, 'hours'),
   moment.duration(2, 'hours'),
-  moment.duration(3, 'hours'),
-  moment.duration(30, 'minutes')
+  moment.duration(3, 'hours')
 ];
 const SPACE_DURATIONS = [
   moment.duration(0, 'minutes'),

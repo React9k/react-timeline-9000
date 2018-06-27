@@ -26,7 +26,7 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, ITEM_HE
     let lastEnd = null;
     for (let i = filtered_items.length - 1; i >= 0; i--) {
       console.log('Last end = ' + (lastEnd !== null ? lastEnd.format() : 'Null'));
-      if (lastEnd === null || filtered_items[i].start > lastEnd) {
+      if (lastEnd === null || filtered_items[i].start >= lastEnd) {
         console.log('Add');
         console.log('  > start = ' + filtered_items[i].start.format());
         console.log('  > row = ' + rowOffset);
@@ -107,7 +107,7 @@ export function getMaxOverlappingItems(items) {
   while (sorted_items.length > 0) {
     let lastEnd = null;
     for (let i = sorted_items.length - 1; i >= 0; i--) {
-      if (lastEnd === null || sorted_items[i].start > lastEnd) {
+      if (lastEnd === null || sorted_items[i].start >= lastEnd) {
         lastEnd = sorted_items[i].end;
         sorted_items.splice(i, 1);
       }

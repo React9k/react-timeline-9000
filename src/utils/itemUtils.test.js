@@ -64,6 +64,32 @@ describe('getMaxOverlappingItems', function() {
     expect(result).to.equal(2);
   });
   // Diagram
+  //  |-----|-----|
+  it('should return 1 when 2 items touch', () => {
+    let items = [
+      {
+        key: '1',
+        title: '1',
+        color: 'blue',
+        row: 1,
+        start: moment('2000-01-01'),
+        end: moment('2000-01-01').add(1, 'days')
+      },
+      {
+        key: '2',
+        title: '2',
+        color: 'blue',
+        row: 1,
+        start: moment('2000-01-01').add(1, 'days'),
+        end: moment('2000-01-01')
+          .add(1, 'days')
+          .add(1, 'hours')
+      }
+    ];
+    const result = getMaxOverlappingItems(items);
+    expect(result).to.equal(1);
+  });
+  // Diagram
   //  |-----|
   //    |------|
   //       |------|
