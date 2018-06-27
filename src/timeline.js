@@ -8,8 +8,8 @@ import moment from 'moment';
 import interact from 'interactjs';
 import _ from 'lodash';
 
-import {sumStyle, pixToInt} from 'utils/common';
-import {rowItemsRenderer, getTimeAtPixel, getNearestRowHeight} from 'utils/itemUtils';
+import {sumStyle, pixToInt, intToPix} from 'utils/common';
+import {rowItemsRenderer, getTimeAtPixel, getNearestRowHeight, getMaxOverlappingItems} from 'utils/itemUtils';
 import {groupRenderer} from 'utils/groupUtils';
 
 import './style.css';
@@ -34,7 +34,8 @@ export default class Timeline extends Component {
     this.state = {};
     this.setTimeMap(this.props.items);
 
-    this.rowRenderer = this.rowRenderer.bind(this);
+    this.cellRenderer = this.cellRenderer.bind(this);
+    this.rowHeight = this.rowHeight.bind(this);
     this.setTimeMap = this.setTimeMap.bind(this);
     this.changeGroup = this.changeGroup.bind(this);
     this._itemRowClickHandler = this._itemRowClickHandler.bind(this);
@@ -48,10 +49,19 @@ export default class Timeline extends Component {
   setTimeMap(items) {
     this.itemRowMap = {}; // timeline elements (key) => (rowNo).
     this.rowItemMap = {}; // (rowNo) => timeline elements
-    items.forEach(i => {
-      this.itemRowMap[i.key] = i.row;
-      if (this.rowItemMap[i.row] === undefined) this.rowItemMap[i.row] = [];
-      this.rowItemMap[i.row].push(i);
+    this.rowHeightCache = {}; // (rowNo) => max number of stacked items
+    let visibleItems = _.filter(items, i => {
+      return i.end > VISIBLE_START && i.start < VISIBLE_END;
+    });
+    let itemRows = _.groupBy(visibleItems, 'row');
+    _.forEach(itemRows, (visibleItems, row) => {
+      const rowInt = parseInt(row);
+      if (this.rowItemMap[rowInt] === undefined) this.rowItemMap[rowInt] = [];
+      _.forEach(visibleItems, item => {
+        this.itemRowMap[item.key] = rowInt;
+        this.rowItemMap[rowInt].push(item);
+      });
+      this.rowHeightCache[rowInt] = getMaxOverlappingItems(visibleItems);
     });
   }
   changeGroup(item, curRow, newRow) {
@@ -75,11 +85,12 @@ export default class Timeline extends Component {
         const rowNo = this.itemRowMap[index];
         const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == index);
         const item = this.rowItemMap[rowNo][itemIndex];
+        if (item === undefined) debugger;
         // Change row (TODO)
         let offset = e.target.style.top;
         console.log('From ' + rowNo);
-        let newRow = getNearestRowHeight(rowNo, ITEM_HEIGHT, pixToInt(offset));
-        console.log('From ' + newRow);
+        let newRow = getNearestRowHeight(e.clientX, e.clientY);
+        console.log('To ' + newRow);
         this.changeGroup(item, rowNo, newRow);
         // Update time
         let itemDuration = item.end.diff(item.start);
@@ -94,24 +105,38 @@ export default class Timeline extends Component {
         item.end = newEnd;
         //reset styles
         e.target.style['z-index'] = 1;
-        e.target.style['top'] = '0px';
-        this._grid.forceUpdate();
+        e.target.style['top'] = intToPix(ITEM_HEIGHT * Math.round(pixToInt(e.target.style['top']) / ITEM_HEIGHT));
+        // e.target.style['top'] = '0px';
+        // Check row height doesn't need changing
+        let need_recompute = false;
+        let new_to_row_height = getMaxOverlappingItems(this.rowItemMap[newRow], VISIBLE_START, VISIBLE_END);
+        if (new_to_row_height !== this.rowHeightCache[newRow]) {
+          this.rowHeightCache[newRow] = new_to_row_height;
+          need_recompute = true;
+        }
+        let new_from_row_height = getMaxOverlappingItems(this.rowItemMap[rowNo], VISIBLE_START, VISIBLE_END);
+        if (new_from_row_height !== this.rowHeightCache[rowNo]) {
+          this.rowHeightCache[rowNo] = new_from_row_height;
+          need_recompute = true;
+        }
+        if (need_recompute) this._grid.recomputeGridSize({rowIndex: Math.min(newRow, rowNo)});
+        else this._grid.forceUpdate();
       }
     });
   }
   _itemRowClickHandler(e) {
     if (e.target.hasAttribute('item-index') || e.target.parentElement.hasAttribute('item-index')) {
-      console.log('Clicking item');
+      // console.log('Clicking item');
     } else {
       let row = e.target.getAttribute('row-index');
       let clickedTime = getTimeAtPixel(e.clientX, VISIBLE_START, VISIBLE_END, this._grid.props.width);
-      console.log('Clicking row ' + row + ' at ' + clickedTime.format());
+      // console.log('Clicking row ' + row + ' at ' + clickedTime.format());
     }
   }
   /**
    * @param  {} width container width (in px)
    */
-  rowRenderer(width) {
+  cellRenderer(width) {
     /**
      * @param  {} columnIndex Always 1
      * @param  {} key Unique key within array of cells
@@ -124,8 +149,8 @@ export default class Timeline extends Component {
       if (itemCol == columnIndex) {
         let itemsInRow = this.rowItemMap[rowIndex];
         return (
-          <div key={key} style={style} className="rct9k-row" onClick={this._itemRowClickHandler}>
-            {rowItemsRenderer(itemsInRow, VISIBLE_START, VISIBLE_END, width)}
+          <div key={key} style={style} row-index={rowIndex} className="rct9k-row" onClick={this._itemRowClickHandler}>
+            {rowItemsRenderer(itemsInRow, VISIBLE_START, VISIBLE_END, width, ITEM_HEIGHT)}
           </div>
         );
       } else {
@@ -137,6 +162,10 @@ export default class Timeline extends Component {
         );
       }
     };
+  }
+
+  rowHeight({index}) {
+    return this.rowHeightCache[index] * ITEM_HEIGHT;
   }
 
   render() {
@@ -162,12 +191,12 @@ export default class Timeline extends Component {
             <Grid
               ref={ref => (this._grid = ref)}
               autoContainerWidth
-              cellRenderer={this.rowRenderer(width)}
+              cellRenderer={this.cellRenderer(width)}
               columnCount={columnCount}
               columnWidth={columnWidth(width)}
               height={height}
               rowCount={this.props.groups.length}
-              rowHeight={ITEM_HEIGHT}
+              rowHeight={this.rowHeight}
               width={width}
             />
           )}
