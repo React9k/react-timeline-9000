@@ -5,20 +5,20 @@ import moment from 'moment';
 
 import Timeline from './timeline';
 
-const ROWS = 2;
-const ITEMS_PER_ROW = 2;
+const ROWS = 1000;
+const ITEMS_PER_ROW = 100;
 const ITEM_DURATIONS = [
-  // moment.duration(15, 'minutes'),
-  // moment.duration(1, 'hours'),
-  moment.duration(2, 'hours')
-  // moment.duration(3, 'hours'),
-  // moment.duration(30, 'minutes')
+  moment.duration(15, 'minutes'),
+  moment.duration(1, 'hours'),
+  moment.duration(2, 'hours'),
+  moment.duration(3, 'hours'),
+  moment.duration(30, 'minutes')
 ];
 const SPACE_DURATIONS = [
-  // moment.duration(0, 'minutes'),
-  moment.duration(1, 'hours')
-  // moment.duration(3, 'hours'),
-  // moment.duration(30, 'minutes')
+  moment.duration(0, 'minutes'),
+  moment.duration(1, 'hours'),
+  moment.duration(3, 'hours'),
+  moment.duration(30, 'minutes')
 ];
 const COLORS = ['lightblue', 'red', 'green', 'yellow', 'orange', 'pink'];
 
