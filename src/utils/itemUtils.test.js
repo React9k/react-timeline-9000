@@ -136,6 +136,6 @@ describe('getMaxOverlappingItems', function() {
       }
     ];
     const result = getMaxOverlappingItems(items);
-    expect(result).to.equal(3);
+    expect(result).to.equal(2);
   });
 });

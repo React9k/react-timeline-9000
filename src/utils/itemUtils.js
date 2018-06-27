@@ -114,5 +114,5 @@ export function getMaxOverlappingItems(items) {
     }
     max++;
   }
-  return max;
+  return Math.max(max, 1);
 }
