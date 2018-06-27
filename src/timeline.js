@@ -12,6 +12,7 @@ import {sumStyle, pixToInt, intToPix} from 'utils/common';
 import {rowItemsRenderer, getTimeAtPixel, getNearestRowHeight, getMaxOverlappingItems} from 'utils/itemUtils';
 import {groupRenderer} from 'utils/groupUtils';
 
+import Timebar from 'components/timebar';
 import './style.css';
 
 const ITEM_HEIGHT = 40;
@@ -188,17 +189,20 @@ export default class Timeline extends Component {
       <div className="rct9k-timeline-div">
         <AutoSizer>
           {({height, width}) => (
-            <Grid
-              ref={ref => (this._grid = ref)}
-              autoContainerWidth
-              cellRenderer={this.cellRenderer(width)}
-              columnCount={columnCount}
-              columnWidth={columnWidth(width)}
-              height={height}
-              rowCount={this.props.groups.length}
-              rowHeight={this.rowHeight}
-              width={width}
-            />
+            <div>
+              <Timebar start={VISIBLE_START} end={VISIBLE_END} width={width} leftOffset={100} />
+              <Grid
+                ref={ref => (this._grid = ref)}
+                autoContainerWidth
+                cellRenderer={this.cellRenderer(width)}
+                columnCount={columnCount}
+                columnWidth={columnWidth(width)}
+                height={height}
+                rowCount={this.props.groups.length}
+                rowHeight={this.rowHeight}
+                width={width}
+              />
+            </div>
           )}
         </AutoSizer>
       </div>

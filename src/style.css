@@ -5,7 +5,6 @@
 }
 
 /* Timeline items */
-
 .rct9k-items-outer {
   white-space: nowrap;
   position: absolute;
@@ -24,8 +23,6 @@
   box-sizing: border-box;
   border: 1px solid black;
   border-top: 0;
-  /* Must be the same as .rct9k-group > border-width */
-  /* margin-left: 1px */
 }
 .rct9k-row:nth-child(2) {
   border-top: 1px solid black;
@@ -46,4 +43,18 @@
 
 .rct9k-group:first-child {
   border-top: 1px solid black;
+}
+
+/* Timeline top timebar */
+.rct9k-timebar-outer {
+  height: 60px;
+  background-color: white;
+  border: 1px solid black;
+  box-sizing: border-box;
+}
+.rct9k-timebar-inner-top {
+  height: 30px;
+}
+.rct9k-timebar-inner-bottom {
+  height: 30px;
 }

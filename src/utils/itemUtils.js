@@ -12,7 +12,7 @@ import moment from 'moment';
 export function rowItemsRenderer(items, vis_start, vis_end, total_width, ITEM_HEIGHT) {
   const start_end_min = vis_end.diff(vis_start, 'minutes');
   const pixels_per_min = total_width / start_end_min;
-  console.group('New row');
+  //console.group('New row');
   let filtered_items = _.sortBy(
     _.filter(items, i => {
       // if end not before window && start not after window
@@ -27,9 +27,9 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, ITEM_HE
     for (let i = filtered_items.length - 1; i >= 0; i--) {
       console.log('Last end = ' + (lastEnd !== null ? lastEnd.format() : 'Null'));
       if (lastEnd === null || filtered_items[i].start >= lastEnd) {
-        console.log('Add');
-        console.log('  > start = ' + filtered_items[i].start.format());
-        console.log('  > row = ' + rowOffset);
+        //console.log('Add');
+        //console.log('  > start = ' + filtered_items[i].start.format());
+        //console.log('  > row = ' + rowOffset);
         let item = _.clone(filtered_items[i]);
         item.rowOffset = rowOffset;
         displayItems.push(item);
@@ -39,7 +39,7 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, ITEM_HE
     }
     rowOffset++;
   }
-  console.groupEnd('New row');
+  //console.groupEnd('New row');
   return _.map(displayItems, i => {
     let top = ITEM_HEIGHT * i['rowOffset'];
     let item_offset_mins = i.start.diff(vis_start, 'minutes');
