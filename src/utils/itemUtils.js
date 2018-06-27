@@ -50,38 +50,17 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, ITEM_HE
   });
 }
 /**
- * Gets the new row number after vertical dragging
- * @param  {number} currentRow the current row number of the item
- * @param  {number} ITEM_HEIGHT the height of a row, in pixels
- * @param  {number} offset the offset from dragging, in pixels
- * @param  {number} rowHeights list of row heights (number of items)
- * @returns {number} the new row
+ * Gets the row number for a given x and y pixel location
+ * @param  {number} x The x coordinate of the pixel location
+ * @param  {number} y The y coordinate of the pixel location
+ * @returns {number} The row number
  */
-export function getNearestRowHeight(currentRow, ITEM_HEIGHT, offset, rowHeights) {
-  let rowChange = 0;
-  let offsetRemaining = offset;
-  // Moving down
-  if (offsetRemaining > ITEM_HEIGHT / 2) {
-    let keepGoing = true;
-    do {
-      rowChange++;
-      let nextUpperRowBoundaryOffset = ITEM_HEIGHT * rowHeights[currentRow + rowChange];
-      offsetRemaining -= nextUpperRowBoundaryOffset;
-      keepGoing = offsetRemaining > ITEM_HEIGHT / 2;
-    } while (keepGoing);
-  }
-  // Moving up
-  else if (offsetRemaining < -(ITEM_HEIGHT / 2)) {
-    let keepGoing = true;
-    do {
-      rowChange--;
-      let nextLowerRowBoundaryOffset = ITEM_HEIGHT * rowHeights[currentRow + rowChange];
-      offsetRemaining += nextLowerRowBoundaryOffset;
-      keepGoing = offsetRemaining < -(ITEM_HEIGHT / 2);
-    } while (keepGoing);
-  }
-  console.log(offsetRemaining);
-  return currentRow + rowChange;
+export function getNearestRowHeight(x, y) {
+  let elementsAtPixel = document.elementsFromPoint(x, y);
+  let targetRow = _.find(elementsAtPixel, e => {
+    return e.hasAttribute('row-index');
+  });
+  return targetRow ? targetRow.getAttribute('row-index') : 0;
 }
 /**
  * Get the time at a pixel location

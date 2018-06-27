@@ -86,7 +86,7 @@ export default class Timeline extends Component {
         // Change row (TODO)
         let offset = e.target.style.top;
         console.log('From ' + rowNo);
-        let newRow = getNearestRowHeight(rowNo, ITEM_HEIGHT, pixToInt(offset), this.rowHeightCache);
+        let newRow = getNearestRowHeight(e.clientX, e.clientY);
         console.log('To ' + newRow);
         this.changeGroup(item, rowNo, newRow);
         // Update time
@@ -105,16 +105,12 @@ export default class Timeline extends Component {
         e.target.style['top'] = '0px';
         // Check row height doesn't need changing
         let need_recompute = false;
-        console.log('Overlap item: ', this.rowItemMap[newRow]);
         let new_to_row_height = getMaxOverlappingItems(this.rowItemMap[newRow], VISIBLE_START, VISIBLE_END);
-        console.log(` > Overlap for row ${newRow}=${new_to_row_height}`);
         if (new_to_row_height !== this.rowHeightCache[newRow]) {
           this.rowHeightCache[newRow] = new_to_row_height;
           need_recompute = true;
         }
-        console.log('Overlap item: ', this.rowItemMap[newRow]);
         let new_from_row_height = getMaxOverlappingItems(this.rowItemMap[rowNo], VISIBLE_START, VISIBLE_END);
-        console.log(` > Overlap for row ${rowNo}=${new_from_row_height}`);
         if (new_from_row_height !== this.rowHeightCache[rowNo]) {
           this.rowHeightCache[rowNo] = new_from_row_height;
           need_recompute = true;
@@ -149,7 +145,7 @@ export default class Timeline extends Component {
       if (itemCol == columnIndex) {
         let itemsInRow = this.rowItemMap[rowIndex];
         return (
-          <div key={key} style={style} className="rct9k-row" onClick={this._itemRowClickHandler}>
+          <div key={key} style={style} row-index={rowIndex} className="rct9k-row" onClick={this._itemRowClickHandler}>
             {rowItemsRenderer(itemsInRow, VISIBLE_START, VISIBLE_END, width, ITEM_HEIGHT)}
           </div>
         );
