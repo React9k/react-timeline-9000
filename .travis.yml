@@ -15,8 +15,8 @@ jobs:
     script: make
     deploy:
       provider: s3
-      access_key_id: "$AWS_KEY"
-      secret_access_key: "$AWS_SECRET"
+      access_key_id: $AWS_KEY
+      secret_access_key: $AWS_SECRET
       bucket: bhp-react-timeline-9k
       local-dir: dist
       acl: public_read
