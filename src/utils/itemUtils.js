@@ -47,7 +47,6 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, ITEM_HE
     let left = Math.round(item_offset_mins * pixels_per_min);
     let width = Math.round(item_duration_mins * pixels_per_min);
     const {color} = i;
-    console.log('TOP=' + top);
     return (
       <span
         key={i.key}

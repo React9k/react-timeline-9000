@@ -50,15 +50,18 @@ export default class Timeline extends Component {
     this.itemRowMap = {}; // timeline elements (key) => (rowNo).
     this.rowItemMap = {}; // (rowNo) => timeline elements
     this.rowHeightCache = {}; // (rowNo) => max number of stacked items
-    let itemRows = _.groupBy(items, 'row');
-    _.forEach(itemRows, (items, row) => {
+    let visibleItems = _.filter(items, i => {
+      return i.end > VISIBLE_START && i.start < VISIBLE_END;
+    });
+    let itemRows = _.groupBy(visibleItems, 'row');
+    _.forEach(itemRows, (visibleItems, row) => {
       const rowInt = parseInt(row);
       if (this.rowItemMap[rowInt] === undefined) this.rowItemMap[rowInt] = [];
-      _.forEach(items, item => {
+      _.forEach(visibleItems, item => {
         this.itemRowMap[item.key] = rowInt;
         this.rowItemMap[rowInt].push(item);
       });
-      this.rowHeightCache[rowInt] = getMaxOverlappingItems(items, VISIBLE_START, VISIBLE_END);
+      this.rowHeightCache[rowInt] = getMaxOverlappingItems(visibleItems);
     });
   }
   changeGroup(item, curRow, newRow) {
