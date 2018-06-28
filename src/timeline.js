@@ -32,13 +32,15 @@ export default class Timeline extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {selection: []};
     this.setTimeMap(this.props.items);
 
     this.cellRenderer = this.cellRenderer.bind(this);
     this.rowHeight = this.rowHeight.bind(this);
     this.setTimeMap = this.setTimeMap.bind(this);
     this.changeGroup = this.changeGroup.bind(this);
+    this.setSelection = this.setSelection.bind(this);
+    this.clearSelection = this.clearSelection.bind(this);
     this._itemRowClickHandler = this._itemRowClickHandler.bind(this);
     this.setUpDragging();
   }
@@ -71,15 +73,41 @@ export default class Timeline extends Component {
     this.rowItemMap[curRow] = this.rowItemMap[curRow].filter(i => i.key !== item.key);
     this.rowItemMap[newRow].push(item);
   }
+  setSelection(start, end) {
+    this.setState({selection: [{start: start.clone(), end: end.clone()}]});
+  }
+  clearSelection() {
+    this.setState({selection: []});
+  }
   setUpDragging() {
     interact('.item_draggable').draggable({
       onstart: e => {
         e.target.style['z-index'] = 2;
+        //TODO: This should use state reducer
+        //TODO: Should be able to optimize the lookup below
+        const index = e.target.getAttribute('item-index');
+        const rowNo = this.itemRowMap[index];
+        const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == index);
+        const item = this.rowItemMap[rowNo][itemIndex];
+        this.setSelection(item.start, item.end);
       },
       onmove: e => {
         e.target.style.left = sumStyle(e.target.style.left, e.dx);
         let curTop = e.target.style.top ? e.target.style.top : '0px';
         e.target.style.top = sumStyle(curTop, e.dy);
+        const index = e.target.getAttribute('item-index');
+        const rowNo = this.itemRowMap[index];
+        const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == index);
+        const item = this.rowItemMap[rowNo][itemIndex];
+        let itemDuration = item.end.diff(item.start);
+        let newStart = getTimeAtPixel(
+          pixToInt(e.target.style.left),
+          VISIBLE_START,
+          VISIBLE_END,
+          this._grid.props.width
+        );
+        let newEnd = newStart.clone().add(itemDuration);
+        this.setSelection(newStart, newEnd);
       },
       onend: e => {
         const index = e.target.getAttribute('item-index');
@@ -87,6 +115,7 @@ export default class Timeline extends Component {
         const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == index);
         const item = this.rowItemMap[rowNo][itemIndex];
         if (item === undefined) debugger;
+        this.clearSelection();
         // Change row (TODO)
         let offset = e.target.style.top;
         console.log('From ' + rowNo);
@@ -190,7 +219,13 @@ export default class Timeline extends Component {
         <AutoSizer>
           {({height, width}) => (
             <div>
-              <Timebar start={VISIBLE_START} end={VISIBLE_END} width={width} leftOffset={100} />
+              <Timebar
+                start={VISIBLE_START}
+                end={VISIBLE_END}
+                width={width}
+                leftOffset={100}
+                selectedRanges={this.state.selection}
+              />
               <Grid
                 ref={ref => (this._grid = ref)}
                 autoContainerWidth

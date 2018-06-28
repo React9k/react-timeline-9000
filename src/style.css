@@ -52,12 +52,7 @@
   border: 1px solid black;
   box-sizing: border-box;
 }
-.rct9k-timebar-inner-top {
-  height: 30px;
-  white-space: nowrap;
-  overflow: hidden;
-}
-.rct9k-timebar-inner-bottom {
+.rct9k-timebar-inner {
   height: 30px;
   white-space: nowrap;
   overflow: hidden;
@@ -67,4 +62,7 @@
   display: inline-block;
   border-left: 1px solid;
   white-space: nowrap;
+}
+.rct9k-timebar-item-selected {
+  background-color: lightblue;
 }
