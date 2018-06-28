@@ -54,7 +54,9 @@
 }
 .rct9k-timebar-inner-top {
   height: 30px;
+  white-space: nowrap;
 }
 .rct9k-timebar-inner-bottom {
   height: 30px;
+  white-space: nowrap;
 }

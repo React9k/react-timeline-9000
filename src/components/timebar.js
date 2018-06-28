@@ -2,11 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import _ from 'lodash';
+import {intToPix} from 'utils/common';
 
 export default class Timebar extends React.Component {
   static propTypes = {
     start: PropTypes.object.isRequired, //moment
     end: PropTypes.object.isRequired, //moment
+    width: PropTypes.number.isRequired,
     leftOffset: PropTypes.number,
     top_resolution: PropTypes.string,
     bottom_resolution: PropTypes.string,
@@ -41,7 +43,7 @@ export default class Timebar extends React.Component {
   // Might need to move to utils
   guessResolution() {
     //TODO:
-    this.setState({resolution: {top: 'hour', bottom: 'hour'}});
+    this.setState({resolution: {top: 'day_long', bottom: 'hour'}});
   }
 
   renderTopBar() {
@@ -54,17 +56,26 @@ export default class Timebar extends React.Component {
   renderBar(location) {
     const resolution = location === 't' ? this.state.resolution.top : this.state.resolution.bottom;
     const {start, end} = this.props;
+    const width = this.props.width - this.props.leftOffset;
+
+    const start_end_min = end.diff(start, 'minutes');
+    const pixels_per_min = width / start_end_min;
 
     let currentDate = start.clone();
     let timeIncrements = [];
-    if (resolution === 'day') {
-      while (currentDate.isBefore(end)) {
-        timeIncrements.push(currentDate.date());
+    if (resolution.startsWith('day')) {
+      let pixelIncrements = pixels_per_min * 60 * 24;
+      let pixelsLeft = width;
+      while (currentDate.isBefore(end) && pixelsLeft > 0) {
+        let label = resolution === 'day_short' ? currentDate.format('D') : currentDate.format('Do MMM Y');
+        timeIncrements.push({label, size: pixelIncrements, key: currentDate.unix()});
         currentDate.add(1, 'days');
+        pixelsLeft -= pixelIncrements;
       }
     } else if (resolution === 'hour') {
+      let pixelIncrements = pixels_per_min * 60;
       while (currentDate.isBefore(end)) {
-        timeIncrements.push(currentDate.hour());
+        timeIncrements.push({label: currentDate.hours() + 'hrs', size: pixelIncrements, key: currentDate.unix()});
         currentDate.add(1, 'hours');
       }
     }
@@ -78,8 +89,8 @@ export default class Timebar extends React.Component {
         <div className="rct9k-timebar-inner-top">
           {_.map(this.renderTopBar(), i => {
             return (
-              <span key={i} style={{width: '74px', display: 'inline-block'}}>
-                {i}
+              <span key={i.key} style={{width: intToPix(i.size), textAlign: 'center', display: 'inline-block'}}>
+                {i.label}
               </span>
             );
           })}
@@ -87,8 +98,8 @@ export default class Timebar extends React.Component {
         <div className="rct9k-timebar-inner-bottom">
           {_.map(this.renderBottomBar(), i => {
             return (
-              <span key={i} style={{width: '74px', display: 'inline-block'}}>
-                {i}
+              <span key={i.key} style={{width: intToPix(i.size), textAlign: 'center', display: 'inline-block'}}>
+                {i.label}
               </span>
             );
           })}
