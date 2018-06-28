@@ -89,7 +89,7 @@ export default class Timebar extends React.Component {
         <div className="rct9k-timebar-inner-top">
           {_.map(this.renderTopBar(), i => {
             return (
-              <span key={i.key} style={{width: intToPix(i.size), textAlign: 'center', display: 'inline-block'}}>
+              <span className="rct9k-timebar-item" key={i.key} style={{width: intToPix(i.size)}}>
                 {i.label}
               </span>
             );
@@ -98,7 +98,7 @@ export default class Timebar extends React.Component {
         <div className="rct9k-timebar-inner-bottom">
           {_.map(this.renderBottomBar(), i => {
             return (
-              <span key={i.key} style={{width: intToPix(i.size), textAlign: 'center', display: 'inline-block'}}>
+              <span className="rct9k-timebar-item" key={i.key} style={{width: intToPix(i.size)}}>
                 {i.label}
               </span>
             );

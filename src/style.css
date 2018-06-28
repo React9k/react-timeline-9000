@@ -55,8 +55,16 @@
 .rct9k-timebar-inner-top {
   height: 30px;
   white-space: nowrap;
+  overflow: hidden;
 }
 .rct9k-timebar-inner-bottom {
   height: 30px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.rct9k-timebar-item {
+  text-align: center;
+  display: inline-block;
+  border-left: 1px solid;
   white-space: nowrap;
 }
