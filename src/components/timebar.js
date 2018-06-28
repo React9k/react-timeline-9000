@@ -61,7 +61,6 @@ export default class Timebar extends React.Component {
     let selectedStart = moment('1900-01-01');
     let selectedEnd = moment('1900-01-01');
     if (this.props.selectedRanges[0]) {
-      console.log(this.props.selectedRanges[0].start);
       selectedStart = this.props.selectedRanges[0].start;
       selectedEnd = this.props.selectedRanges[0].end;
     }
