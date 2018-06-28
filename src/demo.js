@@ -5,8 +5,8 @@ import moment from 'moment';
 
 import Timeline from './timeline';
 
-const ROWS = 1000;
-const ITEMS_PER_ROW = 100;
+const ROWS = 10;
+const ITEMS_PER_ROW = 1;
 const ITEM_DURATIONS = [
   moment.duration(15, 'minutes'),
   moment.duration(30, 'minutes'),

@@ -41,6 +41,7 @@ export default class Timeline extends Component {
     this.changeGroup = this.changeGroup.bind(this);
     this.setSelection = this.setSelection.bind(this);
     this.clearSelection = this.clearSelection.bind(this);
+    this.getTimelineWidth = this.getTimelineWidth.bind(this);
     this._itemRowClickHandler = this._itemRowClickHandler.bind(this);
     this.setUpDragging();
   }
@@ -79,6 +80,9 @@ export default class Timeline extends Component {
   clearSelection() {
     this.setState({selection: []});
   }
+  getTimelineWidth() {
+    return this._grid.props.width - 100; //HACK: This is the sidebar width
+  }
   setUpDragging() {
     interact('.item_draggable').draggable({
       onstart: e => {
@@ -104,7 +108,7 @@ export default class Timeline extends Component {
           pixToInt(e.target.style.left),
           VISIBLE_START,
           VISIBLE_END,
-          this._grid.props.width
+          this.getTimelineWidth()
         );
         let newEnd = newStart.clone().add(itemDuration);
         this.setSelection(newStart, newEnd);
@@ -117,7 +121,6 @@ export default class Timeline extends Component {
         if (item === undefined) debugger;
         this.clearSelection();
         // Change row (TODO)
-        let offset = e.target.style.top;
         console.log('From ' + rowNo);
         let newRow = getNearestRowHeight(e.clientX, e.clientY);
         console.log('To ' + newRow);
@@ -128,11 +131,13 @@ export default class Timeline extends Component {
           pixToInt(e.target.style.left),
           VISIBLE_START,
           VISIBLE_END,
-          this._grid.props.width
+          this.getTimelineWidth()
         );
+        console.log(e.target.style.left, newStart);
         let newEnd = newStart.clone().add(itemDuration);
         item.start = newStart;
         item.end = newEnd;
+        console.log('New start: ' + newStart.format());
         //reset styles
         e.target.style['z-index'] = 1;
         e.target.style['top'] = intToPix(ITEM_HEIGHT * Math.round(pixToInt(e.target.style['top']) / ITEM_HEIGHT));
@@ -159,7 +164,7 @@ export default class Timeline extends Component {
       // console.log('Clicking item');
     } else {
       let row = e.target.getAttribute('row-index');
-      let clickedTime = getTimeAtPixel(e.clientX, VISIBLE_START, VISIBLE_END, this._grid.props.width);
+      let clickedTime = getTimeAtPixel(e.clientX, VISIBLE_START, VISIBLE_END, this.getTimelineWidth());
       // console.log('Clicking row ' + row + ' at ' + clickedTime.format());
     }
   }
