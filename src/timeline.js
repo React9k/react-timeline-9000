@@ -9,10 +9,11 @@ import interact from 'interactjs';
 import _ from 'lodash';
 
 import {sumStyle, pixToInt} from 'utils/common';
-import {rowItemsRenderer, getTimeAtPixel, getNearestRowHeight} from 'utils/itemUtils';
+import {getDurationFromPixels, rowItemsRenderer, getTimeAtPixel, getNearestRowHeight} from 'utils/itemUtils';
 import {groupRenderer} from 'utils/groupUtils';
-
 import './style.css';
+import {isThisSecond} from 'date-fns';
+import {ETIME} from 'constants';
 
 const ITEM_HEIGHT = 40;
 
@@ -54,23 +55,28 @@ export default class Timeline extends Component {
       this.rowItemMap[i.row].push(i);
     });
   }
+
   changeGroup(item, curRow, newRow) {
     item.row = newRow;
     this.itemRowMap[item.key] = newRow;
     this.rowItemMap[curRow] = this.rowItemMap[curRow].filter(i => i.key !== item.key);
     this.rowItemMap[newRow].push(item);
   }
+
   setUpDragging() {
-    interact('.item_draggable').draggable({
-      onstart: e => {
+    interact('.item_draggable')
+      .draggable({
+        enabled: true
+      })
+      .on('dragstart', e => {
         e.target.style['z-index'] = 2;
-      },
-      onmove: e => {
+      })
+      .on('dragmove', e => {
         e.target.style.left = sumStyle(e.target.style.left, e.dx);
         let curTop = e.target.style.top ? e.target.style.top : '0px';
         e.target.style.top = sumStyle(curTop, e.dy);
-      },
-      onend: e => {
+      })
+      .on('dragend', e => {
         const index = e.target.getAttribute('item-index');
         const rowNo = this.itemRowMap[index];
         const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == index);
@@ -79,7 +85,7 @@ export default class Timeline extends Component {
         let offset = e.target.style.top;
         console.log('From ' + rowNo);
         let newRow = getNearestRowHeight(rowNo, ITEM_HEIGHT, pixToInt(offset));
-        console.log('From ' + newRow);
+        console.log('To ' + newRow);
         this.changeGroup(item, rowNo, newRow);
         // Update time
         let itemDuration = item.end.diff(item.start);
@@ -96,9 +102,47 @@ export default class Timeline extends Component {
         e.target.style['z-index'] = 1;
         e.target.style['top'] = '0px';
         this._grid.forceUpdate();
-      }
-    });
+      })
+      .resizable({
+        edges: {left: true, right: true, bottom: false, top: false}
+      })
+      .on('resizestart', e => {
+        console.log('resizestart', e.dx, e.target.style.left, e.target.style.width);
+      })
+      .on('resizemove', e => {
+        console.log('resizemove', e.dx, e.target.style.width, e.target.style.left);
+        // Determine if the resize is from the right or left
+        const isStartTimeChange = e.deltaRect.left !== 0;
+
+        const index = e.target.getAttribute('item-index');
+        const rowNo = this.itemRowMap[index];
+        const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == index);
+        const item = this.rowItemMap[rowNo][itemIndex];
+
+        // Add the duration to the start or end time depending on where the resize occurred
+        if (isStartTimeChange) {
+          item.start = getTimeAtPixel(
+            pixToInt(e.target.style.left) + e.dx,
+            VISIBLE_START,
+            VISIBLE_END,
+            this._grid.props.width
+          );
+        } else {
+          item.end = getTimeAtPixel(
+            pixToInt(e.target.style.left) + pixToInt(e.target.style.width) + e.dx,
+            VISIBLE_START,
+            VISIBLE_END,
+            this._grid.props.width
+          );
+        }
+
+        this._grid.forceUpdate();
+      })
+      .on('resizeend', e => {
+        console.log('resizeend', e);
+      });
   }
+
   _itemRowClickHandler(e) {
     if (e.target.hasAttribute('item-index') || e.target.parentElement.hasAttribute('item-index')) {
       console.log('Clicking item');
@@ -147,7 +191,7 @@ export default class Timeline extends Component {
       return ({index}) => {
         if (columnCount == 1) return width;
         if (columnCount == 2) {
-          let groupWidth = 100;
+          let groupWidth = 150;
 
           if (index == 0) return groupWidth;
           return width - groupWidth;
