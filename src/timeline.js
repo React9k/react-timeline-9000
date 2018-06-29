@@ -20,10 +20,8 @@ import {groupRenderer} from 'utils/groupUtils';
 import Timebar from 'components/timebar';
 
 import './style.css';
-import {isThisSecond} from 'date-fns';
-import {ETIME} from 'constants';
-
 const ITEM_HEIGHT = 40;
+const GROUP_WIDTH = 100;
 
 const VISIBLE_START = moment('2000-01-01');
 const VISIBLE_END = VISIBLE_START.clone().add(1, 'days');
@@ -50,6 +48,8 @@ export default class Timeline extends Component {
     this.setSelection = this.setSelection.bind(this);
     this.clearSelection = this.clearSelection.bind(this);
     this._itemRowClickHandler = this._itemRowClickHandler.bind(this);
+    this.itemFromEvent = this.itemFromEvent.bind(this);
+
     this.setUpDragging();
   }
 
@@ -76,6 +76,15 @@ export default class Timeline extends Component {
     });
   }
 
+  itemFromEvent(e) {
+    const index = e.target.getAttribute('item-index');
+    const rowNo = this.itemRowMap[index];
+    const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == index);
+    const item = this.rowItemMap[rowNo][itemIndex];
+
+    return {index, rowNo, itemIndex, item};
+  }
+
   changeGroup(item, curRow, newRow) {
     item.row = newRow;
     this.itemRowMap[item.key] = newRow;
@@ -95,15 +104,14 @@ export default class Timeline extends Component {
       })
       .on('dragstart', e => {
         e.target.style['z-index'] = 2;
+        const {item} = this.itemFromEvent(e);
+        this.setSelection(item.start, item.end);
       })
       .on('dragmove', e => {
         e.target.style.left = sumStyle(e.target.style.left, e.dx);
         let curTop = e.target.style.top ? e.target.style.top : '0px';
         e.target.style.top = sumStyle(curTop, e.dy);
-        const index = e.target.getAttribute('item-index');
-        const rowNo = this.itemRowMap[index];
-        const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == index);
-        const item = this.rowItemMap[rowNo][itemIndex];
+        const {item} = this.itemFromEvent(e);
         let itemDuration = item.end.diff(item.start);
         let newStart = getTimeAtPixel(
           pixToInt(e.target.style.left),
@@ -117,12 +125,9 @@ export default class Timeline extends Component {
       .on('dragend', e => {
         //TODO: This should use state reducer
         //TODO: Should be able to optimize the lookup below
-        const index = e.target.getAttribute('item-index');
-        const rowNo = this.itemRowMap[index];
-        const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == index);
-        const item = this.rowItemMap[rowNo][itemIndex];
+        const {item, rowNo} = this.itemFromEvent(e);
         this.setSelection(item.start, item.end);
-        if (item === undefined) debugger;
+        if (item === undefined);
         this.clearSelection();
         // Change row (TODO)
         let offset = e.target.style.top;
@@ -170,11 +175,7 @@ export default class Timeline extends Component {
         console.log('resizemove', e.dx, e.target.style.width, e.target.style.left);
         // Determine if the resize is from the right or left
         const isStartTimeChange = e.deltaRect.left !== 0;
-
-        const index = e.target.getAttribute('item-index');
-        const rowNo = this.itemRowMap[index];
-        const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == index);
-        const item = this.rowItemMap[rowNo][itemIndex];
+        const {item} = this.itemFromEvent(e);
 
         // Add the duration to the start or end time depending on where the resize occurred
         if (isStartTimeChange) {
@@ -252,7 +253,7 @@ export default class Timeline extends Component {
       return ({index}) => {
         if (columnCount == 1) return width;
         if (columnCount == 2) {
-          let groupWidth = 150;
+          let groupWidth = GROUP_WIDTH;
 
           if (index == 0) return groupWidth;
           return width - groupWidth;
@@ -269,7 +270,7 @@ export default class Timeline extends Component {
                 start={VISIBLE_START}
                 end={VISIBLE_END}
                 width={width}
-                leftOffset={100}
+                leftOffset={GROUP_WIDTH}
                 selectedRanges={this.state.selection}
               />
               <Grid
