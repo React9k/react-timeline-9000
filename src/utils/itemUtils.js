@@ -1,3 +1,5 @@
+'use strict';
+
 import React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
@@ -78,7 +80,7 @@ export function getNearestRowHeight(x, y) {
  * @param  {number} pixel_location the pixel location (generally from left css style)
  * @param  {moment} vis_start The visible start of the timeline
  * @param  {moment} vis_end The visible end of the timeline
- * @param  {number} total_width The pixel width of the timeline
+ * @param  {number} total_width The pixel width of the timeline (row portion)
  * @returns {moment} Moment object
  */
 export function getTimeAtPixel(pixel_location, vis_start, vis_end, total_width) {
