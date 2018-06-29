@@ -47,6 +47,7 @@ export default class Timeline extends Component {
     this.changeGroup = this.changeGroup.bind(this);
     this.setSelection = this.setSelection.bind(this);
     this.clearSelection = this.clearSelection.bind(this);
+    this.getTimelineWidth = this.getTimelineWidth.bind(this);
     this._itemRowClickHandler = this._itemRowClickHandler.bind(this);
     this.itemFromEvent = this.itemFromEvent.bind(this);
 
@@ -97,6 +98,10 @@ export default class Timeline extends Component {
   clearSelection() {
     this.setState({selection: []});
   }
+  getTimelineWidth(totalWidth) {
+    if (totalWidth !== undefined) return totalWidth - 100;
+    return this._grid.props.width - 100; //HACK: This is the sidebar width
+  }
   setUpDragging() {
     interact('.item_draggable')
       .draggable({
@@ -108,17 +113,22 @@ export default class Timeline extends Component {
         this.setSelection(item.start, item.end);
       })
       .on('dragmove', e => {
+        const target = e.target;
+        let dx = (parseFloat(target.getAttribute('drag-x')) || 0) + e.dx;
+        let dy = (parseFloat(target.getAttribute('drag-y')) || 0) + e.dy;
+
+        // translate the element
+        target.style.webkitTransform = target.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
+        target.setAttribute('drag-x', dx);
+        target.setAttribute('drag-y', dy);
         e.target.style.left = sumStyle(e.target.style.left, e.dx);
         let curTop = e.target.style.top ? e.target.style.top : '0px';
         e.target.style.top = sumStyle(curTop, e.dy);
         const {item} = this.itemFromEvent(e);
+
         let itemDuration = item.end.diff(item.start);
-        let newStart = getTimeAtPixel(
-          pixToInt(e.target.style.left),
-          VISIBLE_START,
-          VISIBLE_END,
-          this._grid.props.width
-        );
+        let newPixelOffset = pixToInt(e.target.style.left) + dx;
+        let newStart = getTimeAtPixel(newPixelOffset, VISIBLE_START, VISIBLE_END, this.getTimelineWidth());
         let newEnd = newStart.clone().add(itemDuration);
         this.setSelection(newStart, newEnd);
       })
@@ -129,24 +139,22 @@ export default class Timeline extends Component {
         this.setSelection(item.start, item.end);
         if (item === undefined);
         this.clearSelection();
-        // Change row (TODO)
-        let offset = e.target.style.top;
-        console.log('From ' + rowNo);
+        // Change row
+        console.log('From row', rowNo);
         let newRow = getNearestRowHeight(e.clientX, e.clientY);
-        console.log('To ' + newRow);
+        console.log('To row', newRow);
         this.changeGroup(item, rowNo, newRow);
         // Update time
         let itemDuration = item.end.diff(item.start);
-        let newStart = getTimeAtPixel(
-          pixToInt(e.target.style.left),
-          VISIBLE_START,
-          VISIBLE_END,
-          this._grid.props.width
-        );
+        let newPixelOffset = pixToInt(e.target.style.left) + (parseFloat(e.target.getAttribute('drag-x')) || 0);
+        let newStart = getTimeAtPixel(newPixelOffset, VISIBLE_START, VISIBLE_END, this.getTimelineWidth());
         let newEnd = newStart.clone().add(itemDuration);
         item.start = newStart;
         item.end = newEnd;
         //reset styles
+        e.target.setAttribute('drag-x', 0);
+        e.target.setAttribute('drag-y', 0);
+        e.target.style.webkitTransform = e.target.style.transform = 'translate(0px, 0px)';
         e.target.style['z-index'] = 1;
         e.target.style['top'] = intToPix(ITEM_HEIGHT * Math.round(pixToInt(e.target.style['top']) / ITEM_HEIGHT));
         // e.target.style['top'] = '0px';
@@ -206,7 +214,7 @@ export default class Timeline extends Component {
       // console.log('Clicking item');
     } else {
       let row = e.target.getAttribute('row-index');
-      let clickedTime = getTimeAtPixel(e.clientX, VISIBLE_START, VISIBLE_END, this._grid.props.width);
+      let clickedTime = getTimeAtPixel(e.clientX, VISIBLE_START, VISIBLE_END, this.getTimelineWidth());
       // console.log('Clicking row ' + row + ' at ' + clickedTime.format());
     }
   }
@@ -276,7 +284,7 @@ export default class Timeline extends Component {
               <Grid
                 ref={ref => (this._grid = ref)}
                 autoContainerWidth
-                cellRenderer={this.cellRenderer(width)}
+                cellRenderer={this.cellRenderer(this.getTimelineWidth(width))}
                 columnCount={columnCount}
                 columnWidth={columnWidth(width)}
                 height={height}
