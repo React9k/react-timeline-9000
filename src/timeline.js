@@ -134,11 +134,9 @@ export default class Timeline extends Component {
           VISIBLE_END,
           this.getTimelineWidth()
         );
-        console.log(e.target.style.left, newStart);
         let newEnd = newStart.clone().add(itemDuration);
         item.start = newStart;
         item.end = newEnd;
-        console.log('New start: ' + newStart.format());
         //reset styles
         e.target.style['z-index'] = 1;
         e.target.style['top'] = intToPix(ITEM_HEIGHT * Math.round(pixToInt(e.target.style['top']) / ITEM_HEIGHT));
