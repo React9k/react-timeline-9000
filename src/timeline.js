@@ -24,10 +24,10 @@ export default class Timeline extends Component {
   static propTypes = {
     items: PropTypes.arrayOf(PropTypes.object).isRequired,
     groups: PropTypes.arrayOf(PropTypes.object).isRequired,
-    renderGroups: PropTypes.bool
+    groupOffset: PropTypes.number.isRequired
   };
   static defaultProps = {
-    renderGroups: true
+    groupOffset: 150
   };
 
   constructor(props) {
@@ -81,8 +81,9 @@ export default class Timeline extends Component {
     this.setState({selection: []});
   }
   getTimelineWidth(totalWidth) {
-    if (totalWidth !== undefined) return totalWidth - 100;
-    return this._grid.props.width - 100; //HACK: This is the sidebar width
+    const {groupOffset} = this.props;
+    if (totalWidth !== undefined) return totalWidth - groupOffset;
+    return this._grid.props.width - groupOffset;
   }
   setUpDragging() {
     interact('.item_draggable').draggable({
@@ -180,7 +181,7 @@ export default class Timeline extends Component {
      * @param  {} style Style object to be applied to cell (to position it);
      */
     return ({columnIndex, key, parent, rowIndex, style}) => {
-      let itemCol = this.props.renderGroups ? 1 : 0;
+      let itemCol = 1;
       if (itemCol == columnIndex) {
         let itemsInRow = this.rowItemMap[rowIndex];
         return (
@@ -204,21 +205,14 @@ export default class Timeline extends Component {
   }
 
   render() {
-    const {renderGroups} = this.props;
-    const columnCount = renderGroups ? 2 : 1;
+    const {groupOffset} = this.props;
 
     function columnWidth(width) {
       return ({index}) => {
-        if (columnCount == 1) return width;
-        if (columnCount == 2) {
-          let groupWidth = 100;
-
-          if (index == 0) return groupWidth;
-          return width - groupWidth;
-        }
+        if (index === 0) return groupOffset;
+        return width - groupOffset;
       };
     }
-
     return (
       <div className="rct9k-timeline-div">
         <AutoSizer>
@@ -228,14 +222,14 @@ export default class Timeline extends Component {
                 start={VISIBLE_START}
                 end={VISIBLE_END}
                 width={width}
-                leftOffset={100}
+                leftOffset={groupOffset}
                 selectedRanges={this.state.selection}
               />
               <Grid
                 ref={ref => (this._grid = ref)}
                 autoContainerWidth
                 cellRenderer={this.cellRenderer(this.getTimelineWidth(width))}
-                columnCount={columnCount}
+                columnCount={2}
                 columnWidth={columnWidth(width)}
                 height={height}
                 rowCount={this.props.groups.length}
