@@ -80,7 +80,8 @@ export default class Timeline extends Component {
   clearSelection() {
     this.setState({selection: []});
   }
-  getTimelineWidth() {
+  getTimelineWidth(totalWidth) {
+    if (totalWidth !== undefined) return totalWidth - 100;
     return this._grid.props.width - 100; //HACK: This is the sidebar width
   }
   setUpDragging() {
@@ -234,7 +235,7 @@ export default class Timeline extends Component {
               <Grid
                 ref={ref => (this._grid = ref)}
                 autoContainerWidth
-                cellRenderer={this.cellRenderer(width)}
+                cellRenderer={this.cellRenderer(this.getTimelineWidth(width))}
                 columnCount={columnCount}
                 columnWidth={columnWidth(width)}
                 height={height}
