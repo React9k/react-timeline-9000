@@ -10,13 +10,20 @@
   position: absolute;
   display: inline-block;
   overflow: hidden;
+  z-index: 2;
 }
 .rct9k-items-inner {
   display: inline-block;
   margin: 3px;
   padding: 3px;
   width: 100%;
+}
+.rct9k-marker-overlay {
   z-index: 1;
+  height: 475px;
+  position: absolute;
+  width: 2px;
+  background: red;
 }
 .rct9k-row {
   /* white-space: nowrap; */
