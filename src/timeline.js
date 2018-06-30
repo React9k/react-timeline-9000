@@ -378,6 +378,8 @@ export default class Timeline extends Component {
         <AutoSizer>
           {({height, width}) => (
             <div>
+              <SelectBox startX={100} startY={100} endX={400} endY={400} visible={true} />
+
               <Timebar
                 start={this.props.startDate}
                 end={this.props.endDate}
