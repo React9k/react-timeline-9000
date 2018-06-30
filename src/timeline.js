@@ -2,7 +2,7 @@
 
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {Grid, AutoSizer} from 'react-virtualized';
+import {Grid, AutoSizer, defaultCellRangeRenderer} from 'react-virtualized';
 
 import moment from 'moment';
 import interact from 'interactjs';
@@ -12,6 +12,7 @@ import {sumStyle, pixToInt, intToPix} from 'utils/common';
 import {
   rowItemsRenderer,
   getTimeAtPixel,
+  getPixelAtTime,
   getNearestRowHeight,
   getMaxOverlappingItems,
   getDurationFromPixels
@@ -42,6 +43,7 @@ export default class Timeline extends Component {
     this.setTimeMap(this.props.items);
 
     this.cellRenderer = this.cellRenderer.bind(this);
+    this.cellRangeRenderer = this.cellRangeRenderer.bind(this);
     this.rowHeight = this.rowHeight.bind(this);
     this.setTimeMap = this.setTimeMap.bind(this);
     this.changeGroup = this.changeGroup.bind(this);
@@ -108,7 +110,7 @@ export default class Timeline extends Component {
         enabled: true
       })
       .on('dragstart', e => {
-        e.target.style['z-index'] = 2;
+        e.target.style['z-index'] = 3;
         const {item} = this.itemFromEvent(e);
         this.setSelection(item.start, item.end);
       })
@@ -155,7 +157,7 @@ export default class Timeline extends Component {
         e.target.setAttribute('drag-x', 0);
         e.target.setAttribute('drag-y', 0);
         e.target.style.webkitTransform = e.target.style.transform = 'translate(0px, 0px)';
-        e.target.style['z-index'] = 1;
+        e.target.style['z-index'] = 2;
         e.target.style['top'] = intToPix(ITEM_HEIGHT * Math.round(pixToInt(e.target.style['top']) / ITEM_HEIGHT));
         // e.target.style['top'] = '0px';
         // Check row height doesn't need changing
@@ -249,6 +251,26 @@ export default class Timeline extends Component {
     };
   }
 
+  cellRangeRenderer(props) {
+    const children = defaultCellRangeRenderer(props);
+    const height = props.parent.props.height;
+    const top = props.scrollTop;
+    let markers = [];
+    // today
+    markers.push({
+      location: getPixelAtTime(
+        moment('2000-01-01 10:00:00'),
+        VISIBLE_START,
+        VISIBLE_END,
+        this.getTimelineWidth(props.parent.props.width)
+      ),
+      key: 1
+    });
+    _.forEach(markers, m => {
+      children.push(<div key={m.key} className="rct9k-marker-overlay" style={{height, left: m.location, top}} />);
+    });
+    return children;
+  }
   rowHeight({index}) {
     return this.rowHeightCache[index] * ITEM_HEIGHT;
   }
@@ -285,6 +307,7 @@ export default class Timeline extends Component {
                 ref={ref => (this._grid = ref)}
                 autoContainerWidth
                 cellRenderer={this.cellRenderer(this.getTimelineWidth(width))}
+                cellRangeRenderer={this.cellRangeRenderer}
                 columnCount={columnCount}
                 columnWidth={columnWidth(width)}
                 height={height}

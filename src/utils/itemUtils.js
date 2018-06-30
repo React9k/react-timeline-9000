@@ -14,7 +14,6 @@ import moment from 'moment';
 export function rowItemsRenderer(items, vis_start, vis_end, total_width, ITEM_HEIGHT) {
   const start_end_min = vis_end.diff(vis_start, 'minutes');
   const pixels_per_min = total_width / start_end_min;
-  //console.group('New row');
   let filtered_items = _.sortBy(
     _.filter(items, i => {
       // if end not before window && start not after window
@@ -88,6 +87,13 @@ export function getTimeAtPixel(pixel_location, vis_start, vis_end, total_width) 
   const pixels_per_min = total_width / start_end_min;
   let min_offset = pixel_location / pixels_per_min;
   return vis_start.clone().add(min_offset, 'minutes');
+}
+
+export function getPixelAtTime(time, vis_start, vis_end, total_width) {
+  const start_end_min = vis_end.diff(vis_start, 'minutes');
+  const pixels_per_min = total_width / start_end_min;
+  const min_from_start = time.diff(vis_start, 'minutes');
+  return min_from_start * pixels_per_min;
 }
 
 export function getDurationFromPixels(pixels, vis_start, vis_end, total_width) {
