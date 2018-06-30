@@ -123,9 +123,7 @@ export default class Timeline extends Component {
         target.style.webkitTransform = target.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
         target.setAttribute('drag-x', dx);
         target.setAttribute('drag-y', dy);
-        e.target.style.left = sumStyle(e.target.style.left, e.dx);
-        let curTop = e.target.style.top ? e.target.style.top : '0px';
-        e.target.style.top = sumStyle(curTop, e.dy);
+
         const {item} = this.itemFromEvent(e);
 
         let itemDuration = item.end.diff(item.start);
@@ -139,7 +137,6 @@ export default class Timeline extends Component {
         //TODO: Should be able to optimize the lookup below
         const {item, rowNo} = this.itemFromEvent(e);
         this.setSelection(item.start, item.end);
-        if (item === undefined);
         this.clearSelection();
         // Change row
         console.log('From row', rowNo);
@@ -184,30 +181,38 @@ export default class Timeline extends Component {
       .on('resizemove', e => {
         console.log('resizemove', e.dx, e.target.style.width, e.target.style.left);
         // Determine if the resize is from the right or left
-        const isStartTimeChange = e.deltaRect.left !== 0;
-        const {item} = this.itemFromEvent(e);
-
-        // Add the duration to the start or end time depending on where the resize occurred
-        if (isStartTimeChange) {
-          item.start = getTimeAtPixel(
-            pixToInt(e.target.style.left) + e.dx,
-            VISIBLE_START,
-            VISIBLE_END,
-            this._grid.props.width
-          );
-        } else {
-          item.end = getTimeAtPixel(
-            pixToInt(e.target.style.left) + pixToInt(e.target.style.width) + e.dx,
-            VISIBLE_START,
-            VISIBLE_END,
-            this._grid.props.width
-          );
-        }
-
-        this._grid.forceUpdate();
+        let dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
+        dx += e.deltaRect.left;
+        e.target.style.width = e.rect.width + 'px';
+        e.target.style.webkitTransform = e.target.style.transform = 'translate(' + dx + 'px, 0px)';
+        e.target.setAttribute('delta-x', dx);
       })
       .on('resizeend', e => {
         console.log('resizeend', e);
+        // Update time
+        const dx = e.target.getAttribute('delta-x');
+        const isStartTimeChange = dx != 0;
+        const {item, rowNo} = this.itemFromEvent(e);
+        let startPixelOffset = pixToInt(e.target.style.left) + (parseFloat(e.target.getAttribute('delta-x')) || 0);
+        if (isStartTimeChange) {
+          let newStart = getTimeAtPixel(startPixelOffset, VISIBLE_START, VISIBLE_END, this.getTimelineWidth());
+          item.start = newStart;
+        } else {
+          let endPixelOffset = startPixelOffset + pixToInt(e.target.style.width);
+          let newEnd = getTimeAtPixel(endPixelOffset, VISIBLE_START, VISIBLE_END, this.getTimelineWidth());
+          item.end = newEnd;
+        }
+        e.target.setAttribute('delta-x', 0);
+        e.target.style.webkitTransform = e.target.style.transform = 'translate(0px, 0px)';
+        // Check row height doesn't need changing
+        let need_recompute = false;
+        let new_row_height = getMaxOverlappingItems(this.rowItemMap[rowNo], VISIBLE_START, VISIBLE_END);
+        if (new_row_height !== this.rowHeightCache[rowNo]) {
+          this.rowHeightCache[rowNo] = new_row_height;
+          need_recompute = true;
+        }
+        if (need_recompute) this._grid.recomputeGridSize({rowIndex: rowNo});
+        else this._grid.forceUpdate();
       });
   }
 
