@@ -123,9 +123,7 @@ export default class Timeline extends Component {
         target.style.webkitTransform = target.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
         target.setAttribute('drag-x', dx);
         target.setAttribute('drag-y', dy);
-        e.target.style.left = sumStyle(e.target.style.left, e.dx);
-        let curTop = e.target.style.top ? e.target.style.top : '0px';
-        e.target.style.top = sumStyle(curTop, e.dy);
+
         const {item} = this.itemFromEvent(e);
 
         let itemDuration = item.end.diff(item.start);
@@ -139,7 +137,6 @@ export default class Timeline extends Component {
         //TODO: Should be able to optimize the lookup below
         const {item, rowNo} = this.itemFromEvent(e);
         this.setSelection(item.start, item.end);
-        if (item === undefined);
         this.clearSelection();
         // Change row
         console.log('From row', rowNo);
