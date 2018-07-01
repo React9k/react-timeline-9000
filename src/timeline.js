@@ -13,6 +13,7 @@ import {rowItemsRenderer, getNearestRowHeight, getMaxOverlappingItems} from 'uti
 import {getTimeAtPixel, getPixelAtTime} from 'utils/timeUtils';
 import {groupRenderer} from 'utils/groupUtils';
 import Timebar from 'components/timebar';
+import SelectBox from 'components/selector';
 
 import './style.css';
 
@@ -286,6 +287,22 @@ export default class Timeline extends Component {
         e.target.setAttribute('delta-x', 0);
         this._grid.recomputeGridSize({rowIndex: minRowNo});
       });
+
+    interact('.parent-div')
+      .draggable({
+        enabled: true,
+        ignoreFrom: '.item_draggable'
+      })
+      .styleCursor(false)
+      .on('dragstart', e => {
+        this._selectBox.start(e.clientX, e.clientY);
+      })
+      .on('dragmove', e => {
+        this._selectBox.move(e.dx, e.dy);
+      })
+      .on('dragend', e => {
+        this._selectBox.end();
+      });
   }
 
   _itemRowClickHandler(e) {
@@ -300,6 +317,7 @@ export default class Timeline extends Component {
       this.props.onRowClick && this.props.onRowClick(e, row, clickedTime);
     }
   }
+
   /**
    * @param  {} width container width (in px)
    */
@@ -377,9 +395,8 @@ export default class Timeline extends Component {
       <div className="rct9k-timeline-div">
         <AutoSizer>
           {({height, width}) => (
-            <div>
-              <SelectBox startX={100} startY={100} endX={400} endY={400} visible={true} />
-
+            <div className="parent-div">
+              <SelectBox ref={ref => (this._selectBox = ref)} />
               <Timebar
                 start={this.props.startDate}
                 end={this.props.endDate}

@@ -18,6 +18,7 @@
 ## Z-indexes
 | Item                                  | Index |
 | ------------------------------------- | ----- |
-| vertical markers                      | 1     |
-| timeline items                        | 2     |
-| timeline items when dragging/resizing | 3     |
+| Vertical markers                      | 1     |
+| Timeline items                        | 2     |
+| Timeline items when dragging/resizing | 3     |
+| Selection box (for multi-select)      | 4     |
