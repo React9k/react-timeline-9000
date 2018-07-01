@@ -5,17 +5,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 export default class SelectBox extends React.Component {
-  componentDidMount(props) {
+  componentDidMount() {
     this.dx = 0;
     this.dy = 0;
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!nextProps.visible) {
-      this.dx = 0;
-      this.dy = 0;
-    }
-  }
   start(x, y) {
     this.startX = x;
     this.startY = y;
@@ -34,12 +28,12 @@ export default class SelectBox extends React.Component {
     this.dy = 0;
     this.forceUpdate();
   }
+
   render() {
     const {startX, startY, dx, dy} = this;
     let style = {left: startX || 0, top: startY || 0};
     //matrix(scaleX(),skewY(),skewX(),scaleY(),translateX(),translateY())
-    style['WebkitTransform'] = `matrix(${dx}, 0, 0, ${dy}, ${dx / 2}, ${dy / 2})`;
-    style['transform'] = style['WebkitTransform'];
+    style['transform'] = style['WebkitTransform'] = `matrix(${dx}, 0, 0, ${dy}, ${dx / 2}, ${dy / 2})`;
     return <div className="rct9k-selector-outer" style={style} />;
   }
 }
