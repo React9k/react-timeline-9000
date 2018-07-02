@@ -25,10 +25,7 @@ export function getTimeAtPixel(pixel_location, vis_start, vis_end, total_width, 
   const pixels_per_min = total_width / start_end_min;
   let min_offset = pixel_location / pixels_per_min;
   let timeAtPix = vis_start.clone().add(min_offset, 'minutes');
-  console.log('before snap ' + timeAtPix.format());
   if (snapMinutes !== 0) timeAtPix = timeSnap(timeAtPix, snapMinutes * 60);
-  console.log('after snap ' + timeAtPix.format());
-
   return timeAtPix;
 }
 /**
