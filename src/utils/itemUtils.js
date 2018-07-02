@@ -11,7 +11,15 @@ import moment from 'moment';
  * @param  {moment} vis_end The visible end of the timeline
  * @param  {number} total_width pixel width of the timeline
  */
-export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHeight) {
+export function rowItemsRenderer(
+  items,
+  vis_start,
+  vis_end,
+  total_width,
+  itemHeight,
+  selectedItems = [],
+  onItemClick = () => {}
+) {
   const start_end_min = vis_end.diff(vis_start, 'minutes');
   const pixels_per_min = total_width / start_end_min;
   let filtered_items = _.sortBy(
@@ -42,19 +50,33 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHei
   }
   //console.groupEnd('New row');
   return _.map(displayItems, i => {
+    const {color} = i;
     let top = itemHeight * i['rowOffset'];
     let item_offset_mins = i.start.diff(vis_start, 'minutes');
     let item_duration_mins = i.end.diff(i.start, 'minutes');
     let left = Math.round(item_offset_mins * pixels_per_min);
     let width = Math.round(item_duration_mins * pixels_per_min);
-    const {color} = i;
+    let classnames = 'rct9k-items-inner';
+    let style = {backgroundColor: color};
+    let isSelected = selectedItems.indexOf(Number(i.key)) > -1;
+
+    if (isSelected) {
+      classnames += ' rct9k-items-selected';
+      style = {};
+    }
+
     return (
       <span
         key={i.key}
         item-index={i.key}
         className="rct9k-items-outer item_draggable"
         style={{left, width, top, backgroundColor: 'transparent'}}>
-        <span className="rct9k-items-inner" style={{backgroundColor: color}}>
+        <span
+          className={classnames}
+          style={style}
+          onClick={e => {
+            onItemClick && onItemClick(e, Number(i.key));
+          }}>
           {i.title}
         </span>
       </span>
