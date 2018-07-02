@@ -53,6 +53,8 @@ export default class DemoTimeline extends Component {
   render() {
     const items = this.list;
     const groups = this.groups;
-    return <Timeline items={items} groups={groups} />;
+    const startDate = moment('2000-01-01');
+    const endDate = startDate.clone().add(1, 'days');
+    return <Timeline items={items} groups={groups} startDate={startDate} endDate={endDate} />;
   }
 }

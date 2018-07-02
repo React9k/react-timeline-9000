@@ -21,19 +21,20 @@ import {groupRenderer} from 'utils/groupUtils';
 import Timebar from 'components/timebar';
 
 import './style.css';
-const ITEM_HEIGHT = 40;
-
-const VISIBLE_START = moment('2000-01-01');
-const VISIBLE_END = VISIBLE_START.clone().add(1, 'days');
 
 export default class Timeline extends Component {
   static propTypes = {
     items: PropTypes.arrayOf(PropTypes.object).isRequired,
     groups: PropTypes.arrayOf(PropTypes.object).isRequired,
-    groupOffset: PropTypes.number.isRequired
+    groupOffset: PropTypes.number.isRequired,
+    selectedItems: PropTypes.arrayOf(PropTypes.number),
+    startDate: PropTypes.object.isRequired,
+    endDate: PropTypes.object.isRequired,
+    itemHeight: PropTypes.number
   };
   static defaultProps = {
-    groupOffset: 150
+    groupOffset: 150,
+    itemHeight: 40
   };
 
   constructor(props) {
@@ -64,7 +65,7 @@ export default class Timeline extends Component {
     this.rowItemMap = {}; // (rowNo) => timeline elements
     this.rowHeightCache = {}; // (rowNo) => max number of stacked items
     let visibleItems = _.filter(items, i => {
-      return i.end > VISIBLE_START && i.start < VISIBLE_END;
+      return i.end > this.props.startDate && i.start < this.props.endDate;
     });
     let itemRows = _.groupBy(visibleItems, 'row');
     _.forEach(itemRows, (visibleItems, row) => {
@@ -128,7 +129,12 @@ export default class Timeline extends Component {
 
         let itemDuration = item.end.diff(item.start);
         let newPixelOffset = pixToInt(e.target.style.left) + dx;
-        let newStart = getTimeAtPixel(newPixelOffset, VISIBLE_START, VISIBLE_END, this.getTimelineWidth());
+        let newStart = getTimeAtPixel(
+          newPixelOffset,
+          this.props.startDate,
+          this.props.endDate,
+          this.getTimelineWidth()
+        );
         let newEnd = newStart.clone().add(itemDuration);
         this.setSelection(newStart, newEnd);
       })
@@ -146,7 +152,12 @@ export default class Timeline extends Component {
         // Update time
         let itemDuration = item.end.diff(item.start);
         let newPixelOffset = pixToInt(e.target.style.left) + (parseFloat(e.target.getAttribute('drag-x')) || 0);
-        let newStart = getTimeAtPixel(newPixelOffset, VISIBLE_START, VISIBLE_END, this.getTimelineWidth());
+        let newStart = getTimeAtPixel(
+          newPixelOffset,
+          this.props.startDate,
+          this.props.endDate,
+          this.getTimelineWidth()
+        );
         let newEnd = newStart.clone().add(itemDuration);
         item.start = newStart;
         item.end = newEnd;
@@ -155,16 +166,26 @@ export default class Timeline extends Component {
         e.target.setAttribute('drag-y', 0);
         e.target.style.webkitTransform = e.target.style.transform = 'translate(0px, 0px)';
         e.target.style['z-index'] = 2;
-        e.target.style['top'] = intToPix(ITEM_HEIGHT * Math.round(pixToInt(e.target.style['top']) / ITEM_HEIGHT));
+        e.target.style['top'] = intToPix(
+          this.props.itemHeight * Math.round(pixToInt(e.target.style['top']) / this.props.itemHeight)
+        );
         // e.target.style['top'] = '0px';
         // Check row height doesn't need changing
         let need_recompute = false;
-        let new_to_row_height = getMaxOverlappingItems(this.rowItemMap[newRow], VISIBLE_START, VISIBLE_END);
+        let new_to_row_height = getMaxOverlappingItems(
+          this.rowItemMap[newRow],
+          this.props.startDate,
+          this.props.endDate
+        );
         if (new_to_row_height !== this.rowHeightCache[newRow]) {
           this.rowHeightCache[newRow] = new_to_row_height;
           need_recompute = true;
         }
-        let new_from_row_height = getMaxOverlappingItems(this.rowItemMap[rowNo], VISIBLE_START, VISIBLE_END);
+        let new_from_row_height = getMaxOverlappingItems(
+          this.rowItemMap[rowNo],
+          this.props.startDate,
+          this.props.endDate
+        );
         if (new_from_row_height !== this.rowHeightCache[rowNo]) {
           this.rowHeightCache[rowNo] = new_from_row_height;
           need_recompute = true;
@@ -195,18 +216,28 @@ export default class Timeline extends Component {
         const {item, rowNo} = this.itemFromEvent(e);
         let startPixelOffset = pixToInt(e.target.style.left) + (parseFloat(e.target.getAttribute('delta-x')) || 0);
         if (isStartTimeChange) {
-          let newStart = getTimeAtPixel(startPixelOffset, VISIBLE_START, VISIBLE_END, this.getTimelineWidth());
+          let newStart = getTimeAtPixel(
+            startPixelOffset,
+            this.props.startDate,
+            this.props.endDate,
+            this.getTimelineWidth()
+          );
           item.start = newStart;
         } else {
           let endPixelOffset = startPixelOffset + pixToInt(e.target.style.width);
-          let newEnd = getTimeAtPixel(endPixelOffset, VISIBLE_START, VISIBLE_END, this.getTimelineWidth());
+          let newEnd = getTimeAtPixel(
+            endPixelOffset,
+            this.props.startDate,
+            this.props.endDate,
+            this.getTimelineWidth()
+          );
           item.end = newEnd;
         }
         e.target.setAttribute('delta-x', 0);
         e.target.style.webkitTransform = e.target.style.transform = 'translate(0px, 0px)';
         // Check row height doesn't need changing
         let need_recompute = false;
-        let new_row_height = getMaxOverlappingItems(this.rowItemMap[rowNo], VISIBLE_START, VISIBLE_END);
+        let new_row_height = getMaxOverlappingItems(this.rowItemMap[rowNo], this.props.startDate, this.props.endDate);
         if (new_row_height !== this.rowHeightCache[rowNo]) {
           this.rowHeightCache[rowNo] = new_row_height;
           need_recompute = true;
@@ -221,7 +252,7 @@ export default class Timeline extends Component {
       // console.log('Clicking item');
     } else {
       let row = e.target.getAttribute('row-index');
-      let clickedTime = getTimeAtPixel(e.clientX, VISIBLE_START, VISIBLE_END, this.getTimelineWidth());
+      let clickedTime = getTimeAtPixel(e.clientX, this.props.startDate, this.props.endDate, this.getTimelineWidth());
       // console.log('Clicking row ' + row + ' at ' + clickedTime.format());
     }
   }
@@ -242,7 +273,7 @@ export default class Timeline extends Component {
         let itemsInRow = this.rowItemMap[rowIndex];
         return (
           <div key={key} style={style} row-index={rowIndex} className="rct9k-row" onClick={this._itemRowClickHandler}>
-            {rowItemsRenderer(itemsInRow, VISIBLE_START, VISIBLE_END, width, ITEM_HEIGHT)}
+            {rowItemsRenderer(itemsInRow, this.props.startDate, this.props.endDate, width, this.props.itemHeight)}
           </div>
         );
       } else {
@@ -265,8 +296,8 @@ export default class Timeline extends Component {
     markers.push({
       location: getPixelAtTime(
         moment('2000-01-01 10:00:00'),
-        VISIBLE_START,
-        VISIBLE_END,
+        this.props.startDate,
+        this.props.endDate,
         this.getTimelineWidth(props.parent.props.width)
       ),
       key: 1
@@ -277,7 +308,7 @@ export default class Timeline extends Component {
     return children;
   }
   rowHeight({index}) {
-    return this.rowHeightCache[index] * ITEM_HEIGHT;
+    return this.rowHeightCache[index] * this.props.itemHeight;
   }
 
   render() {
@@ -295,8 +326,8 @@ export default class Timeline extends Component {
           {({height, width}) => (
             <div>
               <Timebar
-                start={VISIBLE_START}
-                end={VISIBLE_END}
+                start={this.props.startDate}
+                end={this.props.endDate}
                 width={width}
                 leftOffset={groupOffset}
                 selectedRanges={this.state.selection}
