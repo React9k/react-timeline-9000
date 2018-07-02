@@ -2,10 +2,10 @@
 
 import React, {Component} from 'react';
 import moment from 'moment';
-
+import _ from 'lodash';
 import Timeline from './timeline';
 
-const ROWS = 1000;
+const ROWS = 100;
 const ITEMS_PER_ROW = 100;
 const ITEM_DURATIONS = [
   moment.duration(15, 'minutes'),
@@ -25,21 +25,20 @@ const COLORS = ['lightblue', 'red', 'green', 'yellow', 'orange', 'pink'];
 export default class DemoTimeline extends Component {
   constructor(props) {
     super(props);
-    this.state = {selectedItems: [21, 22]};
 
-    this.list = [];
-    this.groups = [];
+    let list = [];
+    let groups = [];
     for (let i = 0; i < ROWS; i++) {
       let last_moment = moment('2000-01-01');
-      this.groups.push({id: i, title: `Row ${i}`});
+      groups.push({id: i, title: `Row ${i}`});
       for (let j = 0; j < ITEMS_PER_ROW; j++) {
         const color = COLORS[(i + j) % COLORS.length];
         const duration = ITEM_DURATIONS[Math.floor(Math.random() * ITEM_DURATIONS.length)];
         let start = last_moment;
         let end = start.clone().add(duration);
         last_moment = end.clone().add(SPACE_DURATIONS[Math.floor(Math.random() * SPACE_DURATIONS.length)]);
-        this.list.push({
-          key: `${i}${j}`,
+        list.push({
+          key: Number(`${i}${j}`),
           title: duration.humanize(),
           color,
           row: i,
@@ -48,7 +47,15 @@ export default class DemoTimeline extends Component {
         });
       }
     }
+
+    this.state = {selectedItems: [11, 12], groups, items: list};
   }
+
+  handleRowClick = (e, rowNumber, time) => {
+    console.log('row clicked', rowNumber, time);
+
+    this.setState({selectedItems: []});
+  };
 
   handleItemClick = (e, key) => {
     console.log('from demo ', key);
@@ -68,14 +75,59 @@ export default class DemoTimeline extends Component {
     this.setState({selectedItems: newSelection});
   };
 
-  handleInteraction = e => {
-    console.log('interaction ');
+  handleInteraction = (type, changes, selectedItems) => {
+    console.log('interaction ', type, changes, selectedItems);
+
+    // const newItems = JSON.parse(JSON.stringify(this.state.items));
+    const newItems = _.cloneDeep(this.state.items);
+
+    switch (type) {
+      case Timeline.changeTypes.resizeEnd: {
+        console.log('resize end interaction');
+        const {isStartTimeChange, timeDelta} = changes;
+        newItems.forEach(item => {
+          if (selectedItems.includes(item.key)) {
+            if (isStartTimeChange) {
+              item.start = item.start.clone().add(timeDelta, 'minutes');
+            } else {
+              item.end = item.end.clone().add(timeDelta, 'minutes');
+            }
+          }
+        });
+
+        this.setState({items: newItems});
+        break;
+      }
+      case Timeline.changeTypes.dragEnd: {
+        console.log('drag end interaction');
+        const {rowChangeDelta, timeDelta} = changes;
+        // Update the item with the new changes.
+        newItems.forEach(item => {
+          if (selectedItems.includes(item.key)) {
+            let itemDuration = item.end.diff(item.start);
+            let newStart = item.start.clone().add(timeDelta, 'minutes');
+            let newEnd = newStart.clone().add(itemDuration);
+            item.start = newStart;
+            item.end = newEnd;
+
+            if (rowChangeDelta < 0) {
+              item.row = Math.max(0, item.row + rowChangeDelta);
+            } else if (rowChangeDelta > 0) {
+              item.row = Math.min(this.state.groups.length - 1, item.row + rowChangeDelta);
+            }
+          }
+        });
+
+        this.setState({items: newItems});
+        break;
+      }
+      default:
+        return changes;
+    }
   };
 
   render() {
-    const {selectedItems} = this.state;
-    const items = this.list;
-    const groups = this.groups;
+    const {selectedItems, groups, items} = this.state;
     const startDate = moment('2000-01-01');
     const endDate = startDate.clone().add(1, 'days');
 
@@ -88,6 +140,7 @@ export default class DemoTimeline extends Component {
         selectedItems={selectedItems}
         onItemClick={this.handleItemClick}
         onInteraction={this.handleInteraction}
+        onRowClick={this.handleRowClick}
       />
     );
   }

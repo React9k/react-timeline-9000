@@ -32,12 +32,18 @@ export default class Timeline extends Component {
     endDate: PropTypes.object.isRequired,
     itemHeight: PropTypes.number,
     onItemClick: PropTypes.func,
-    onInteraction: PropTypes.func
+    onInteraction: PropTypes.func,
+    onRowClick: PropTypes.func
   };
 
   static defaultProps = {
     groupOffset: 150,
     itemHeight: 40
+  };
+
+  static changeTypes = {
+    resizeEnd: 'resizeEnd',
+    dragEnd: 'dragEnd'
   };
 
   constructor(props) {
@@ -142,18 +148,20 @@ export default class Timeline extends Component {
         this.setSelection(newStart, newEnd);
       })
       .on('dragend', e => {
-        //TODO: This should use state reducer
         //TODO: Should be able to optimize the lookup below
         const {item, rowNo} = this.itemFromEvent(e);
+
         this.setSelection(item.start, item.end);
         this.clearSelection();
         // Change row
         console.log('From row', rowNo);
         let newRow = getNearestRowHeight(e.clientX, e.clientY);
         console.log('To row', newRow);
-        this.changeGroup(item, rowNo, newRow);
+        // this.changeGroup(item, rowNo, newRow);
+
+        let rowChangeDelta = newRow - rowNo;
         // Update time
-        let itemDuration = item.end.diff(item.start);
+        // let itemDuration = item.end.diff(item.start);
         let newPixelOffset = pixToInt(e.target.style.left) + (parseFloat(e.target.getAttribute('drag-x')) || 0);
         let newStart = getTimeAtPixel(
           newPixelOffset,
@@ -161,9 +169,13 @@ export default class Timeline extends Component {
           this.props.endDate,
           this.getTimelineWidth()
         );
-        let newEnd = newStart.clone().add(itemDuration);
-        item.start = newStart;
-        item.end = newEnd;
+        // let newEnd = newStart.clone().add(itemDuration);
+        // item.start = newStart;
+        // item.end = newEnd;
+        const timeDelta = newStart.clone().diff(item.start, 'minutes');
+        const changes = {rowChangeDelta, timeDelta, targetItemKey: item.key};
+        this.props.onInteraction(Timeline.changeTypes.dragEnd, changes, this.props.selectedItems);
+
         //reset styles
         e.target.setAttribute('drag-x', 0);
         e.target.setAttribute('drag-y', 0);
@@ -172,29 +184,31 @@ export default class Timeline extends Component {
         e.target.style['top'] = intToPix(
           this.props.itemHeight * Math.round(pixToInt(e.target.style['top']) / this.props.itemHeight)
         );
+
+        this._grid.recomputeGridSize({rowIndex: 0});
         // e.target.style['top'] = '0px';
         // Check row height doesn't need changing
-        let need_recompute = false;
-        let new_to_row_height = getMaxOverlappingItems(
-          this.rowItemMap[newRow],
-          this.props.startDate,
-          this.props.endDate
-        );
-        if (new_to_row_height !== this.rowHeightCache[newRow]) {
-          this.rowHeightCache[newRow] = new_to_row_height;
-          need_recompute = true;
-        }
-        let new_from_row_height = getMaxOverlappingItems(
-          this.rowItemMap[rowNo],
-          this.props.startDate,
-          this.props.endDate
-        );
-        if (new_from_row_height !== this.rowHeightCache[rowNo]) {
-          this.rowHeightCache[rowNo] = new_from_row_height;
-          need_recompute = true;
-        }
-        if (need_recompute) this._grid.recomputeGridSize({rowIndex: Math.min(newRow, rowNo)});
-        else this._grid.forceUpdate();
+        // let need_recompute = false;
+        // let new_to_row_height = getMaxOverlappingItems(
+        //   this.rowItemMap[newRow],
+        //   this.props.startDate,
+        //   this.props.endDate
+        // );
+        // if (new_to_row_height !== this.rowHeightCache[newRow]) {
+        //   this.rowHeightCache[newRow] = new_to_row_height;
+        //   need_recompute = true;
+        // }
+        // let new_from_row_height = getMaxOverlappingItems(
+        //   this.rowItemMap[rowNo],
+        //   this.props.startDate,
+        //   this.props.endDate
+        // );
+        // if (new_from_row_height !== this.rowHeightCache[rowNo]) {
+        //   this.rowHeightCache[rowNo] = new_from_row_height;
+        //   need_recompute = true;
+        // }
+        // if (need_recompute) this._grid.recomputeGridSize({rowIndex: Math.min(newRow, rowNo)});
+        // else this._grid.forceUpdate();
       })
       .resizable({
         edges: {left: true, right: true, bottom: false, top: false}
@@ -218,45 +232,65 @@ export default class Timeline extends Component {
         const isStartTimeChange = dx != 0;
         const {item, rowNo} = this.itemFromEvent(e);
         let startPixelOffset = pixToInt(e.target.style.left) + (parseFloat(e.target.getAttribute('delta-x')) || 0);
-        if (isStartTimeChange) {
-          let newStart = getTimeAtPixel(
-            startPixelOffset,
-            this.props.startDate,
-            this.props.endDate,
-            this.getTimelineWidth()
-          );
-          item.start = newStart;
-        } else {
-          let endPixelOffset = startPixelOffset + pixToInt(e.target.style.width);
-          let newEnd = getTimeAtPixel(
-            endPixelOffset,
-            this.props.startDate,
-            this.props.endDate,
-            this.getTimelineWidth()
-          );
-          item.end = newEnd;
-        }
-        e.target.setAttribute('delta-x', 0);
-        e.target.style.webkitTransform = e.target.style.transform = 'translate(0px, 0px)';
-        // Check row height doesn't need changing
-        let need_recompute = false;
-        let new_row_height = getMaxOverlappingItems(this.rowItemMap[rowNo], this.props.startDate, this.props.endDate);
-        if (new_row_height !== this.rowHeightCache[rowNo]) {
-          this.rowHeightCache[rowNo] = new_row_height;
-          need_recompute = true;
-        }
-        if (need_recompute) this._grid.recomputeGridSize({rowIndex: rowNo});
-        else this._grid.forceUpdate();
+        let endPixelOffset = startPixelOffset + pixToInt(e.target.style.width);
+        // if (isStartTimeChange) {
+        //   let newStart = getTimeAtPixel(
+        //     startPixelOffset,
+        //     this.props.startDate,
+        //     this.props.endDate,
+        //     this.getTimelineWidth()
+        //   );
+        //   item.start = newStart;
+        // } else {
+        //   // let endPixelOffset = startPixelOffset + pixToInt(e.target.style.width);
+        //   let newEnd = getTimeAtPixel(
+        //     endPixelOffset,
+        //     this.props.startDate,
+        //     this.props.endDate,
+        //     this.getTimelineWidth()
+        //   );
+        //   item.end = newEnd;
+        // }
+
+        let newTime = getTimeAtPixel(
+          isStartTimeChange ? startPixelOffset : endPixelOffset,
+          this.props.startDate,
+          this.props.endDate,
+          this.getTimelineWidth()
+        );
+
+        const timeDelta = isStartTimeChange
+          ? newTime.clone().diff(item.start, 'minutes')
+          : newTime.clone().diff(item.end, 'minutes');
+        const changes = {isStartTimeChange, timeDelta, targetItemKey: item.key};
+        this.props.onInteraction(Timeline.changeTypes.resizeEnd, changes, this.props.selectedItems);
+
+        this._grid.recomputeGridSize({rowIndex: 0});
+
+        // e.target.setAttribute('delta-x', 0);
+        // e.target.style.webkitTransform = e.target.style.transform = 'translate(0px, 0px)';
+        // // Check row height doesn't need changing
+        // let need_recompute = false;
+        // let new_row_height = getMaxOverlappingItems(this.rowItemMap[rowNo], this.props.startDate, this.props.endDate);
+        // if (new_row_height !== this.rowHeightCache[rowNo]) {
+        //   this.rowHeightCache[rowNo] = new_row_height;
+        //   need_recompute = true;
+        // }
+        // if (need_recompute) this._grid.recomputeGridSize({rowIndex: rowNo});
+        // else this._grid.forceUpdate();
       });
   }
 
   _itemRowClickHandler(e) {
     if (e.target.hasAttribute('item-index') || e.target.parentElement.hasAttribute('item-index')) {
       // console.log('Clicking item');
+      let itemKey = e.target.getAttribute('item-index') || e.target.parentElement.getAttribute('item-index');
+      this.props.onItemClick && this.props.onItemClick(e, Number(itemKey));
     } else {
       let row = e.target.getAttribute('row-index');
       let clickedTime = getTimeAtPixel(e.clientX, this.props.startDate, this.props.endDate, this.getTimelineWidth());
       // console.log('Clicking row ' + row + ' at ' + clickedTime.format());
+      this.props.onRowClick && this.props.onRowClick(e, row, clickedTime);
     }
   }
   /**
