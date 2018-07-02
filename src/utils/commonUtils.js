@@ -7,9 +7,21 @@
 export function sumStyle(style, diff) {
   return intToPix(pixToInt(style) + diff);
 }
+/**
+ * Converts a pixel string to an int
+ * @param  {string} pix
+ * @return {number} int
+ */
 export function pixToInt(pix) {
   return parseInt(pix.replace('px', ''));
 }
+/**
+ * Convert integer to pixel string.
+ * If not an integer the input is returned as is
+ * @param  {number} int
+ * @returns {string} pixel string
+ */
 export function intToPix(int) {
-  return int + 'px';
+  if (int === Number(int)) return int + 'px';
+  return int;
 }
