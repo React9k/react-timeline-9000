@@ -61,63 +61,65 @@ const allTestItems = [
   }
 ];
 
-describe('getMaxOverlappingItems', function() {
-  it('should return a default of 1', function() {
-    const result = getMaxOverlappingItems([]);
-    expect(result).to.equal(1);
-  });
-  // Diagram
-  //  |-----|  |----|
-  it('should return 1 when no overlapping items', function() {
-    let testInstanceIDs = ['1', '2'];
-    let items = _.filter(allTestItems, i => {
-      return _.includes(testInstanceIDs, i.key);
+describe('Item Utils', function() {
+  describe('getMaxOverlappingItems', function() {
+    it('should return a default of 1', function() {
+      const result = getMaxOverlappingItems([]);
+      expect(result).to.equal(1);
     });
-    const result = getMaxOverlappingItems(items);
-    expect(result).to.equal(1);
-  });
-  // Diagram
-  //  |-----|
-  //    |------|
-  it('should return 2 when 2 items overlap', () => {
-    let testInstanceIDs = ['1', '3'];
-    let items = _.filter(allTestItems, i => {
-      return _.includes(testInstanceIDs, i.key);
+    // Diagram
+    //  |-----|  |----|
+    it('should return 1 when no overlapping items', function() {
+      let testInstanceIDs = ['1', '2'];
+      let items = _.filter(allTestItems, i => {
+        return _.includes(testInstanceIDs, i.key);
+      });
+      const result = getMaxOverlappingItems(items);
+      expect(result).to.equal(1);
     });
-    const result = getMaxOverlappingItems(items);
-    expect(result).to.equal(2);
-  });
-  // Diagram
-  //  |-----|-----|
-  it('should return 1 when 2 items touch', () => {
-    let testInstanceIDs = ['1', '4'];
-    let items = _.filter(allTestItems, i => {
-      return _.includes(testInstanceIDs, i.key);
+    // Diagram
+    //  |-----|
+    //    |------|
+    it('should return 2 when 2 items overlap', () => {
+      let testInstanceIDs = ['1', '3'];
+      let items = _.filter(allTestItems, i => {
+        return _.includes(testInstanceIDs, i.key);
+      });
+      const result = getMaxOverlappingItems(items);
+      expect(result).to.equal(2);
     });
-    const result = getMaxOverlappingItems(items);
-    expect(result).to.equal(1);
-  });
-  // Diagram
-  //  |-----|
-  //    |------|
-  //       |------|
-  it('should return 3 when 3 items overlap', () => {
-    let testInstanceIDs = ['1', '3', '5'];
-    let items = _.filter(allTestItems, i => {
-      return _.includes(testInstanceIDs, i.key);
+    // Diagram
+    //  |-----|-----|
+    it('should return 1 when 2 items touch', () => {
+      let testInstanceIDs = ['1', '4'];
+      let items = _.filter(allTestItems, i => {
+        return _.includes(testInstanceIDs, i.key);
+      });
+      const result = getMaxOverlappingItems(items);
+      expect(result).to.equal(1);
     });
-    const result = getMaxOverlappingItems(items);
-    expect(result).to.equal(3);
-  });
-  // Diagram
-  //  |-----|  |------|
-  //      |------|
-  it('should return 2 when 2 of 3 items overlap', () => {
-    let testInstanceIDs = ['2', '3', '4'];
-    let items = _.filter(allTestItems, i => {
-      return _.includes(testInstanceIDs, i.key);
+    // Diagram
+    //  |-----|
+    //    |------|
+    //       |------|
+    it('should return 3 when 3 items overlap', () => {
+      let testInstanceIDs = ['1', '3', '5'];
+      let items = _.filter(allTestItems, i => {
+        return _.includes(testInstanceIDs, i.key);
+      });
+      const result = getMaxOverlappingItems(items);
+      expect(result).to.equal(3);
     });
-    const result = getMaxOverlappingItems(items);
-    expect(result).to.equal(2);
+    // Diagram
+    //  |-----|  |------|
+    //      |------|
+    it('should return 2 when 2 of 3 items overlap', () => {
+      let testInstanceIDs = ['2', '3', '4'];
+      let items = _.filter(allTestItems, i => {
+        return _.includes(testInstanceIDs, i.key);
+      });
+      const result = getMaxOverlappingItems(items);
+      expect(result).to.equal(2);
+    });
   });
 });

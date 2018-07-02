@@ -130,6 +130,7 @@ export default class DemoTimeline extends Component {
     const {selectedItems, groups, items} = this.state;
     const startDate = moment('2000-01-01');
     const endDate = startDate.clone().add(1, 'days');
+    const snapMinutes = 15;
 
     return (
       <Timeline
@@ -138,6 +139,7 @@ export default class DemoTimeline extends Component {
         startDate={startDate}
         endDate={endDate}
         selectedItems={selectedItems}
+        snapMinutes={snapMinutes}
         onItemClick={this.handleItemClick}
         onInteraction={this.handleInteraction}
         onRowClick={this.handleRowClick}
