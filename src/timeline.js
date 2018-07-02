@@ -305,12 +305,13 @@ export default class Timeline extends Component {
     let markers = [];
     // today
     markers.push({
-      location: getPixelAtTime(
-        moment('2000-01-01 10:00:00'),
-        this.props.startDate,
-        this.props.endDate,
-        this.getTimelineWidth(props.parent.props.width)
-      ),
+      location:
+        getPixelAtTime(
+          moment('2000-01-01 10:00:00'),
+          this.props.startDate,
+          this.props.endDate,
+          this.getTimelineWidth(props.parent.props.width)
+        ) + this.props.groupOffset,
       key: 1
     });
     _.forEach(markers, m => {
