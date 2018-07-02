@@ -55,6 +55,7 @@ export default class DemoTimeline extends Component {
     const groups = this.groups;
     const startDate = moment('2000-01-01');
     const endDate = startDate.clone().add(1, 'days');
-    return <Timeline items={items} groups={groups} startDate={startDate} endDate={endDate} />;
+    const snapMinutes = 15;
+    return <Timeline items={items} groups={groups} startDate={startDate} endDate={endDate} snapMinutes={snapMinutes} />;
   }
 }
