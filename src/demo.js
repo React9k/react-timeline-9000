@@ -5,8 +5,9 @@ import moment from 'moment';
 
 import Timeline from './timeline';
 
-const ROWS = 1000;
-const ITEMS_PER_ROW = 100;
+import {Layout, Form, InputNumber, Button, DatePicker} from 'antd';
+import 'antd/dist/antd.css';
+
 const ITEM_DURATIONS = [
   moment.duration(15, 'minutes'),
   moment.duration(30, 'minutes'),
@@ -25,14 +26,23 @@ const COLORS = ['lightblue', 'red', 'green', 'yellow', 'orange', 'pink'];
 export default class DemoTimeline extends Component {
   constructor(props) {
     super(props);
-    this.state = {selectedItems: [21, 22]};
+    const startDate = moment('2000-01-01');
+    const endDate = startDate.clone().add(1, 'days');
+    this.state = {selectedItems: [21, 22], rows: 1000, items_per_row: 100, snap: 15, startDate, endDate};
+    this.reRender = this.reRender.bind(this);
+  }
 
+  componentWillMount() {
+    this.reRender();
+  }
+
+  reRender() {
     this.list = [];
     this.groups = [];
-    for (let i = 0; i < ROWS; i++) {
+    for (let i = 0; i < this.state.rows; i++) {
       let last_moment = moment('2000-01-01');
       this.groups.push({id: i, title: `Row ${i}`});
-      for (let j = 0; j < ITEMS_PER_ROW; j++) {
+      for (let j = 0; j < this.state.items_per_row; j++) {
         const color = COLORS[(i + j) % COLORS.length];
         const duration = ITEM_DURATIONS[Math.floor(Math.random() * ITEM_DURATIONS.length)];
         let start = last_moment;
@@ -48,6 +58,7 @@ export default class DemoTimeline extends Component {
         });
       }
     }
+    this.forceUpdate();
   }
 
   handleItemClick = (e, key) => {
@@ -73,24 +84,53 @@ export default class DemoTimeline extends Component {
   };
 
   render() {
-    const {selectedItems} = this.state;
+    const {selectedItems, rows, items_per_row, snap, startDate, endDate} = this.state;
     const items = this.list;
     const groups = this.groups;
-    const startDate = moment('2000-01-01');
-    const endDate = startDate.clone().add(1, 'days');
-    const snapMinutes = 15;
+    const rangeValue = [startDate, endDate];
 
     return (
-      <Timeline
-        items={items}
-        groups={groups}
-        startDate={startDate}
-        endDate={endDate}
-        selectedItems={selectedItems}
-        snapMinutes={snapMinutes}
-        onItemClick={this.handleItemClick}
-        onInteraction={this.handleInteraction}
-      />
+      <Layout className="layout">
+        <Layout.Content>
+          <div style={{margin: 24}}>
+            <Form layout="inline">
+              <Form.Item label="No rows">
+                <InputNumber value={rows} onChange={e => this.setState({rows: e})} />
+              </Form.Item>
+              <Form.Item label="No items per row">
+                <InputNumber value={items_per_row} onChange={e => this.setState({items_per_row: e})} />
+              </Form.Item>
+              <Form.Item label="Snap (mins)">
+                <InputNumber value={snap} onChange={e => this.setState({snap: e})} />
+              </Form.Item>
+              <Form.Item label="Snap (mins)">
+                <DatePicker.RangePicker
+                  allowClear={false}
+                  value={rangeValue}
+                  onChange={e => {
+                    this.setState({startDate: e[0], endDate: e[1]}, () => this.reRender);
+                  }}
+                />
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" onClick={() => this.reRender()}>
+                  Set
+                </Button>
+              </Form.Item>
+            </Form>
+          </div>
+          <Timeline
+            items={items}
+            groups={groups}
+            startDate={startDate}
+            endDate={endDate}
+            selectedItems={selectedItems}
+            snapMinutes={snap}
+            onItemClick={this.handleItemClick}
+            onInteraction={this.handleInteraction}
+          />
+        </Layout.Content>
+      </Layout>
     );
   }
 }
