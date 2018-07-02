@@ -9,13 +9,8 @@ import interact from 'interactjs';
 import _ from 'lodash';
 
 import {sumStyle, pixToInt, intToPix} from 'utils/common';
-import {
-  rowItemsRenderer,
-  getTimeAtPixel,
-  getPixelAtTime,
-  getNearestRowHeight,
-  getMaxOverlappingItems
-} from 'utils/itemUtils';
+import {rowItemsRenderer, getNearestRowHeight, getMaxOverlappingItems} from 'utils/itemUtils';
+import {getTimeAtPixel, getPixelAtTime} from 'utils/timeUtils';
 import {groupRenderer} from 'utils/groupUtils';
 import Timebar from 'components/timebar';
 
