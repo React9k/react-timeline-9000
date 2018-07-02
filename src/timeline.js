@@ -14,8 +14,7 @@ import {
   getTimeAtPixel,
   getPixelAtTime,
   getNearestRowHeight,
-  getMaxOverlappingItems,
-  getDurationFromPixels
+  getMaxOverlappingItems
 } from 'utils/itemUtils';
 import {groupRenderer} from 'utils/groupUtils';
 import Timebar from 'components/timebar';
