@@ -9,14 +9,8 @@ import interact from 'interactjs';
 import _ from 'lodash';
 
 import {sumStyle, pixToInt, intToPix} from 'utils/common';
-import {
-  rowItemsRenderer,
-  getTimeAtPixel,
-  getPixelAtTime,
-  getNearestRowHeight,
-  getMaxOverlappingItems,
-  getDurationFromPixels
-} from 'utils/itemUtils';
+import {rowItemsRenderer, getNearestRowHeight, getMaxOverlappingItems} from 'utils/itemUtils';
+import {getTimeAtPixel, getPixelAtTime} from 'utils/timeUtils';
 import {groupRenderer} from 'utils/groupUtils';
 import Timebar from 'components/timebar';
 
@@ -30,6 +24,7 @@ export default class Timeline extends Component {
     selectedItems: PropTypes.arrayOf(PropTypes.number),
     startDate: PropTypes.object.isRequired,
     endDate: PropTypes.object.isRequired,
+    snapMinutes: PropTypes.number,
     itemHeight: PropTypes.number,
     onItemClick: PropTypes.func,
     onInteraction: PropTypes.func
@@ -37,7 +32,8 @@ export default class Timeline extends Component {
 
   static defaultProps = {
     groupOffset: 150,
-    itemHeight: 40
+    itemHeight: 40,
+    snapMinutes: 15
   };
 
   constructor(props) {
@@ -136,7 +132,8 @@ export default class Timeline extends Component {
           newPixelOffset,
           this.props.startDate,
           this.props.endDate,
-          this.getTimelineWidth()
+          this.getTimelineWidth(),
+          this.props.snapMinutes
         );
         let newEnd = newStart.clone().add(itemDuration);
         this.setSelection(newStart, newEnd);
@@ -159,7 +156,8 @@ export default class Timeline extends Component {
           newPixelOffset,
           this.props.startDate,
           this.props.endDate,
-          this.getTimelineWidth()
+          this.getTimelineWidth(),
+          this.props.snapMinutes
         );
         let newEnd = newStart.clone().add(itemDuration);
         item.start = newStart;
@@ -223,7 +221,8 @@ export default class Timeline extends Component {
             startPixelOffset,
             this.props.startDate,
             this.props.endDate,
-            this.getTimelineWidth()
+            this.getTimelineWidth(),
+            this.props.snapMinutes
           );
           item.start = newStart;
         } else {
@@ -232,7 +231,8 @@ export default class Timeline extends Component {
             endPixelOffset,
             this.props.startDate,
             this.props.endDate,
-            this.getTimelineWidth()
+            this.getTimelineWidth(),
+            this.props.snapMinutes
           );
           item.end = newEnd;
         }

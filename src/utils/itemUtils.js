@@ -96,34 +96,7 @@ export function getNearestRowHeight(x, y) {
   });
   return targetRow ? targetRow.getAttribute('row-index') : 0;
 }
-/**
- * Get the time at a pixel location
- * @param  {number} pixel_location the pixel location (generally from left css style)
- * @param  {moment} vis_start The visible start of the timeline
- * @param  {moment} vis_end The visible end of the timeline
- * @param  {number} total_width The pixel width of the timeline (row portion)
- * @returns {moment} Moment object
- */
-export function getTimeAtPixel(pixel_location, vis_start, vis_end, total_width) {
-  const start_end_min = vis_end.diff(vis_start, 'minutes');
-  const pixels_per_min = total_width / start_end_min;
-  let min_offset = pixel_location / pixels_per_min;
-  return vis_start.clone().add(min_offset, 'minutes');
-}
 
-export function getPixelAtTime(time, vis_start, vis_end, total_width) {
-  const start_end_min = vis_end.diff(vis_start, 'minutes');
-  const pixels_per_min = total_width / start_end_min;
-  const min_from_start = time.diff(vis_start, 'minutes');
-  return min_from_start * pixels_per_min;
-}
-
-export function getDurationFromPixels(pixels, vis_start, vis_end, total_width) {
-  const start_end_min = vis_end.diff(vis_start, 'minutes');
-  const pixels_per_min = total_width / start_end_min;
-  let mins = pixels_per_min * pixels;
-  return moment.duration(mins, 'minutes');
-}
 /**
  * Use to find the height of a row, given a set of items
  * @param  {} items list it items
