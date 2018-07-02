@@ -35,6 +35,10 @@
   border-top: 1px solid black;
 }
 
+.rct9k-items-selected {
+  background-color: magenta;
+}
+
 .ReactVirtualized__Grid {
   overflow-x: hidden;
 }

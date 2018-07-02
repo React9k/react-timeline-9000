@@ -11,7 +11,7 @@ import moment from 'moment';
  * @param  {moment} vis_end The visible end of the timeline
  * @param  {number} total_width pixel width of the timeline
  */
-export function rowItemsRenderer(items, vis_start, vis_end, total_width, ITEM_HEIGHT) {
+export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHeight) {
   const start_end_min = vis_end.diff(vis_start, 'minutes');
   const pixels_per_min = total_width / start_end_min;
   let filtered_items = _.sortBy(
@@ -42,7 +42,7 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, ITEM_HE
   }
   //console.groupEnd('New row');
   return _.map(displayItems, i => {
-    let top = ITEM_HEIGHT * i['rowOffset'];
+    let top = itemHeight * i['rowOffset'];
     let item_offset_mins = i.start.diff(vis_start, 'minutes');
     let item_duration_mins = i.end.diff(i.start, 'minutes');
     let left = Math.round(item_offset_mins * pixels_per_min);
