@@ -25,8 +25,11 @@ export default class Timeline extends Component {
     startDate: PropTypes.object.isRequired,
     endDate: PropTypes.object.isRequired,
     snapMinutes: PropTypes.number,
-    itemHeight: PropTypes.number
+    itemHeight: PropTypes.number,
+    onItemClick: PropTypes.func,
+    onInteraction: PropTypes.func
   };
+
   static defaultProps = {
     groupOffset: 150,
     itemHeight: 40,
@@ -273,7 +276,15 @@ export default class Timeline extends Component {
         let itemsInRow = this.rowItemMap[rowIndex];
         return (
           <div key={key} style={style} row-index={rowIndex} className="rct9k-row" onClick={this._itemRowClickHandler}>
-            {rowItemsRenderer(itemsInRow, this.props.startDate, this.props.endDate, width, this.props.itemHeight)}
+            {rowItemsRenderer(
+              itemsInRow,
+              this.props.startDate,
+              this.props.endDate,
+              width,
+              this.props.itemHeight,
+              this.props.selectedItems,
+              this.props.onItemClick
+            )}
           </div>
         );
       } else {
@@ -336,6 +347,7 @@ export default class Timeline extends Component {
                 ref={ref => (this._grid = ref)}
                 autoContainerWidth
                 cellRenderer={this.cellRenderer(this.getTimelineWidth(width))}
+                cellRangeRenderer={this.cellRangeRenderer}
                 columnCount={2}
                 columnWidth={columnWidth(width)}
                 height={height}

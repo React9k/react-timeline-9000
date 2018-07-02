@@ -25,7 +25,7 @@ const COLORS = ['lightblue', 'red', 'green', 'yellow', 'orange', 'pink'];
 export default class DemoTimeline extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {selectedItems: [21, 22]};
 
     this.list = [];
     this.groups = [];
@@ -50,12 +50,47 @@ export default class DemoTimeline extends Component {
     }
   }
 
+  handleItemClick = (e, key) => {
+    console.log('from demo ', key);
+    const {selectedItems} = this.state;
+
+    let newSelection = selectedItems.slice();
+
+    // If the item is already selected, then unselected
+    const idx = selectedItems.indexOf(key);
+    if (idx > -1) {
+      // Splice modifies in place and returns removed elements
+      newSelection.splice(idx, 1);
+    } else {
+      newSelection.push(Number(key));
+    }
+
+    this.setState({selectedItems: newSelection});
+  };
+
+  handleInteraction = e => {
+    console.log('interaction ');
+  };
+
   render() {
+    const {selectedItems} = this.state;
     const items = this.list;
     const groups = this.groups;
     const startDate = moment('2000-01-01');
     const endDate = startDate.clone().add(1, 'days');
     const snapMinutes = 15;
-    return <Timeline items={items} groups={groups} startDate={startDate} endDate={endDate} snapMinutes={snapMinutes} />;
+
+    return (
+      <Timeline
+        items={items}
+        groups={groups}
+        startDate={startDate}
+        endDate={endDate}
+        selectedItems={selectedItems}
+        snapMinutes={snapMinutes}
+        onItemClick={this.handleItemClick}
+        onInteraction={this.handleInteraction}
+      />
+    );
   }
 }
