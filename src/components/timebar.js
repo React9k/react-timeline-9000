@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import moment from 'moment';
 import {intToPix} from 'utils/commonUtils';
+import {timebarFormat as defaultTimebarFormat} from 'consts/timebarConsts';
 
 export default class Timebar extends React.Component {
   static propTypes = {
@@ -15,11 +16,13 @@ export default class Timebar extends React.Component {
     leftOffset: PropTypes.number,
     top_resolution: PropTypes.string,
     bottom_resolution: PropTypes.string,
-    selectedRanges: PropTypes.arrayOf(PropTypes.object) // [start: moment ,end: moment (end)]
+    selectedRanges: PropTypes.arrayOf(PropTypes.object), // [start: moment ,end: moment (end)]
+    timeFormats: PropTypes.object
   };
   static defaultProps = {
     selectedRanges: [],
-    leftOffset: 0
+    leftOffset: 0,
+    timeFormats: defaultTimebarFormat
   };
 
   constructor(props) {
@@ -43,21 +46,66 @@ export default class Timebar extends React.Component {
     }
   }
 
-  // Might need to move to utils
   guessResolution() {
-    //TODO:
-    this.setState({resolution: {top: 'day_long', bottom: 'hour'}});
+    const {start, end} = this.props;
+    const durationSecs = end.diff(start, 'seconds');
+    console.log('Duration', durationSecs);
+    //    -> 1h
+    if (durationSecs <= 60 * 60) this.setState({resolution: {top: 'hour', bottom: 'minute'}});
+    // 1h -> 1d
+    else if (durationSecs <= 24 * 60 * 60) this.setState({resolution: {top: 'day', bottom: 'hour'}});
+    // 1d -> 30d
+    else if (durationSecs <= 30 * 24 * 60 * 60) this.setState({resolution: {top: 'month', bottom: 'day'}});
+    //30d -> 1y
+    else if (durationSecs <= 365 * 24 * 60 * 60) this.setState({resolution: {top: 'year', bottom: 'month'}});
+    // 1y ->
+    else this.setState({resolution: {top: 'year', bottom: 'year'}});
   }
 
   renderTopBar() {
-    return this.renderBar('t');
+    let res = this.state.resolution.top;
+    console.log('Top = ', this.props.timeFormats.majorLabels[res], res);
+    return this.renderBar({format: this.props.timeFormats.majorLabels[res], type: res});
   }
   renderBottomBar() {
-    return this.renderBar('b');
+    let res = this.state.resolution.bottom;
+    console.log('Bottom = ', this.props.timeFormats.minorLabels[res], res);
+    return this.renderBar({format: this.props.timeFormats.minorLabels[res], type: res});
   }
 
-  renderBar(location) {
-    const resolution = location === 't' ? this.state.resolution.top : this.state.resolution.bottom;
+  getPixelIncrement(date, resolutionType) {
+    const {start, end} = this.props;
+    const width = this.props.width - this.props.leftOffset;
+
+    const start_end_min = end.diff(start, 'minutes');
+    const pixels_per_min = width / start_end_min;
+    function isLeapYear(year) {
+      return year % 400 === 0 || (year % 100 !== 0 && year % 4 === 0);
+    }
+    const daysInYear = isLeapYear(date.year()) ? 366 : 365;
+    let inc = width;
+    switch (resolutionType) {
+      case 'year':
+        inc = pixels_per_min * 60 * 24 * daysInYear;
+        break;
+      case 'month':
+        inc = pixels_per_min * 60 * 24 * date.daysInMonth();
+        break;
+      case 'day':
+        inc = pixels_per_min * 60 * 24;
+        break;
+      case 'hour':
+        inc = pixels_per_min * 60;
+        break;
+      case 'minute':
+        inc = pixels_per_min;
+        break;
+      default:
+        break;
+    }
+    return Math.min(inc, width);
+  }
+  renderBar(resolution) {
     const {start, end} = this.props;
     const width = this.props.width - this.props.leftOffset;
     let selectedStart = moment('1900-01-01');
@@ -66,36 +114,65 @@ export default class Timebar extends React.Component {
       selectedStart = this.props.selectedRanges[0].start;
       selectedEnd = this.props.selectedRanges[0].end;
     }
-    const start_end_min = end.diff(start, 'minutes');
-    const pixels_per_min = width / start_end_min;
 
     let currentDate = start.clone();
     let timeIncrements = [];
-    if (resolution.startsWith('day')) {
-      let pixelIncrements = pixels_per_min * 60 * 24;
-      let pixelsLeft = width;
+    let pixelsLeft = width;
+    let labelSizeLimit = 12 * resolution.format['short'].length + 3; // 12 pix per character + 3 buffer
+    if (resolution.type == 'year') {
       while (currentDate.isBefore(end) && pixelsLeft > 0) {
+        let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type);
+        const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
+        let label = currentDate.format(resolution.format[labelSize]);
+        let isSelected =
+          currentDate.isSameOrAfter(selectedStart.clone().startOf('year')) &&
+          currentDate.isSameOrBefore(selectedEnd.clone().startOf('year'));
+        timeIncrements.push({label, isSelected, size: pixelIncrements, key: currentDate.unix()});
+        currentDate.add(1, 'year');
+        pixelsLeft -= pixelIncrements;
+      }
+    }
+    if (resolution.type == 'month') {
+      while (currentDate.isBefore(end) && pixelsLeft > 0) {
+        let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type);
+        const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
+        let label = currentDate.format(resolution.format[labelSize]);
+        let isSelected =
+          currentDate.isSameOrAfter(selectedStart.clone().startOf('month')) &&
+          currentDate.isSameOrBefore(selectedEnd.clone().startOf('month'));
+        timeIncrements.push({label, isSelected, size: pixelIncrements, key: currentDate.unix()});
+        currentDate.add(1, 'month');
+        pixelsLeft -= pixelIncrements;
+      }
+    }
+    if (resolution.type == 'day') {
+      let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type);
+      const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
+      while (currentDate.isBefore(end) && pixelsLeft > 0) {
+        let label = currentDate.format(resolution.format[labelSize]);
         let isSelected =
           currentDate.isSameOrAfter(selectedStart.clone().startOf('day')) &&
           currentDate.isSameOrBefore(selectedEnd.clone().startOf('day'));
-        let label = resolution === 'day_short' ? currentDate.format('D') : currentDate.format('Do MMM Y');
         timeIncrements.push({label, isSelected, size: pixelIncrements, key: currentDate.unix()});
         currentDate.add(1, 'days');
         pixelsLeft -= pixelIncrements;
       }
-    } else if (resolution === 'hour') {
-      let pixelIncrements = pixels_per_min * 60;
-      while (currentDate.isBefore(end)) {
+    } else if (resolution.type === 'hour') {
+      let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type);
+      const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
+      while (currentDate.isBefore(end) && pixelsLeft > 0) {
+        let label = currentDate.format(resolution.format[labelSize]);
         let isSelected =
           currentDate.isSameOrAfter(selectedStart.clone().startOf('hour')) &&
           currentDate.isSameOrBefore(selectedEnd.clone().startOf('hour'));
         timeIncrements.push({
-          label: currentDate.hours() + 'hrs',
+          label,
           isSelected,
           size: pixelIncrements,
           key: currentDate.unix()
         });
         currentDate.add(1, 'hours');
+        pixelsLeft -= pixelIncrements;
       }
     }
     return timeIncrements;

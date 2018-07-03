@@ -27,7 +27,7 @@ export default class DemoTimeline extends Component {
   constructor(props) {
     super(props);
     const startDate = moment('2000-01-01');
-    const endDate = startDate.clone().add(1, 'days');
+    const endDate = startDate.clone().add(2, 'days');
     this.state = {selectedItems: [21, 22], rows: 1000, items_per_row: 100, snap: 15, startDate, endDate};
     this.reRender = this.reRender.bind(this);
   }
@@ -107,8 +107,9 @@ export default class DemoTimeline extends Component {
                 <DatePicker.RangePicker
                   allowClear={false}
                   value={rangeValue}
+                  showTime
                   onChange={e => {
-                    this.setState({startDate: e[0], endDate: e[1]}, () => this.reRender);
+                    this.setState({startDate: e[0], endDate: e[1]}, () => this.reRender());
                   }}
                 />
               </Form.Item>
