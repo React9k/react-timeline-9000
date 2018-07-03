@@ -42,18 +42,20 @@ export default class Timebar extends React.Component {
     if (nextProps.top_resolution && nextProps.bottom_resolution) {
       this.setState({resolution: {top: nextProps.top_resolution, bottom: nextProps.bottom_resolution}});
     } else {
-      this.guessResolution();
+      this.guessResolution(nextProps.start, nextProps.end);
     }
   }
 
-  guessResolution() {
-    const {start, end} = this.props;
+  guessResolution(start, end) {
+    if (!start || !end) {
+      start = this.props.start;
+      end = this.props.end;
+    }
     const durationSecs = end.diff(start, 'seconds');
-    console.log('Duration', durationSecs);
     //    -> 1h
     if (durationSecs <= 60 * 60) this.setState({resolution: {top: 'hour', bottom: 'minute'}});
-    // 1h -> 1d
-    else if (durationSecs <= 24 * 60 * 60) this.setState({resolution: {top: 'day', bottom: 'hour'}});
+    // 1h -> 3d
+    else if (durationSecs <= 24 * 60 * 60 * 3) this.setState({resolution: {top: 'day', bottom: 'hour'}});
     // 1d -> 30d
     else if (durationSecs <= 30 * 24 * 60 * 60) this.setState({resolution: {top: 'month', bottom: 'day'}});
     //30d -> 1y
@@ -64,12 +66,10 @@ export default class Timebar extends React.Component {
 
   renderTopBar() {
     let res = this.state.resolution.top;
-    console.log('Top = ', this.props.timeFormats.majorLabels[res], res);
     return this.renderBar({format: this.props.timeFormats.majorLabels[res], type: res});
   }
   renderBottomBar() {
     let res = this.state.resolution.bottom;
-    console.log('Bottom = ', this.props.timeFormats.minorLabels[res], res);
     return this.renderBar({format: this.props.timeFormats.minorLabels[res], type: res});
   }
 
