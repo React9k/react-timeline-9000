@@ -118,8 +118,8 @@ export default class Timebar extends React.Component {
     let currentDate = start.clone();
     let timeIncrements = [];
     let pixelsLeft = width;
-    let labelSizeLimit = 12 * resolution.format['short'].length + 3; // 12 pix per character + 3 buffer
-    if (resolution.type == 'year') {
+    let labelSizeLimit = 60;
+    if (resolution.type === 'year') {
       while (currentDate.isBefore(end) && pixelsLeft > 0) {
         let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type);
         const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
@@ -132,7 +132,7 @@ export default class Timebar extends React.Component {
         pixelsLeft -= pixelIncrements;
       }
     }
-    if (resolution.type == 'month') {
+    if (resolution.type === 'month') {
       while (currentDate.isBefore(end) && pixelsLeft > 0) {
         let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type);
         const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
@@ -145,7 +145,7 @@ export default class Timebar extends React.Component {
         pixelsLeft -= pixelIncrements;
       }
     }
-    if (resolution.type == 'day') {
+    if (resolution.type === 'day') {
       let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type);
       const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
       while (currentDate.isBefore(end) && pixelsLeft > 0) {
@@ -172,6 +172,23 @@ export default class Timebar extends React.Component {
           key: currentDate.unix()
         });
         currentDate.add(1, 'hours');
+        pixelsLeft -= pixelIncrements;
+      }
+    } else if (resolution.type === 'minute') {
+      let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type);
+      const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
+      while (currentDate.isBefore(end) && pixelsLeft > 0) {
+        let label = currentDate.format(resolution.format[labelSize]);
+        let isSelected =
+          currentDate.isSameOrAfter(selectedStart.clone().startOf('minute')) &&
+          currentDate.isSameOrBefore(selectedEnd.clone().startOf('minute'));
+        timeIncrements.push({
+          label,
+          isSelected,
+          size: pixelIncrements,
+          key: currentDate.unix()
+        });
+        currentDate.add(1, 'minutes');
         pixelsLeft -= pixelIncrements;
       }
     }
