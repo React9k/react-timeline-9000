@@ -54,7 +54,7 @@ export default class Timebar extends React.Component {
     const durationSecs = end.diff(start, 'seconds');
     //    -> 1h
     if (durationSecs <= 60 * 60) this.setState({resolution: {top: 'hour', bottom: 'minute'}});
-    // 1h -> d
+    // 1h -> 3d
     else if (durationSecs <= 24 * 60 * 60 * 3) this.setState({resolution: {top: 'day', bottom: 'hour'}});
     // 1d -> 30d
     else if (durationSecs <= 30 * 24 * 60 * 60) this.setState({resolution: {top: 'month', bottom: 'day'}});
