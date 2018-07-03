@@ -33,6 +33,7 @@
   },
   "homepage": "https://github.com/lilfolr/react-timeline-9000#readme",
   "devDependencies": {
+    "antd": "^3.6.5",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.5",

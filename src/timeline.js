@@ -38,8 +38,10 @@ export default class Timeline extends Component {
   };
 
   static changeTypes = {
+    resizeStart: 'resizeStart',
     resizeEnd: 'resizeEnd',
-    dragEnd: 'dragEnd'
+    dragEnd: 'dragEnd',
+    dragStart: 'dragStart'
   };
 
   constructor(props) {
@@ -110,23 +112,39 @@ export default class Timeline extends Component {
     if (totalWidth !== undefined) return totalWidth - groupOffset;
     return this._grid.props.width - groupOffset;
   }
+
   setUpDragging() {
     interact('.item_draggable')
       .draggable({
         enabled: true
       })
       .on('dragstart', e => {
-        e.target.style['z-index'] = 3;
         const {item} = this.itemFromEvent(e);
         this.setSelection(item.start, item.end);
+        const animatedItems = this.props.onInteraction(Timeline.changeTypes.dragStart, null, this.props.selectedItems);
+
+        animatedItems.forEach(a => {
+          const tgt = document.querySelector(`[item-index='${a}']`);
+          tgt.style['z-index'] = 3;
+        });
+
+        e.target.setAttribute('animatedItems', JSON.stringify(animatedItems));
       })
       .on('dragmove', e => {
         const target = e.target;
+        let animatedItems = JSON.parse(target.getAttribute('animatedItems') || []);
+
         let dx = (parseFloat(target.getAttribute('drag-x')) || 0) + e.dx;
         let dy = (parseFloat(target.getAttribute('drag-y')) || 0) + e.dy;
 
+        animatedItems.forEach(a => {
+          const selectedTarget = document.querySelector(`[item-index='${a}']`);
+          // if( selectedTarget.length)
+          selectedTarget.style.webkitTransform = selectedTarget.style.transform =
+            'translate(' + dx + 'px, ' + dy + 'px)';
+        });
         // translate the element
-        target.style.webkitTransform = target.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
+        // target.style.webkitTransform = target.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
         target.setAttribute('drag-x', dx);
         target.setAttribute('drag-y', dy);
 
@@ -167,61 +185,65 @@ export default class Timeline extends Component {
           this.getTimelineWidth(),
           this.props.snapMinutes
         );
-        // let newEnd = newStart.clone().add(itemDuration);
-        // item.start = newStart;
-        // item.end = newEnd;
+
         const timeDelta = newStart.clone().diff(item.start, 'minutes');
         const changes = {rowChangeDelta, timeDelta, targetItemKey: item.key};
         this.props.onInteraction(Timeline.changeTypes.dragEnd, changes, this.props.selectedItems);
 
-        //reset styles
-        e.target.setAttribute('drag-x', 0);
-        e.target.setAttribute('drag-y', 0);
-        e.target.style.webkitTransform = e.target.style.transform = 'translate(0px, 0px)';
-        e.target.style['z-index'] = 2;
-        e.target.style['top'] = intToPix(
-          this.props.itemHeight * Math.round(pixToInt(e.target.style['top']) / this.props.itemHeight)
-        );
+        // Reset the styles
+        let animatedItems = JSON.parse(e.target.getAttribute('animatedItems') || []);
+        animatedItems.forEach(a => {
+          const selectedTarget = document.querySelector(`[item-index='${a}']`);
+          selectedTarget.style.webkitTransform = selectedTarget.style.transform = 'translate(0px, 0px)';
+          selectedTarget.setAttribute('drag-x', 0);
+          selectedTarget.setAttribute('drag-y', 0);
+          selectedTarget.style.webkitTransform = selectedTarget.style.transform = 'translate(0px, 0px)';
+          selectedTarget.style['z-index'] = 2;
+          selectedTarget.style['top'] = intToPix(
+            this.props.itemHeight * Math.round(pixToInt(selectedTarget.style['top']) / this.props.itemHeight)
+          );
+        });
 
         this._grid.recomputeGridSize({rowIndex: 0});
-        // e.target.style['top'] = '0px';
-        // Check row height doesn't need changing
-        // let need_recompute = false;
-        // let new_to_row_height = getMaxOverlappingItems(
-        //   this.rowItemMap[newRow],
-        //   this.props.startDate,
-        //   this.props.endDate
-        // );
-        // if (new_to_row_height !== this.rowHeightCache[newRow]) {
-        //   this.rowHeightCache[newRow] = new_to_row_height;
-        //   need_recompute = true;
-        // }
-        // let new_from_row_height = getMaxOverlappingItems(
-        //   this.rowItemMap[rowNo],
-        //   this.props.startDate,
-        //   this.props.endDate
-        // );
-        // if (new_from_row_height !== this.rowHeightCache[rowNo]) {
-        //   this.rowHeightCache[rowNo] = new_from_row_height;
-        //   need_recompute = true;
-        // }
-        // if (need_recompute) this._grid.recomputeGridSize({rowIndex: Math.min(newRow, rowNo)});
-        // else this._grid.forceUpdate();
       })
       .resizable({
         edges: {left: true, right: true, bottom: false, top: false}
       })
       .on('resizestart', e => {
         console.log('resizestart', e.dx, e.target.style.left, e.target.style.width);
+        const selected = this.props.onInteraction(Timeline.changeTypes.resizeStart, null, this.props.selectedItems);
+        e.target.setAttribute('animatedItems', JSON.stringify(selected));
       })
       .on('resizemove', e => {
         console.log('resizemove', e.dx, e.target.style.width, e.target.style.left);
+
+        let animatedItems = JSON.parse(e.target.getAttribute('animatedItems') || []);
+
         // Determine if the resize is from the right or left
-        let dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
-        dx += e.deltaRect.left;
-        e.target.style.width = e.rect.width + 'px';
-        e.target.style.webkitTransform = e.target.style.transform = 'translate(' + dx + 'px, 0px)';
-        e.target.setAttribute('delta-x', dx);
+        // let dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
+        // dx += e.deltaRect.left;
+
+        animatedItems.forEach(a => {
+          const tgt = document.querySelector(`[item-index='${a}']`);
+          let dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
+          // let dx = e.dx;
+
+          const interactable = interact(document.querySelector(`[item-index='${a}']`));
+
+          const rect = interactable.getRect();
+          dx += rect.left;
+
+          console.log(rect.left, dx, rect.width);
+          // const tgtdx = dx + tgt.deltaRect.left;
+          // tgt.style.width = rect.width + 'px';
+          //tgt.style.webkitTransform = tgt.style.transform = 'translate(' + dx + 'px, 0px)';
+          //tgt.setAttribute('delta-x', dx);
+          e.target.setAttribute('delta-x', dx);
+        });
+
+        // e.target.style.width = e.rect.width + 'px';
+        // e.target.style.webkitTransform = e.target.style.transform = 'translate(' + dx + 'px, 0px)';
+        // e.target.setAttribute('delta-x', dx);
       })
       .on('resizeend', e => {
         console.log('resizeend', e);
@@ -231,24 +253,6 @@ export default class Timeline extends Component {
         const {item, rowNo} = this.itemFromEvent(e);
         let startPixelOffset = pixToInt(e.target.style.left) + (parseFloat(e.target.getAttribute('delta-x')) || 0);
         let endPixelOffset = startPixelOffset + pixToInt(e.target.style.width);
-        // if (isStartTimeChange) {
-        //   let newStart = getTimeAtPixel(
-        //     startPixelOffset,
-        //     this.props.startDate,
-        //     this.props.endDate,
-        //     this.getTimelineWidth()
-        //   );
-        //   item.start = newStart;
-        // } else {
-        //   // let endPixelOffset = startPixelOffset + pixToInt(e.target.style.width);
-        //   let newEnd = getTimeAtPixel(
-        //     endPixelOffset,
-        //     this.props.startDate,
-        //     this.props.endDate,
-        //     this.getTimelineWidth()
-        //   );
-        //   item.end = newEnd;
-        // }
 
         let newTime = getTimeAtPixel(
           isStartTimeChange ? startPixelOffset : endPixelOffset,
@@ -266,17 +270,13 @@ export default class Timeline extends Component {
 
         this._grid.recomputeGridSize({rowIndex: 0});
 
-        // e.target.setAttribute('delta-x', 0);
-        // e.target.style.webkitTransform = e.target.style.transform = 'translate(0px, 0px)';
-        // // Check row height doesn't need changing
-        // let need_recompute = false;
-        // let new_row_height = getMaxOverlappingItems(this.rowItemMap[rowNo], this.props.startDate, this.props.endDate);
-        // if (new_row_height !== this.rowHeightCache[rowNo]) {
-        //   this.rowHeightCache[rowNo] = new_row_height;
-        //   need_recompute = true;
-        // }
-        // if (need_recompute) this._grid.recomputeGridSize({rowIndex: rowNo});
-        // else this._grid.forceUpdate();
+        let animatedItems = JSON.parse(e.target.getAttribute('animatedItems') || []);
+
+        animatedItems.forEach(a => {
+          const tgt = document.querySelector(`[item-index='${a}']`);
+          tgt.setAttribute('delta-x', 0);
+          tgt.style.webkitTransform = tgt.style.transform = 'translate(0px, 0px)';
+        });
       });
   }
 
@@ -338,12 +338,13 @@ export default class Timeline extends Component {
     let markers = [];
     // today
     markers.push({
-      location: getPixelAtTime(
-        moment('2000-01-01 10:00:00'),
-        this.props.startDate,
-        this.props.endDate,
-        this.getTimelineWidth(props.parent.props.width)
-      ),
+      location:
+        getPixelAtTime(
+          moment('2000-01-01 10:00:00'),
+          this.props.startDate,
+          this.props.endDate,
+          this.getTimelineWidth(props.parent.props.width)
+        ) + this.props.groupOffset,
       key: 1
     });
     _.forEach(markers, m => {
