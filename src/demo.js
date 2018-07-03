@@ -29,7 +29,10 @@ export default class DemoTimeline extends Component {
     const startDate = moment('2000-01-01');
     const endDate = startDate.clone().add(2, 'days');
     this.state = {selectedItems: [21, 22], rows: 1000, items_per_row: 100, snap: 15, startDate, endDate};
+
     this.reRender = this.reRender.bind(this);
+    this.zoomIn = this.zoomIn.bind(this);
+    this.zoomOut = this.zoomOut.bind(this);
   }
 
   componentWillMount() {
@@ -59,6 +62,17 @@ export default class DemoTimeline extends Component {
       }
     }
     this.forceUpdate();
+  }
+
+  zoomIn() {
+    let currentMins = this.state.endDate.diff(this.state.startDate, 'minutes');
+    let newMins = currentMins / 2;
+    this.setState({endDate: this.state.startDate.clone().add(newMins, 'minutes')});
+  }
+  zoomOut() {
+    let currentMins = this.state.endDate.diff(this.state.startDate, 'minutes');
+    let newMins = currentMins * 2;
+    this.setState({endDate: this.state.startDate.clone().add(newMins, 'minutes')});
   }
 
   handleItemClick = (e, key) => {
@@ -103,7 +117,7 @@ export default class DemoTimeline extends Component {
               <Form.Item label="Snap (mins)">
                 <InputNumber value={snap} onChange={e => this.setState({snap: e})} />
               </Form.Item>
-              <Form.Item label="Snap (mins)">
+              <Form.Item label="Date Range">
                 <DatePicker.RangePicker
                   allowClear={false}
                   value={rangeValue}
@@ -117,6 +131,12 @@ export default class DemoTimeline extends Component {
                 <Button type="primary" onClick={() => this.reRender()}>
                   Set
                 </Button>
+              </Form.Item>
+              <Form.Item>
+                <Button onClick={this.zoomIn}>Zoom in</Button>
+              </Form.Item>
+              <Form.Item>
+                <Button onClick={this.zoomOut}>Zoom out</Button>
               </Form.Item>
             </Form>
           </div>
