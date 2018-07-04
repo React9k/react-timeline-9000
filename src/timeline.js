@@ -8,7 +8,7 @@ import moment from 'moment';
 import interact from 'interactjs';
 import _ from 'lodash';
 
-import {pixToInt, intToPix} from 'utils/commonUtils';
+import {pixToInt, intToPix, sumStyle} from 'utils/commonUtils';
 import {rowItemsRenderer, getNearestRowHeight, getMaxOverlappingItems} from 'utils/itemUtils';
 import {getTimeAtPixel, getPixelAtTime} from 'utils/timeUtils';
 import {groupRenderer} from 'utils/groupUtils';
@@ -58,7 +58,7 @@ export default class Timeline extends Component {
     this.clearSelection = this.clearSelection.bind(this);
     this.getTimelineWidth = this.getTimelineWidth.bind(this);
     this._itemRowClickHandler = this._itemRowClickHandler.bind(this);
-    this.itemFromEvent = this.itemFromEvent.bind(this);
+    this.itemFromEvent = this.itemFromElement.bind(this);
 
     this.setUpDragging();
   }
@@ -86,8 +86,8 @@ export default class Timeline extends Component {
     });
   }
 
-  itemFromEvent(e) {
-    const index = e.target.getAttribute('item-index');
+  itemFromElement(e) {
+    const index = e.getAttribute('item-index');
     const rowNo = this.itemRowMap[index];
     const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == index);
     const item = this.rowItemMap[rowNo][itemIndex];
@@ -119,7 +119,7 @@ export default class Timeline extends Component {
         enabled: true
       })
       .on('dragstart', e => {
-        const {item} = this.itemFromEvent(e);
+        const {item} = this.itemFromElement(e.target);
         this.setSelection(item.start, item.end);
         const animatedItems = this.props.onInteraction(Timeline.changeTypes.dragStart, null, this.props.selectedItems);
 
@@ -148,7 +148,7 @@ export default class Timeline extends Component {
         target.setAttribute('drag-x', dx);
         target.setAttribute('drag-y', dy);
 
-        const {item} = this.itemFromEvent(e);
+        const {item} = this.itemFromElement(e.target);
 
         let itemDuration = item.end.diff(item.start);
         let newPixelOffset = pixToInt(e.target.style.left) + dx;
@@ -164,7 +164,7 @@ export default class Timeline extends Component {
       })
       .on('dragend', e => {
         //TODO: Should be able to optimize the lookup below
-        const {item, rowNo} = this.itemFromEvent(e);
+        const {item, rowNo} = this.itemFromElement(e.target);
 
         this.setSelection(item.start, item.end);
         this.clearSelection();
@@ -210,73 +210,75 @@ export default class Timeline extends Component {
         edges: {left: true, right: true, bottom: false, top: false}
       })
       .on('resizestart', e => {
-        console.log('resizestart', e.dx, e.target.style.left, e.target.style.width);
         const selected = this.props.onInteraction(Timeline.changeTypes.resizeStart, null, this.props.selectedItems);
-        e.target.setAttribute('animatedItems', JSON.stringify(selected));
+        _.forEach(selected, id => {
+          let domItem = document.querySelector("span[item-index='" + id + "'");
+          domItem.setAttribute('isResizing', 'True');
+          domItem.setAttribute('initialWidth', pixToInt(domItem.style.width));
+        });
       })
       .on('resizemove', e => {
-        console.log('resizemove', e.dx, e.target.style.width, e.target.style.left);
+        let animatedItems = document.querySelectorAll("span[isResizing='True'") || [];
 
-        let animatedItems = JSON.parse(e.target.getAttribute('animatedItems') || []);
+        let dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
+        dx += e.deltaRect.left;
 
-        // Determine if the resize is from the right or left
-        // let dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
-        // dx += e.deltaRect.left;
+        let dw = e.rect.width - Number(e.target.getAttribute('initialWidth'));
 
-        animatedItems.forEach(a => {
-          const tgt = document.querySelector(`[item-index='${a}']`);
-          let dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
-          // let dx = e.dx;
-
-          const interactable = interact(document.querySelector(`[item-index='${a}']`));
-
-          const rect = interactable.getRect();
-          dx += rect.left;
-
-          console.log(rect.left, dx, rect.width);
-          // const tgtdx = dx + tgt.deltaRect.left;
-          // tgt.style.width = rect.width + 'px';
-          //tgt.style.webkitTransform = tgt.style.transform = 'translate(' + dx + 'px, 0px)';
-          //tgt.setAttribute('delta-x', dx);
-          e.target.setAttribute('delta-x', dx);
+        _.forEach(animatedItems, item => {
+          item.style.width = intToPix(Number(item.getAttribute('initialWidth')) + dw);
+          item.style.webkitTransform = e.target.style.transform = 'translate(' + dx + 'px, 0px)';
         });
-
-        // e.target.style.width = e.rect.width + 'px';
-        // e.target.style.webkitTransform = e.target.style.transform = 'translate(' + dx + 'px, 0px)';
-        // e.target.setAttribute('delta-x', dx);
+        e.target.setAttribute('delta-x', dx);
       })
       .on('resizeend', e => {
-        console.log('resizeend', e);
+        let animatedItems = document.querySelectorAll("span[isResizing='True'") || [];
         // Update time
-        const dx = e.target.getAttribute('delta-x');
+        const dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
         const isStartTimeChange = dx != 0;
-        const {item, rowNo} = this.itemFromEvent(e);
-        let startPixelOffset = pixToInt(e.target.style.left) + (parseFloat(e.target.getAttribute('delta-x')) || 0);
-        let endPixelOffset = startPixelOffset + pixToInt(e.target.style.width);
 
-        let newTime = getTimeAtPixel(
-          isStartTimeChange ? startPixelOffset : endPixelOffset,
-          this.props.startDate,
-          this.props.endDate,
-          this.getTimelineWidth(),
-          this.props.snapMinutes
-        );
+        let minRowNo = Infinity;
 
-        const timeDelta = isStartTimeChange
-          ? newTime.clone().diff(item.start, 'minutes')
-          : newTime.clone().diff(item.end, 'minutes');
-        const changes = {isStartTimeChange, timeDelta, targetItemKey: item.key};
-        this.props.onInteraction(Timeline.changeTypes.resizeEnd, changes, this.props.selectedItems);
+        _.forEach(animatedItems, domItem => {
+          let startPixelOffset = pixToInt(domItem.style.left) + dx;
+          const {item, rowNo} = this.itemFromElement(domItem);
 
-        this._grid.recomputeGridSize({rowIndex: 0});
+          minRowNo = Math.min(minRowNo, rowNo);
 
-        let animatedItems = JSON.parse(e.target.getAttribute('animatedItems') || []);
+          if (isStartTimeChange) {
+            let newStart = getTimeAtPixel(
+              startPixelOffset,
+              this.props.startDate,
+              this.props.endDate,
+              this.getTimelineWidth(),
+              this.props.snapMinutes
+            );
+            item.start = newStart;
+          } else {
+            let endPixelOffset = startPixelOffset + pixToInt(domItem.style.width);
+            let newEnd = getTimeAtPixel(
+              endPixelOffset,
+              this.props.startDate,
+              this.props.endDate,
+              this.getTimelineWidth(),
+              this.props.snapMinutes
+            );
+            item.end = newEnd;
+          }
+          // Check row height doesn't need changing
+          let new_row_height = getMaxOverlappingItems(this.rowItemMap[rowNo], this.props.startDate, this.props.endDate);
+          if (new_row_height !== this.rowHeightCache[rowNo]) {
+            this.rowHeightCache[rowNo] = new_row_height;
+          }
 
-        animatedItems.forEach(a => {
-          const tgt = document.querySelector(`[item-index='${a}']`);
-          tgt.setAttribute('delta-x', 0);
-          tgt.style.webkitTransform = tgt.style.transform = 'translate(0px, 0px)';
+          //Reset styles
+          domItem.removeAttribute('isResizing');
+          domItem.removeAttribute('initialWidth');
+          domItem.style.webkitTransform = domItem.style.transform = 'translate(0px, 0px)';
         });
+
+        e.target.setAttribute('delta-x', 0);
+        this._grid.recomputeGridSize({rowIndex: minRowNo});
       });
   }
 
