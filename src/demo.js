@@ -97,24 +97,6 @@ export default class DemoTimeline extends Component {
     const newItems = _.clone(this.state.items);
 
     switch (type) {
-      case Timeline.changeTypes.resizeStart: {
-        return selectedItems;
-      }
-      case Timeline.changeTypes.resizeEnd: {
-        const {isStartTimeChange, timeDelta} = changes;
-        newItems.forEach(item => {
-          if (selectedItems.includes(item.key)) {
-            if (isStartTimeChange) {
-              item.start = item.start.clone().add(timeDelta, 'minutes');
-            } else {
-              item.end = item.end.clone().add(timeDelta, 'minutes');
-            }
-          }
-        });
-
-        this.setState({items: newItems});
-        break;
-      }
       case Timeline.changeTypes.dragStart: {
         return selectedItems;
       }
@@ -127,11 +109,27 @@ export default class DemoTimeline extends Component {
             let newEnd = newStart.clone().add(itemDuration);
             item.start = newStart;
             item.end = newEnd;
-
             if (rowChangeDelta < 0) {
               item.row = Math.max(0, item.row + rowChangeDelta);
             } else if (rowChangeDelta > 0) {
               item.row = Math.min(this.state.groups.length - 1, item.row + rowChangeDelta);
+            }
+          }
+        });
+        this.setState({items: newItems});
+        break;
+      }
+      case Timeline.changeTypes.resizeStart: {
+        return selectedItems;
+      }
+      case Timeline.changeTypes.resizeEnd: {
+        const {isStartTimeChange, timeDelta} = changes;
+        newItems.forEach(item => {
+          if (selectedItems.includes(item.key)) {
+            if (isStartTimeChange) {
+              item.start = item.start.clone().add(timeDelta, 'minutes');
+            } else {
+              item.end = item.end.clone().add(timeDelta, 'minutes');
             }
           }
         });
