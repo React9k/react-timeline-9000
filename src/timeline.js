@@ -64,15 +64,19 @@ export default class Timeline extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setTimeMap(nextProps.items);
+    this.setTimeMap(nextProps.items, nextProps.startDate, nextProps.endDate);
   }
 
-  setTimeMap(items) {
+  setTimeMap(items, startDate, endDate) {
+    if (!startDate || !endDate) {
+      startDate = this.props.startDate;
+      endDate = this.props.endDate;
+    }
     this.itemRowMap = {}; // timeline elements (key) => (rowNo).
     this.rowItemMap = {}; // (rowNo) => timeline elements
     this.rowHeightCache = {}; // (rowNo) => max number of stacked items
     let visibleItems = _.filter(items, i => {
-      return i.end > this.props.startDate && i.start < this.props.endDate;
+      return i.end > startDate && i.start < endDate;
     });
     let itemRows = _.groupBy(visibleItems, 'row');
     _.forEach(itemRows, (visibleItems, row) => {
