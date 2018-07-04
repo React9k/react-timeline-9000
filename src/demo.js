@@ -2,7 +2,7 @@
 
 import React, {Component} from 'react';
 import moment from 'moment';
-
+import _ from 'lodash';
 import Timeline from './timeline';
 
 import {Layout, Form, InputNumber, Button, DatePicker} from 'antd';
@@ -28,8 +28,7 @@ export default class DemoTimeline extends Component {
     super(props);
     const startDate = moment('2000-01-01');
     const endDate = startDate.clone().add(2, 'days');
-    this.state = {selectedItems: [21, 22], rows: 1000, items_per_row: 100, snap: 15, startDate, endDate};
-
+    this.state = {selectedItems: [1, 2], rows: 1000, items_per_row: 100, snap: 15, startDate, endDate};
     this.reRender = this.reRender.bind(this);
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
@@ -40,19 +39,21 @@ export default class DemoTimeline extends Component {
   }
 
   reRender() {
-    this.list = [];
-    this.groups = [];
+    const list = [];
+    const groups = [];
+    let key = 0;
     for (let i = 0; i < this.state.rows; i++) {
       let last_moment = moment('2000-01-01');
-      this.groups.push({id: i, title: `Row ${i}`});
+      groups.push({id: i, title: `Row ${i}`});
       for (let j = 0; j < this.state.items_per_row; j++) {
+        key += 1;
         const color = COLORS[(i + j) % COLORS.length];
         const duration = ITEM_DURATIONS[Math.floor(Math.random() * ITEM_DURATIONS.length)];
         let start = last_moment;
         let end = start.clone().add(duration);
         last_moment = end.clone().add(SPACE_DURATIONS[Math.floor(Math.random() * SPACE_DURATIONS.length)]);
-        this.list.push({
-          key: `${i}${j}`,
+        list.push({
+          key: key,
           title: duration.humanize(),
           color,
           row: i,
@@ -61,9 +62,17 @@ export default class DemoTimeline extends Component {
         });
       }
     }
+
+    // this.state = {selectedItems: [11, 12], groups, items: list};
     this.forceUpdate();
+    this.setState({items: list, groups});
   }
 
+  handleRowClick = (e, rowNumber, time) => {
+    console.log('row clicked', rowNumber, time);
+
+    this.setState({selectedItems: []});
+  };
   zoomIn() {
     let currentMins = this.state.endDate.diff(this.state.startDate, 'minutes');
     let newMins = currentMins / 2;
@@ -93,14 +102,61 @@ export default class DemoTimeline extends Component {
     this.setState({selectedItems: newSelection});
   };
 
-  handleInteraction = e => {
-    console.log('interaction ');
+  handleInteraction = (type, changes, selectedItems) => {
+    console.log('interaction ', type, changes, selectedItems);
+
+    const newItems = _.clone(this.state.items);
+
+    switch (type) {
+      case Timeline.changeTypes.dragStart: {
+        return selectedItems;
+      }
+      case Timeline.changeTypes.dragEnd: {
+        const {rowChangeDelta, timeDelta} = changes;
+        newItems.forEach(item => {
+          if (selectedItems.includes(item.key)) {
+            let itemDuration = item.end.diff(item.start);
+            let newStart = item.start.clone().add(timeDelta, 'minutes');
+            let newEnd = newStart.clone().add(itemDuration);
+            item.start = newStart;
+            item.end = newEnd;
+            if (rowChangeDelta < 0) {
+              item.row = Math.max(0, item.row + rowChangeDelta);
+            } else if (rowChangeDelta > 0) {
+              item.row = Math.min(this.state.groups.length - 1, item.row + rowChangeDelta);
+            }
+          }
+        });
+        this.setState({items: newItems});
+        break;
+      }
+      case Timeline.changeTypes.resizeStart: {
+        return selectedItems;
+      }
+      case Timeline.changeTypes.resizeEnd: {
+        const {isStartTimeChange, timeDelta} = changes;
+        newItems.forEach(item => {
+          if (selectedItems.includes(item.key)) {
+            if (isStartTimeChange) {
+              item.start = item.start.clone().add(timeDelta, 'minutes');
+            } else {
+              item.end = item.end.clone().add(timeDelta, 'minutes');
+            }
+          }
+        });
+
+        this.setState({items: newItems});
+        break;
+      }
+      default:
+        return changes;
+    }
   };
 
   render() {
-    const {selectedItems, rows, items_per_row, snap, startDate, endDate} = this.state;
-    const items = this.list;
-    const groups = this.groups;
+    const {selectedItems, rows, items_per_row, snap, startDate, endDate, items, groups} = this.state;
+    // const items = this.ti;
+    // const groups = this.groups;
     const rangeValue = [startDate, endDate];
 
     return (
@@ -149,6 +205,7 @@ export default class DemoTimeline extends Component {
             snapMinutes={snap}
             onItemClick={this.handleItemClick}
             onInteraction={this.handleInteraction}
+            onRowClick={this.handleRowClick}
           />
         </Layout.Content>
       </Layout>

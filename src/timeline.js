@@ -8,7 +8,7 @@ import moment from 'moment';
 import interact from 'interactjs';
 import _ from 'lodash';
 
-import {pixToInt, intToPix} from 'utils/commonUtils';
+import {pixToInt, intToPix, sumStyle} from 'utils/commonUtils';
 import {rowItemsRenderer, getNearestRowHeight, getMaxOverlappingItems} from 'utils/itemUtils';
 import {getTimeAtPixel, getPixelAtTime} from 'utils/timeUtils';
 import {groupRenderer} from 'utils/groupUtils';
@@ -27,13 +27,21 @@ export default class Timeline extends Component {
     snapMinutes: PropTypes.number,
     itemHeight: PropTypes.number,
     onItemClick: PropTypes.func,
-    onInteraction: PropTypes.func
+    onInteraction: PropTypes.func,
+    onRowClick: PropTypes.func
   };
 
   static defaultProps = {
     groupOffset: 150,
     itemHeight: 40,
     snapMinutes: 15
+  };
+
+  static changeTypes = {
+    resizeStart: 'resizeStart',
+    resizeEnd: 'resizeEnd',
+    dragEnd: 'dragEnd',
+    dragStart: 'dragStart'
   };
 
   constructor(props) {
@@ -50,7 +58,7 @@ export default class Timeline extends Component {
     this.clearSelection = this.clearSelection.bind(this);
     this.getTimelineWidth = this.getTimelineWidth.bind(this);
     this._itemRowClickHandler = this._itemRowClickHandler.bind(this);
-    this.itemFromEvent = this.itemFromEvent.bind(this);
+    this.itemFromEvent = this.itemFromElement.bind(this);
 
     this.setUpDragging();
   }
@@ -82,8 +90,8 @@ export default class Timeline extends Component {
     });
   }
 
-  itemFromEvent(e) {
-    const index = e.target.getAttribute('item-index');
+  itemFromElement(e) {
+    const index = e.getAttribute('item-index');
     const rowNo = this.itemRowMap[index];
     const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == index);
     const item = this.rowItemMap[rowNo][itemIndex];
@@ -108,27 +116,43 @@ export default class Timeline extends Component {
     if (totalWidth !== undefined) return totalWidth - groupOffset;
     return this._grid.props.width - groupOffset;
   }
+
   setUpDragging() {
     interact('.item_draggable')
       .draggable({
         enabled: true
       })
       .on('dragstart', e => {
-        e.target.style['z-index'] = 3;
-        const {item} = this.itemFromEvent(e);
+        const {item} = this.itemFromElement(e.target);
         this.setSelection(item.start, item.end);
+        const animatedItems = this.props.onInteraction(Timeline.changeTypes.dragStart, null, this.props.selectedItems);
+
+        animatedItems.forEach(a => {
+          const tgt = document.querySelector(`[item-index='${a}']`);
+          tgt.style['z-index'] = 3;
+        });
+
+        e.target.setAttribute('animatedItems', JSON.stringify(animatedItems));
       })
       .on('dragmove', e => {
         const target = e.target;
+        let animatedItems = JSON.parse(target.getAttribute('animatedItems') || []);
+
         let dx = (parseFloat(target.getAttribute('drag-x')) || 0) + e.dx;
         let dy = (parseFloat(target.getAttribute('drag-y')) || 0) + e.dy;
 
+        animatedItems.forEach(a => {
+          const selectedTarget = document.querySelector(`[item-index='${a}']`);
+          // if( selectedTarget.length)
+          selectedTarget.style.webkitTransform = selectedTarget.style.transform =
+            'translate(' + dx + 'px, ' + dy + 'px)';
+        });
         // translate the element
-        target.style.webkitTransform = target.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
+        // target.style.webkitTransform = target.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
         target.setAttribute('drag-x', dx);
         target.setAttribute('drag-y', dy);
 
-        const {item} = this.itemFromEvent(e);
+        const {item} = this.itemFromElement(e.target);
 
         let itemDuration = item.end.diff(item.start);
         let newPixelOffset = pixToInt(e.target.style.left) + dx;
@@ -143,18 +167,20 @@ export default class Timeline extends Component {
         this.setSelection(newStart, newEnd);
       })
       .on('dragend', e => {
-        //TODO: This should use state reducer
         //TODO: Should be able to optimize the lookup below
-        const {item, rowNo} = this.itemFromEvent(e);
+        const {item, rowNo} = this.itemFromElement(e.target);
+
         this.setSelection(item.start, item.end);
         this.clearSelection();
         // Change row
         console.log('From row', rowNo);
         let newRow = getNearestRowHeight(e.clientX, e.clientY);
         console.log('To row', newRow);
-        this.changeGroup(item, rowNo, newRow);
+        // this.changeGroup(item, rowNo, newRow);
+
+        let rowChangeDelta = newRow - rowNo;
         // Update time
-        let itemDuration = item.end.diff(item.start);
+        // let itemDuration = item.end.diff(item.start);
         let newPixelOffset = pixToInt(e.target.style.left) + (parseFloat(e.target.getAttribute('drag-x')) || 0);
         let newStart = getTimeAtPixel(
           newPixelOffset,
@@ -163,104 +189,115 @@ export default class Timeline extends Component {
           this.getTimelineWidth(),
           this.props.snapMinutes
         );
-        let newEnd = newStart.clone().add(itemDuration);
-        item.start = newStart;
-        item.end = newEnd;
-        //reset styles
-        e.target.setAttribute('drag-x', 0);
-        e.target.setAttribute('drag-y', 0);
-        e.target.style.webkitTransform = e.target.style.transform = 'translate(0px, 0px)';
-        e.target.style['z-index'] = 2;
-        e.target.style['top'] = intToPix(
-          this.props.itemHeight * Math.round(pixToInt(e.target.style['top']) / this.props.itemHeight)
-        );
-        // e.target.style['top'] = '0px';
-        // Check row height doesn't need changing
-        let need_recompute = false;
-        let new_to_row_height = getMaxOverlappingItems(
-          this.rowItemMap[newRow],
-          this.props.startDate,
-          this.props.endDate
-        );
-        if (new_to_row_height !== this.rowHeightCache[newRow]) {
-          this.rowHeightCache[newRow] = new_to_row_height;
-          need_recompute = true;
-        }
-        let new_from_row_height = getMaxOverlappingItems(
-          this.rowItemMap[rowNo],
-          this.props.startDate,
-          this.props.endDate
-        );
-        if (new_from_row_height !== this.rowHeightCache[rowNo]) {
-          this.rowHeightCache[rowNo] = new_from_row_height;
-          need_recompute = true;
-        }
-        if (need_recompute) this._grid.recomputeGridSize({rowIndex: Math.min(newRow, rowNo)});
-        else this._grid.forceUpdate();
+
+        const timeDelta = newStart.clone().diff(item.start, 'minutes');
+        const changes = {rowChangeDelta, timeDelta, targetItemKey: item.key};
+        this.props.onInteraction(Timeline.changeTypes.dragEnd, changes, this.props.selectedItems);
+
+        // Reset the styles
+        let animatedItems = JSON.parse(e.target.getAttribute('animatedItems') || []);
+        animatedItems.forEach(a => {
+          const selectedTarget = document.querySelector(`[item-index='${a}']`);
+          selectedTarget.style.webkitTransform = selectedTarget.style.transform = 'translate(0px, 0px)';
+          selectedTarget.setAttribute('drag-x', 0);
+          selectedTarget.setAttribute('drag-y', 0);
+          selectedTarget.style.webkitTransform = selectedTarget.style.transform = 'translate(0px, 0px)';
+          selectedTarget.style['z-index'] = 2;
+          selectedTarget.style['top'] = intToPix(
+            this.props.itemHeight * Math.round(pixToInt(selectedTarget.style['top']) / this.props.itemHeight)
+          );
+        });
+
+        this._grid.recomputeGridSize({rowIndex: 0});
       })
       .resizable({
         edges: {left: true, right: true, bottom: false, top: false}
       })
       .on('resizestart', e => {
-        console.log('resizestart', e.dx, e.target.style.left, e.target.style.width);
+        const selected = this.props.onInteraction(Timeline.changeTypes.resizeStart, null, this.props.selectedItems);
+        _.forEach(selected, id => {
+          let domItem = document.querySelector("span[item-index='" + id + "'");
+          domItem.setAttribute('isResizing', 'True');
+          domItem.setAttribute('initialWidth', pixToInt(domItem.style.width));
+          domItem.style['z-index'] = 3;
+        });
       })
       .on('resizemove', e => {
-        console.log('resizemove', e.dx, e.target.style.width, e.target.style.left);
-        // Determine if the resize is from the right or left
+        let animatedItems = document.querySelectorAll("span[isResizing='True'") || [];
+
         let dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
         dx += e.deltaRect.left;
-        e.target.style.width = e.rect.width + 'px';
-        e.target.style.webkitTransform = e.target.style.transform = 'translate(' + dx + 'px, 0px)';
+
+        let dw = e.rect.width - Number(e.target.getAttribute('initialWidth'));
+
+        _.forEach(animatedItems, item => {
+          item.style.width = intToPix(Number(item.getAttribute('initialWidth')) + dw);
+          item.style.webkitTransform = e.target.style.transform = 'translate(' + dx + 'px, 0px)';
+        });
         e.target.setAttribute('delta-x', dx);
       })
       .on('resizeend', e => {
-        console.log('resizeend', e);
+        let animatedItems = document.querySelectorAll("span[isResizing='True'") || [];
         // Update time
-        const dx = e.target.getAttribute('delta-x');
+        const dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
         const isStartTimeChange = dx != 0;
-        const {item, rowNo} = this.itemFromEvent(e);
-        let startPixelOffset = pixToInt(e.target.style.left) + (parseFloat(e.target.getAttribute('delta-x')) || 0);
-        if (isStartTimeChange) {
-          let newStart = getTimeAtPixel(
-            startPixelOffset,
-            this.props.startDate,
-            this.props.endDate,
-            this.getTimelineWidth(),
-            this.props.snapMinutes
-          );
-          item.start = newStart;
-        } else {
-          let endPixelOffset = startPixelOffset + pixToInt(e.target.style.width);
-          let newEnd = getTimeAtPixel(
-            endPixelOffset,
-            this.props.startDate,
-            this.props.endDate,
-            this.getTimelineWidth(),
-            this.props.snapMinutes
-          );
-          item.end = newEnd;
-        }
+
+        let minRowNo = Infinity;
+
+        _.forEach(animatedItems, domItem => {
+          let startPixelOffset = pixToInt(domItem.style.left) + dx;
+          const {item, rowNo} = this.itemFromElement(domItem);
+
+          minRowNo = Math.min(minRowNo, rowNo);
+
+          if (isStartTimeChange) {
+            let newStart = getTimeAtPixel(
+              startPixelOffset,
+              this.props.startDate,
+              this.props.endDate,
+              this.getTimelineWidth(),
+              this.props.snapMinutes
+            );
+            item.start = newStart;
+          } else {
+            let endPixelOffset = startPixelOffset + pixToInt(domItem.style.width);
+            let newEnd = getTimeAtPixel(
+              endPixelOffset,
+              this.props.startDate,
+              this.props.endDate,
+              this.getTimelineWidth(),
+              this.props.snapMinutes
+            );
+            item.end = newEnd;
+          }
+          // Check row height doesn't need changing
+          let new_row_height = getMaxOverlappingItems(this.rowItemMap[rowNo], this.props.startDate, this.props.endDate);
+          if (new_row_height !== this.rowHeightCache[rowNo]) {
+            this.rowHeightCache[rowNo] = new_row_height;
+          }
+
+          //Reset styles
+          domItem.removeAttribute('isResizing');
+          domItem.removeAttribute('initialWidth');
+          domItem.style['z-index'] = 2;
+          domItem.style.webkitTransform = domItem.style.transform = 'translate(0px, 0px)';
+        });
+
         e.target.setAttribute('delta-x', 0);
-        e.target.style.webkitTransform = e.target.style.transform = 'translate(0px, 0px)';
-        // Check row height doesn't need changing
-        let need_recompute = false;
-        let new_row_height = getMaxOverlappingItems(this.rowItemMap[rowNo], this.props.startDate, this.props.endDate);
-        if (new_row_height !== this.rowHeightCache[rowNo]) {
-          this.rowHeightCache[rowNo] = new_row_height;
-          need_recompute = true;
-        }
-        if (need_recompute) this._grid.recomputeGridSize({rowIndex: rowNo});
-        else this._grid.forceUpdate();
+        this._grid.recomputeGridSize({rowIndex: minRowNo});
       });
   }
 
   _itemRowClickHandler(e) {
     if (e.target.hasAttribute('item-index') || e.target.parentElement.hasAttribute('item-index')) {
       // console.log('Clicking item');
+      let itemKey = e.target.getAttribute('item-index') || e.target.parentElement.getAttribute('item-index');
+      this.props.onItemClick && this.props.onItemClick(e, Number(itemKey));
     } else {
       let row = e.target.getAttribute('row-index');
       let clickedTime = getTimeAtPixel(e.clientX, this.props.startDate, this.props.endDate, this.getTimelineWidth());
       // console.log('Clicking row ' + row + ' at ' + clickedTime.format());
+      this.props.onRowClick && this.props.onRowClick(e, row, clickedTime);
     }
   }
   /**

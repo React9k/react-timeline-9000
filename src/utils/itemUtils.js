@@ -74,9 +74,10 @@ export function rowItemsRenderer(
         <span
           className={classnames}
           style={style}
-          onClick={e => {
-            onItemClick && onItemClick(e, Number(i.key));
-          }}>
+          // onClick={e => {
+          //   onItemClick && onItemClick(e, Number(i.key));
+          // }}
+        >
           {i.title}
         </span>
       </span>
