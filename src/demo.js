@@ -7,7 +7,6 @@ import Timeline from './timeline';
 
 import {Layout, Form, InputNumber, Button, DatePicker} from 'antd';
 import 'antd/dist/antd.css';
-import TimelineItem from 'antd/lib/timeline/TimelineItem';
 
 const ITEM_DURATIONS = [
   moment.duration(15, 'minutes'),

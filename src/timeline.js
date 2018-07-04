@@ -219,6 +219,7 @@ export default class Timeline extends Component {
           let domItem = document.querySelector("span[item-index='" + id + "'");
           domItem.setAttribute('isResizing', 'True');
           domItem.setAttribute('initialWidth', pixToInt(domItem.style.width));
+          domItem.style['z-index'] = 3;
         });
       })
       .on('resizemove', e => {
@@ -278,6 +279,7 @@ export default class Timeline extends Component {
           //Reset styles
           domItem.removeAttribute('isResizing');
           domItem.removeAttribute('initialWidth');
+          domItem.style['z-index'] = 2;
           domItem.style.webkitTransform = domItem.style.transform = 'translate(0px, 0px)';
         });
 
