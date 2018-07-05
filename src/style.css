@@ -84,6 +84,6 @@
   background-color: #5bb3ff80;
   width: 1px;
   height: 1px;
-  position: absolute;
+  position: fixed;
   z-index: 4;
 }

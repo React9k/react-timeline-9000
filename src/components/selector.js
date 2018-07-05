@@ -22,11 +22,13 @@ export default class SelectBox extends React.Component {
     this.forceUpdate();
   }
   end() {
+    let toReturn = {top: this.startY, left: this.startX, width: this.dx, height: this.dy};
     this.startX = 0;
     this.startY = 0;
     this.dx = 0;
     this.dy = 0;
     this.forceUpdate();
+    return toReturn;
   }
 
   render() {

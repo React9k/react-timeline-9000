@@ -28,7 +28,7 @@ export default class DemoTimeline extends Component {
     super(props);
     const startDate = moment('2000-01-01');
     const endDate = startDate.clone().add(2, 'days');
-    this.state = {selectedItems: [1, 2], rows: 1000, items_per_row: 100, snap: 15, startDate, endDate};
+    this.state = {selectedItems: [], rows: 100, items_per_row: 30, snap: 15, startDate, endDate};
     this.reRender = this.reRender.bind(this);
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
@@ -69,8 +69,6 @@ export default class DemoTimeline extends Component {
   }
 
   handleRowClick = (e, rowNumber, time) => {
-    console.log('row clicked', rowNumber, time);
-
     this.setState({selectedItems: []});
   };
   zoomIn() {
@@ -146,6 +144,10 @@ export default class DemoTimeline extends Component {
         });
 
         this.setState({items: newItems});
+        break;
+      }
+      case Timeline.changeTypes.itemsSelected: {
+        this.setState({selectedItems: _.map(changes, 'key')});
         break;
       }
       default:
