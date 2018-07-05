@@ -50,6 +50,7 @@
   border: 1px solid black;
   border-top: 0;
   background-color: white;
+  z-index: 5;
 }
 
 .rct9k-group:first-child {

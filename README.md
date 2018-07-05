@@ -22,3 +22,4 @@
 | Timeline items                        | 2     |
 | Timeline items when dragging/resizing | 3     |
 | Selection box (for multi-select)      | 4     |
+| Group column                          | 5     |
