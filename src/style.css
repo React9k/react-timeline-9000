@@ -78,3 +78,12 @@
 .rct9k-timebar-item-selected {
   background-color: lightblue;
 }
+
+/* Multi-select box */
+.rct9k-selector-outer {
+  background-color: #5bb3ff80;
+  width: 1px;
+  height: 1px;
+  position: fixed;
+  z-index: 4;
+}

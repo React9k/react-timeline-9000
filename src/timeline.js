@@ -13,6 +13,7 @@ import {rowItemsRenderer, getNearestRowHeight, getMaxOverlappingItems} from 'uti
 import {getTimeAtPixel, getPixelAtTime} from 'utils/timeUtils';
 import {groupRenderer} from 'utils/groupUtils';
 import Timebar from 'components/timebar';
+import SelectBox from 'components/selector';
 
 import './style.css';
 
@@ -41,7 +42,8 @@ export default class Timeline extends Component {
     resizeStart: 'resizeStart',
     resizeEnd: 'resizeEnd',
     dragEnd: 'dragEnd',
-    dragStart: 'dragStart'
+    dragStart: 'dragStart',
+    itemsSelected: 'itemsSelected'
   };
 
   constructor(props) {
@@ -292,6 +294,56 @@ export default class Timeline extends Component {
         e.target.setAttribute('delta-x', 0);
         this._grid.recomputeGridSize({rowIndex: minRowNo});
       });
+
+    interact('.parent-div')
+      .draggable({
+        enabled: true,
+        ignoreFrom: '.item_draggable'
+      })
+      .styleCursor(false)
+      .on('dragstart', e => {
+        this._selectBox.start(e.clientX, e.clientY);
+      })
+      .on('dragmove', e => {
+        this._selectBox.move(e.dx, e.dy);
+      })
+      .on('dragend', e => {
+        let {top, left, width, height} = this._selectBox.end();
+        left = left - this.props.groupOffset;
+        console.log({top, left, width, height});
+        //Get the start and end row of the selection rectangle
+        const topRow = Number(getNearestRowHeight(left, top));
+        const bottomRow = Number(getNearestRowHeight(left + width, top + height));
+        console.log('top', topRow, 'bottom', bottomRow);
+        //Get the start and end time of the selection rectangle
+        let startOffset = width > 0 ? left : left + width;
+        let endOffset = width > 0 ? left + width : left;
+        const startTime = getTimeAtPixel(
+          startOffset,
+          this.props.startDate,
+          this.props.endDate,
+          this.getTimelineWidth(),
+          this.props.snapMinutes
+        );
+        const endTime = getTimeAtPixel(
+          endOffset,
+          this.props.startDate,
+          this.props.endDate,
+          this.getTimelineWidth(),
+          this.props.snapMinutes
+        );
+        console.log('Start', startTime.format(), 'End', endTime.format());
+        //Get items in these ranges
+        let selectedItems = [];
+        for (let r = Math.min(topRow, bottomRow); r <= Math.max(topRow, bottomRow); r++) {
+          selectedItems.push(
+            ..._.filter(this.rowItemMap[r], i => {
+              return i.start.isBefore(endTime) && i.end.isAfter(startTime);
+            })
+          );
+        }
+        this.props.onInteraction(Timeline.changeTypes.itemsSelected, selectedItems);
+      });
   }
 
   _itemRowClickHandler(e) {
@@ -306,6 +358,7 @@ export default class Timeline extends Component {
       this.props.onRowClick && this.props.onRowClick(e, row, clickedTime);
     }
   }
+
   /**
    * @param  {} width container width (in px)
    */
@@ -383,7 +436,8 @@ export default class Timeline extends Component {
       <div className="rct9k-timeline-div">
         <AutoSizer>
           {({height, width}) => (
-            <div>
+            <div className="parent-div">
+              <SelectBox ref={ref => (this._selectBox = ref)} />
               <Timebar
                 start={this.props.startDate}
                 end={this.props.endDate}
