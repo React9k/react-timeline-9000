@@ -106,14 +106,8 @@ export default class Timebar extends React.Component {
     return Math.min(inc, width);
   }
   renderBar(resolution) {
-    const {start, end} = this.props;
+    const {start, end, selectedRanges} = this.props;
     const width = this.props.width - this.props.leftOffset;
-    let selectedStart = moment('1900-01-01');
-    let selectedEnd = moment('1900-01-01');
-    if (this.props.selectedRanges[0]) {
-      selectedStart = this.props.selectedRanges[0].start;
-      selectedEnd = this.props.selectedRanges[0].end;
-    }
 
     let currentDate = start.clone();
     let timeIncrements = [];
@@ -124,9 +118,12 @@ export default class Timebar extends React.Component {
         let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type);
         const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
         let label = currentDate.format(resolution.format[labelSize]);
-        let isSelected =
-          currentDate.isSameOrAfter(selectedStart.clone().startOf('year')) &&
-          currentDate.isSameOrBefore(selectedEnd.clone().startOf('year'));
+        let isSelected = _.some(selectedRanges, s => {
+          return (
+            currentDate.isSameOrAfter(s.start.clone().startOf('year')) &&
+            currentDate.isSameOrBefore(s.end.clone().startOf('year'))
+          );
+        });
         timeIncrements.push({label, isSelected, size: pixelIncrements, key: currentDate.unix()});
         currentDate.add(1, 'year');
         pixelsLeft -= pixelIncrements;
@@ -137,9 +134,12 @@ export default class Timebar extends React.Component {
         let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type);
         const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
         let label = currentDate.format(resolution.format[labelSize]);
-        let isSelected =
-          currentDate.isSameOrAfter(selectedStart.clone().startOf('month')) &&
-          currentDate.isSameOrBefore(selectedEnd.clone().startOf('month'));
+        let isSelected = _.some(selectedRanges, s => {
+          return (
+            currentDate.isSameOrAfter(s.start.clone().startOf('month')) &&
+            currentDate.isSameOrBefore(s.end.clone().startOf('month'))
+          );
+        });
         timeIncrements.push({label, isSelected, size: pixelIncrements, key: currentDate.unix()});
         currentDate.add(1, 'month');
         pixelsLeft -= pixelIncrements;
@@ -150,9 +150,12 @@ export default class Timebar extends React.Component {
       const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
       while (currentDate.isBefore(end) && pixelsLeft > 0) {
         let label = currentDate.format(resolution.format[labelSize]);
-        let isSelected =
-          currentDate.isSameOrAfter(selectedStart.clone().startOf('day')) &&
-          currentDate.isSameOrBefore(selectedEnd.clone().startOf('day'));
+        let isSelected = _.some(selectedRanges, s => {
+          return (
+            currentDate.isSameOrAfter(s.start.clone().startOf('day')) &&
+            currentDate.isSameOrBefore(s.end.clone().startOf('day'))
+          );
+        });
         timeIncrements.push({label, isSelected, size: pixelIncrements, key: currentDate.unix()});
         currentDate.add(1, 'days');
         pixelsLeft -= pixelIncrements;
@@ -162,9 +165,12 @@ export default class Timebar extends React.Component {
       const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
       while (currentDate.isBefore(end) && pixelsLeft > 0) {
         let label = currentDate.format(resolution.format[labelSize]);
-        let isSelected =
-          currentDate.isSameOrAfter(selectedStart.clone().startOf('hour')) &&
-          currentDate.isSameOrBefore(selectedEnd.clone().startOf('hour'));
+        let isSelected = _.some(selectedRanges, s => {
+          return (
+            currentDate.isSameOrAfter(s.start.clone().startOf('hour')) &&
+            currentDate.isSameOrBefore(s.end.clone().startOf('hour'))
+          );
+        });
         timeIncrements.push({
           label,
           isSelected,
@@ -179,9 +185,12 @@ export default class Timebar extends React.Component {
       const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
       while (currentDate.isBefore(end) && pixelsLeft > 0) {
         let label = currentDate.format(resolution.format[labelSize]);
-        let isSelected =
-          currentDate.isSameOrAfter(selectedStart.clone().startOf('minute')) &&
-          currentDate.isSameOrBefore(selectedEnd.clone().startOf('minute'));
+        let isSelected = _.some(selectedRanges, s => {
+          return (
+            currentDate.isSameOrAfter(s.start.clone().startOf('minute')) &&
+            currentDate.isSameOrBefore(s.end.clone().startOf('minute'))
+          );
+        });
         timeIncrements.push({
           label,
           isSelected,

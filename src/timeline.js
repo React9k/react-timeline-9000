@@ -53,6 +53,7 @@ export default class Timeline extends Component {
     this.cellRangeRenderer = this.cellRangeRenderer.bind(this);
     this.rowHeight = this.rowHeight.bind(this);
     this.setTimeMap = this.setTimeMap.bind(this);
+    this.getItem = this.getItem.bind(this);
     this.changeGroup = this.changeGroup.bind(this);
     this.setSelection = this.setSelection.bind(this);
     this.clearSelection = this.clearSelection.bind(this);
@@ -98,6 +99,12 @@ export default class Timeline extends Component {
 
     return {index, rowNo, itemIndex, item};
   }
+  getItem(id) {
+    // This is quite stupid and shouldn't really be needed
+    const rowNo = this.itemRowMap[id];
+    const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == id);
+    return this.rowItemMap[rowNo][itemIndex];
+  }
 
   changeGroup(item, curRow, newRow) {
     item.row = newRow;
@@ -105,8 +112,12 @@ export default class Timeline extends Component {
     this.rowItemMap[curRow] = this.rowItemMap[curRow].filter(i => i.key !== item.key);
     this.rowItemMap[newRow].push(item);
   }
-  setSelection(start, end) {
-    this.setState({selection: [{start: start.clone(), end: end.clone()}]});
+  // [[start, end], [start, end], ...]
+  setSelection(selections) {
+    let newSelection = _.map(selections, s => {
+      return {start: s[0].clone(), end: s[1].clone()};
+    });
+    this.setState({selection: newSelection});
   }
   clearSelection() {
     this.setState({selection: []});
@@ -123,64 +134,60 @@ export default class Timeline extends Component {
         enabled: true
       })
       .on('dragstart', e => {
-        const {item} = this.itemFromElement(e.target);
-        this.setSelection(item.start, item.end);
+        let selections = [];
         const animatedItems = this.props.onInteraction(Timeline.changeTypes.dragStart, null, this.props.selectedItems);
 
-        animatedItems.forEach(a => {
-          const tgt = document.querySelector(`[item-index='${a}']`);
-          tgt.style['z-index'] = 3;
+        _.forEach(animatedItems, id => {
+          let domItem = document.querySelector("span[item-index='" + id + "'");
+          selections.push([this.getItem(id).start, this.getItem(id).end]);
+          domItem.setAttribute('isDragging', 'True');
+          domItem.style['z-index'] = 3;
         });
 
-        e.target.setAttribute('animatedItems', JSON.stringify(animatedItems));
+        this.setSelection(selections);
       })
       .on('dragmove', e => {
         const target = e.target;
-        let animatedItems = JSON.parse(target.getAttribute('animatedItems') || []);
+        let animatedItems = document.querySelectorAll("span[isDragging='True'") || [];
 
         let dx = (parseFloat(target.getAttribute('drag-x')) || 0) + e.dx;
         let dy = (parseFloat(target.getAttribute('drag-y')) || 0) + e.dy;
+        let selections = [];
 
-        animatedItems.forEach(a => {
-          const selectedTarget = document.querySelector(`[item-index='${a}']`);
-          // if( selectedTarget.length)
-          selectedTarget.style.webkitTransform = selectedTarget.style.transform =
-            'translate(' + dx + 'px, ' + dy + 'px)';
+        _.forEach(animatedItems, domItem => {
+          domItem.style.webkitTransform = domItem.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
+          const {item} = this.itemFromElement(domItem);
+          let itemDuration = item.end.diff(item.start);
+          let newPixelOffset = pixToInt(domItem.style.left) + dx;
+          let newStart = getTimeAtPixel(
+            newPixelOffset,
+            this.props.startDate,
+            this.props.endDate,
+            this.getTimelineWidth(),
+            this.props.snapMinutes
+          );
+          let newEnd = newStart.clone().add(itemDuration);
+          selections.push([newStart, newEnd]);
         });
-        // translate the element
-        // target.style.webkitTransform = target.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
+
         target.setAttribute('drag-x', dx);
         target.setAttribute('drag-y', dy);
 
-        const {item} = this.itemFromElement(e.target);
-
-        let itemDuration = item.end.diff(item.start);
-        let newPixelOffset = pixToInt(e.target.style.left) + dx;
-        let newStart = getTimeAtPixel(
-          newPixelOffset,
-          this.props.startDate,
-          this.props.endDate,
-          this.getTimelineWidth(),
-          this.props.snapMinutes
-        );
-        let newEnd = newStart.clone().add(itemDuration);
-        this.setSelection(newStart, newEnd);
+        this.setSelection(selections);
       })
       .on('dragend', e => {
-        //TODO: Should be able to optimize the lookup below
         const {item, rowNo} = this.itemFromElement(e.target);
 
-        this.setSelection(item.start, item.end);
+        this.setSelection([[item.start, item.end]]);
         this.clearSelection();
+
         // Change row
         console.log('From row', rowNo);
         let newRow = getNearestRowHeight(e.clientX, e.clientY);
         console.log('To row', newRow);
-        // this.changeGroup(item, rowNo, newRow);
 
         let rowChangeDelta = newRow - rowNo;
         // Update time
-        // let itemDuration = item.end.diff(item.start);
         let newPixelOffset = pixToInt(e.target.style.left) + (parseFloat(e.target.getAttribute('drag-x')) || 0);
         let newStart = getTimeAtPixel(
           newPixelOffset,
@@ -195,17 +202,16 @@ export default class Timeline extends Component {
         this.props.onInteraction(Timeline.changeTypes.dragEnd, changes, this.props.selectedItems);
 
         // Reset the styles
-        let animatedItems = JSON.parse(e.target.getAttribute('animatedItems') || []);
-        animatedItems.forEach(a => {
-          const selectedTarget = document.querySelector(`[item-index='${a}']`);
-          selectedTarget.style.webkitTransform = selectedTarget.style.transform = 'translate(0px, 0px)';
-          selectedTarget.setAttribute('drag-x', 0);
-          selectedTarget.setAttribute('drag-y', 0);
-          selectedTarget.style.webkitTransform = selectedTarget.style.transform = 'translate(0px, 0px)';
-          selectedTarget.style['z-index'] = 2;
-          selectedTarget.style['top'] = intToPix(
-            this.props.itemHeight * Math.round(pixToInt(selectedTarget.style['top']) / this.props.itemHeight)
+        let animatedItems = document.querySelectorAll("span[isDragging='True'") || [];
+        animatedItems.forEach(domItem => {
+          domItem.style.webkitTransform = domItem.style.transform = 'translate(0px, 0px)';
+          domItem.setAttribute('drag-x', 0);
+          domItem.setAttribute('drag-y', 0);
+          domItem.style['z-index'] = 2;
+          domItem.style['top'] = intToPix(
+            this.props.itemHeight * Math.round(pixToInt(domItem.style['top']) / this.props.itemHeight)
           );
+          domItem.removeAttribute('isDragging');
         });
 
         this._grid.recomputeGridSize({rowIndex: 0});
