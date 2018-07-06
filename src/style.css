@@ -1,7 +1,11 @@
 .rct9k-timeline-div {
   width: 100%;
   height: 95vh;
-  background-color: grey;
+  background-color: #a5a5a5;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 /* Timeline items */

@@ -21,14 +21,14 @@ const SPACE_DURATIONS = [
   moment.duration(3, 'hours'),
   moment.duration(30, 'minutes')
 ];
-const COLORS = ['lightblue', 'red', 'green', 'yellow', 'orange', 'pink'];
+const COLORS = ['#0099cc', '#f03a36', '#06ad96', '#fce05b', '#dd5900', '#cc6699'];
 
 export default class DemoTimeline extends Component {
   constructor(props) {
     super(props);
     const startDate = moment('2000-01-01');
     const endDate = startDate.clone().add(2, 'days');
-    this.state = {selectedItems: [], rows: 100, items_per_row: 30, snap: 15, startDate, endDate};
+    this.state = {selectedItems: [], rows: 100, items_per_row: 30, snap: 15, startDate, endDate, message: ''};
     this.reRender = this.reRender.bind(this);
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
@@ -41,19 +41,19 @@ export default class DemoTimeline extends Component {
   reRender() {
     const list = [];
     const groups = [];
-    let key = 0;
+    this.key = 0;
     for (let i = 0; i < this.state.rows; i++) {
       let last_moment = moment('2000-01-01');
       groups.push({id: i, title: `Row ${i}`});
       for (let j = 0; j < this.state.items_per_row; j++) {
-        key += 1;
+        this.key += 1;
         const color = COLORS[(i + j) % COLORS.length];
         const duration = ITEM_DURATIONS[Math.floor(Math.random() * ITEM_DURATIONS.length)];
         let start = last_moment;
         let end = start.clone().add(duration);
         last_moment = end.clone().add(SPACE_DURATIONS[Math.floor(Math.random() * SPACE_DURATIONS.length)]);
         list.push({
-          key: key,
+          key: this.key,
           title: duration.humanize(),
           color,
           row: i,
@@ -69,7 +69,8 @@ export default class DemoTimeline extends Component {
   }
 
   handleRowClick = (e, rowNumber, time) => {
-    this.setState({selectedItems: []});
+    const message = `Row Click row=${rowNumber} @${time.toString()}`;
+    this.setState({selectedItems: [], message});
   };
   zoomIn() {
     let currentMins = this.state.endDate.diff(this.state.startDate, 'minutes');
@@ -83,7 +84,8 @@ export default class DemoTimeline extends Component {
   }
 
   handleItemClick = (e, key) => {
-    console.log('from demo ', key);
+    const message = `Item Click ${key}`;
+    console.log(message);
     const {selectedItems} = this.state;
 
     let newSelection = selectedItems.slice();
@@ -97,51 +99,83 @@ export default class DemoTimeline extends Component {
       newSelection.push(Number(key));
     }
 
-    this.setState({selectedItems: newSelection});
+    this.setState({selectedItems: newSelection, message});
   };
 
-  handleInteraction = (type, changes, selectedItems) => {
-    console.log('interaction ', type, changes, selectedItems);
+  handleItemDoubleClick = (e, key) => {
+    const message = `Item Double Click ${key}`;
+    this.setState({message});
+  };
+
+  handleItemContextClick = (e, key) => {
+    const message = `Item Context ${key}`;
+    this.setState({message});
+  };
+
+  handleRowDoubleClick = (e, rowNumber, time) => {
+    const message = `Row Double Click row=${rowNumber} time=${time.toString()}`;
+    console.log(message);
+
+    let end = time.clone().add(5, 'hours');
+    let duration = moment.duration(end.diff(time));
+
+    const item = {
+      key: this.key++,
+      title: 'New item',
+      color: 'yellow',
+      row: rowNumber,
+      start: time,
+      end: end
+    };
+
+    const newItems = _.clone(this.state.items);
+    newItems.push(item);
+
+    this.setState({items: newItems, message});
+  };
+
+  handleRowContextClick = (e, rowNumber, time) => {
+    const message = `Row Context Click row=${rowNumber} time=${time.toString()}`;
+    this.setState({message});
+  };
+
+  handleInteraction = (type, changes, items) => {
+    console.log('interaction ', type, changes, items);
 
     const newItems = _.clone(this.state.items);
 
+    /**
+     * this is to appease the codefactor gods,
+     * whose wrath condemns those who dare
+     * repeat code beyond the sacred 5 lines...
+     */
+    function absorbChange(itemList, selectedItems) {
+      itemList.forEach(item => {
+        let i = selectedItems.find(i => {
+          return i.key == item.key;
+        });
+        if (i) {
+          item = i;
+          item.title = moment.duration(item.end.diff(item.start)).humanize();
+        }
+      });
+    }
+
     switch (type) {
       case Timeline.changeTypes.dragStart: {
-        return selectedItems;
+        return this.state.selectedItems;
       }
       case Timeline.changeTypes.dragEnd: {
-        const {rowChangeDelta, timeDelta} = changes;
-        newItems.forEach(item => {
-          if (selectedItems.includes(item.key)) {
-            let itemDuration = item.end.diff(item.start);
-            let newStart = item.start.clone().add(timeDelta, 'minutes');
-            let newEnd = newStart.clone().add(itemDuration);
-            item.start = newStart;
-            item.end = newEnd;
-            if (rowChangeDelta < 0) {
-              item.row = Math.max(0, item.row + rowChangeDelta);
-            } else if (rowChangeDelta > 0) {
-              item.row = Math.min(this.state.groups.length - 1, item.row + rowChangeDelta);
-            }
-          }
-        });
+        absorbChange(newItems, items);
         this.setState({items: newItems});
         break;
       }
       case Timeline.changeTypes.resizeStart: {
-        return selectedItems;
+        return this.state.selectedItems;
       }
       case Timeline.changeTypes.resizeEnd: {
-        const {isStartTimeChange, timeDelta} = changes;
-        newItems.forEach(item => {
-          if (selectedItems.includes(item.key)) {
-            if (isStartTimeChange) {
-              item.start = item.start.clone().add(timeDelta, 'minutes');
-            } else {
-              item.end = item.end.clone().add(timeDelta, 'minutes');
-            }
-          }
-        });
+        // Fold the changes into the item list
+        absorbChange(newItems, items);
 
         this.setState({items: newItems});
         break;
@@ -156,9 +190,7 @@ export default class DemoTimeline extends Component {
   };
 
   render() {
-    const {selectedItems, rows, items_per_row, snap, startDate, endDate, items, groups} = this.state;
-    // const items = this.ti;
-    // const groups = this.groups;
+    const {selectedItems, rows, items_per_row, snap, startDate, endDate, items, groups, message} = this.state;
     const rangeValue = [startDate, endDate];
 
     return (
@@ -197,6 +229,10 @@ export default class DemoTimeline extends Component {
                 <Button onClick={this.zoomOut}>Zoom out</Button>
               </Form.Item>
             </Form>
+            <div>
+              <span>Debug: </span>
+              {message}
+            </div>
           </div>
           <Timeline
             items={items}
@@ -206,8 +242,12 @@ export default class DemoTimeline extends Component {
             selectedItems={selectedItems}
             snapMinutes={snap}
             onItemClick={this.handleItemClick}
+            onItemDoubleClick={this.handleItemDoubleClick}
+            onItemContextClick={this.handleItemContextClick}
             onInteraction={this.handleInteraction}
             onRowClick={this.handleRowClick}
+            onRowContextClick={this.handleRowContextClick}
+            onRowDoubleClick={this.handleRowDoubleClick}
           />
         </Layout.Content>
       </Layout>
