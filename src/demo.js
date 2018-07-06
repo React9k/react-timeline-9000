@@ -144,20 +144,29 @@ export default class DemoTimeline extends Component {
 
     const newItems = _.clone(this.state.items);
 
+    /**
+     * this is to appease the codefactor gods,
+     * whose wrath condemns those who dare
+     * repeat code beyond the sacred 5 lines...
+     */
+    function absorbChange(itemList, selectedItems) {
+      itemList.forEach(item => {
+        let i = selectedItems.find(i => {
+          return i.key == item.key;
+        });
+        if (i) {
+          item = i;
+          item.title = moment.duration(item.end.diff(item.start)).humanize();
+        }
+      });
+    }
+
     switch (type) {
       case Timeline.changeTypes.dragStart: {
         return this.state.selectedItems;
       }
       case Timeline.changeTypes.dragEnd: {
-        newItems.forEach(item => {
-          let i = items.find(i => {
-            return i.key == item.key;
-          });
-          if (i) {
-            item = i;
-            item.title = moment.duration(item.end.diff(item.start)).humanize();
-          }
-        });
+        absorbChange(newItems, items);
         this.setState({items: newItems});
         break;
       }
@@ -166,15 +175,7 @@ export default class DemoTimeline extends Component {
       }
       case Timeline.changeTypes.resizeEnd: {
         // Fold the changes into the item list
-        newItems.forEach(item => {
-          let i = items.find(i => {
-            return i.key == item.key;
-          });
-          if (i) {
-            item = i;
-            item.title = moment.duration(item.end.diff(item.start)).humanize();
-          }
-        });
+        absorbChange(newItems, items);
 
         this.setState({items: newItems});
         break;
