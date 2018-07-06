@@ -10,7 +10,7 @@ import _ from 'lodash';
 
 import {pixToInt, intToPix, sumStyle} from 'utils/commonUtils';
 import {rowItemsRenderer, getNearestRowHeight, getMaxOverlappingItems} from 'utils/itemUtils';
-import {getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta} from 'utils/timeUtils';
+import {getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta, pixelsPerMinute} from 'utils/timeUtils';
 import {groupRenderer} from 'utils/groupUtils';
 import Timebar from 'components/timebar';
 import SelectBox from 'components/selector';
@@ -284,6 +284,9 @@ export default class Timeline extends Component {
 
         let dw = e.rect.width - Number(e.target.getAttribute('initialWidth'));
 
+        const minimumWidth =
+          pixelsPerMinute(this.props.startDate, this.props.endDate, this.getTimelineWidth()) * this.props.snapMinutes;
+
         const snappedDx = getSnapPixelFromDelta(
           dx,
           this.props.startDate,
@@ -300,10 +303,10 @@ export default class Timeline extends Component {
           this.props.snapMinutes
         );
 
-        console.log('deltas', snappedDx, dx, snappedDw, dw);
+        console.log('deltas', snappedDx, dx, snappedDw, dw, minimumWidth);
 
         _.forEach(animatedItems, item => {
-          item.style.width = intToPix(Number(item.getAttribute('initialWidth')) + snappedDw);
+          item.style.width = intToPix(Number(item.getAttribute('initialWidth')) + snappedDw + minimumWidth);
           item.style.webkitTransform = item.style.transform = 'translate(' + snappedDx + 'px, 0px)';
         });
         e.target.setAttribute('delta-x', dx);

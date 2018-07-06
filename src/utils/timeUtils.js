@@ -12,7 +12,7 @@ export function timeSnap(time, snapSeconds) {
   return moment(newUnix * 1000);
 }
 
-function pixelsPerMinute(vis_start, vis_end, total_width) {
+export function pixelsPerMinute(vis_start, vis_end, total_width) {
   const start_end_min = vis_end.diff(vis_start, 'minutes');
   return total_width / start_end_min;
 }
