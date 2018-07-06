@@ -12,6 +12,24 @@ export function timeSnap(time, snapSeconds) {
   return moment(newUnix * 1000);
 }
 
+function pixelsPerMinute(vis_start, vis_end, total_width) {
+  const start_end_min = vis_end.diff(vis_start, 'minutes');
+  return total_width / start_end_min;
+}
+
+/**
+ *
+ * @param {number} delta the delta distance in pixels
+ * @param {moment} vis_start the visible start of the timeline
+ * @param {moment} vis_end  the visible end of the timeline
+ * @param {number} total_width  the pixel width of the timeline
+ * @param {number} snapMinutes the number of minutes to snap to
+ */
+export function getSnapPixelFromDelta(delta, vis_start, vis_end, total_width, snapMinutes = 0) {
+  const pixelsPerSnapSegment = pixelsPerMinute(vis_start, vis_end, total_width) * snapMinutes;
+  return Math.floor(delta / pixelsPerSnapSegment) * pixelsPerSnapSegment;
+}
+
 /**
  * Get the time at a pixel location
  * @param  {number} pixel_location the pixel location (generally from left css style)
@@ -21,9 +39,7 @@ export function timeSnap(time, snapSeconds) {
  * @returns {moment} Moment object
  */
 export function getTimeAtPixel(pixel_location, vis_start, vis_end, total_width, snapMinutes = 0) {
-  const start_end_min = vis_end.diff(vis_start, 'minutes');
-  const pixels_per_min = total_width / start_end_min;
-  let min_offset = pixel_location / pixels_per_min;
+  let min_offset = pixel_location / pixelsPerMinute(vis_start, vis_end, total_width);
   let timeAtPix = vis_start.clone().add(min_offset, 'minutes');
   if (snapMinutes !== 0) timeAtPix = timeSnap(timeAtPix, snapMinutes * 60);
   return timeAtPix;
@@ -37,10 +53,8 @@ export function getTimeAtPixel(pixel_location, vis_start, vis_end, total_width, 
  * @returns {number} The pixel offset
  */
 export function getPixelAtTime(time, vis_start, vis_end, total_width) {
-  const start_end_min = vis_end.diff(vis_start, 'minutes');
-  const pixels_per_min = total_width / start_end_min;
   const min_from_start = time.diff(vis_start, 'minutes');
-  return min_from_start * pixels_per_min;
+  return min_from_start * pixelsPerMinute(vis_start, vis_end, total_width);
 }
 /**
  * Returns the duration from the {@link vis_start}

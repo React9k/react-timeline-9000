@@ -10,7 +10,7 @@ import _ from 'lodash';
 
 import {pixToInt, intToPix, sumStyle} from 'utils/commonUtils';
 import {rowItemsRenderer, getNearestRowHeight, getMaxOverlappingItems} from 'utils/itemUtils';
-import {getTimeAtPixel, getPixelAtTime} from 'utils/timeUtils';
+import {getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta} from 'utils/timeUtils';
 import {groupRenderer} from 'utils/groupUtils';
 import Timebar from 'components/timebar';
 import SelectBox from 'components/selector';
@@ -28,8 +28,12 @@ export default class Timeline extends Component {
     snapMinutes: PropTypes.number,
     itemHeight: PropTypes.number,
     onItemClick: PropTypes.func,
+    onItemDoubleClick: PropTypes.func,
+    onItemContext: PropTypes.func,
     onInteraction: PropTypes.func,
-    onRowClick: PropTypes.func
+    onRowClick: PropTypes.func,
+    onRowContext: PropTypes.func,
+    onRowDoubleClick: PropTypes.func
   };
 
   static defaultProps = {
@@ -60,14 +64,20 @@ export default class Timeline extends Component {
     this.setSelection = this.setSelection.bind(this);
     this.clearSelection = this.clearSelection.bind(this);
     this.getTimelineWidth = this.getTimelineWidth.bind(this);
-    this._itemRowClickHandler = this._itemRowClickHandler.bind(this);
-    this.itemFromEvent = this.itemFromElement.bind(this);
+    this.itemFromElement = this.itemFromElement.bind(this);
 
     this.setUpDragging();
   }
 
   componentWillReceiveProps(nextProps) {
     this.setTimeMap(nextProps.items, nextProps.startDate, nextProps.endDate);
+
+    // @TODO
+    // investigate if we need this, only added to refresh the grid
+    // when double click -> add an item
+    if (this.props.items.length !== nextProps.items.length) {
+      this.refreshGrid();
+    }
   }
 
   setTimeMap(items, startDate, endDate) {
@@ -130,6 +140,10 @@ export default class Timeline extends Component {
     return this._grid.props.width - groupOffset;
   }
 
+  refreshGrid = (config = {}) => {
+    this._grid.recomputeGridSize(config);
+  };
+
   setUpDragging() {
     interact('.item_draggable')
       .draggable({
@@ -156,11 +170,19 @@ export default class Timeline extends Component {
         let dy = (parseFloat(target.getAttribute('drag-y')) || 0) + e.dy;
         let selections = [];
 
+        // Snap the movement to the current snap interval
+        const snapDx = getSnapPixelFromDelta(
+          dx,
+          this.props.startDate,
+          this.props.endDate,
+          this.getTimelineWidth(),
+          this.props.snapMinutes
+        );
+
         _.forEach(animatedItems, domItem => {
-          domItem.style.webkitTransform = domItem.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
           const {item} = this.itemFromElement(domItem);
           let itemDuration = item.end.diff(item.start);
-          let newPixelOffset = pixToInt(domItem.style.left) + dx;
+          let newPixelOffset = pixToInt(domItem.style.left) + snapDx;
           let newStart = getTimeAtPixel(
             newPixelOffset,
             this.props.startDate,
@@ -168,8 +190,12 @@ export default class Timeline extends Component {
             this.getTimelineWidth(),
             this.props.snapMinutes
           );
+
           let newEnd = newStart.clone().add(itemDuration);
           selections.push([newStart, newEnd]);
+
+          // Translate the new start time back to pixels, so we can animate the snap
+          domItem.style.webkitTransform = domItem.style.transform = 'translate(' + snapDx + 'px, ' + dy + 'px)';
         });
 
         target.setAttribute('drag-x', dx);
@@ -179,6 +205,7 @@ export default class Timeline extends Component {
       })
       .on('dragend', e => {
         const {item, rowNo} = this.itemFromElement(e.target);
+        let animatedItems = document.querySelectorAll("span[isDragging='True'") || [];
 
         this.setSelection([[item.start, item.end]]);
         this.clearSelection();
@@ -200,11 +227,30 @@ export default class Timeline extends Component {
         );
 
         const timeDelta = newStart.clone().diff(item.start, 'minutes');
-        const changes = {rowChangeDelta, timeDelta, targetItemKey: item.key};
-        this.props.onInteraction(Timeline.changeTypes.dragEnd, changes, this.props.selectedItems);
+        const changes = {rowChangeDelta, timeDelta};
+        let items = [];
+
+        // Default, all items move by the same offset during a drag
+        _.forEach(animatedItems, domItem => {
+          const {item, rowNo} = this.itemFromElement(domItem);
+
+          let itemDuration = item.end.diff(item.start);
+          let newStart = item.start.clone().add(timeDelta, 'minutes');
+          let newEnd = newStart.clone().add(itemDuration);
+          item.start = newStart;
+          item.end = newEnd;
+          if (rowChangeDelta < 0) {
+            item.row = Math.max(0, item.row + rowChangeDelta);
+          } else if (rowChangeDelta > 0) {
+            item.row = Math.min(this.props.groups.length - 1, item.row + rowChangeDelta);
+          }
+
+          items.push(item);
+        });
+
+        this.props.onInteraction(Timeline.changeTypes.dragEnd, changes, items);
 
         // Reset the styles
-        let animatedItems = document.querySelectorAll("span[isDragging='True'") || [];
         animatedItems.forEach(domItem => {
           domItem.style.webkitTransform = domItem.style.transform = 'translate(0px, 0px)';
           domItem.setAttribute('drag-x', 0);
@@ -238,9 +284,27 @@ export default class Timeline extends Component {
 
         let dw = e.rect.width - Number(e.target.getAttribute('initialWidth'));
 
+        const snappedDx = getSnapPixelFromDelta(
+          dx,
+          this.props.startDate,
+          this.props.endDate,
+          this.getTimelineWidth(),
+          this.props.snapMinutes
+        );
+
+        const snappedDw = getSnapPixelFromDelta(
+          dw,
+          this.props.startDate,
+          this.props.endDate,
+          this.getTimelineWidth(),
+          this.props.snapMinutes
+        );
+
+        console.log('deltas', snappedDx, dx, snappedDw, dw);
+
         _.forEach(animatedItems, item => {
-          item.style.width = intToPix(Number(item.getAttribute('initialWidth')) + dw);
-          item.style.webkitTransform = e.target.style.transform = 'translate(' + dx + 'px, 0px)';
+          item.style.width = intToPix(Number(item.getAttribute('initialWidth')) + snappedDw);
+          item.style.webkitTransform = item.style.transform = 'translate(' + snappedDx + 'px, 0px)';
         });
         e.target.setAttribute('delta-x', dx);
       })
@@ -250,8 +314,11 @@ export default class Timeline extends Component {
         const dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
         const isStartTimeChange = dx != 0;
 
+        const changes = {isStartTimeChange, timeDelta: dx};
+        let items = [];
         let minRowNo = Infinity;
 
+        // Calculate the default item positions
         _.forEach(animatedItems, domItem => {
           let startPixelOffset = pixToInt(domItem.style.left) + dx;
           const {item, rowNo} = this.itemFromElement(domItem);
@@ -278,6 +345,7 @@ export default class Timeline extends Component {
             );
             item.end = newEnd;
           }
+
           // Check row height doesn't need changing
           let new_row_height = getMaxOverlappingItems(this.rowItemMap[rowNo], this.props.startDate, this.props.endDate);
           if (new_row_height !== this.rowHeightCache[rowNo]) {
@@ -289,7 +357,11 @@ export default class Timeline extends Component {
           domItem.removeAttribute('initialWidth');
           domItem.style['z-index'] = 2;
           domItem.style.webkitTransform = domItem.style.transform = 'translate(0px, 0px)';
+
+          items.push(item);
         });
+
+        this.props.onInteraction(Timeline.changeTypes.resizeEnd, changes, items);
 
         e.target.setAttribute('delta-x', 0);
         this._grid.recomputeGridSize({rowIndex: minRowNo});
@@ -346,18 +418,17 @@ export default class Timeline extends Component {
       });
   }
 
-  _itemRowClickHandler(e) {
+  _handleItemRowEvent = (e, itemCallback, rowCallback) => {
+    e.preventDefault();
     if (e.target.hasAttribute('item-index') || e.target.parentElement.hasAttribute('item-index')) {
-      // console.log('Clicking item');
       let itemKey = e.target.getAttribute('item-index') || e.target.parentElement.getAttribute('item-index');
-      this.props.onItemClick && this.props.onItemClick(e, Number(itemKey));
+      itemCallback && itemCallback(e, Number(itemKey));
     } else {
       let row = e.target.getAttribute('row-index');
       let clickedTime = getTimeAtPixel(e.clientX, this.props.startDate, this.props.endDate, this.getTimelineWidth());
-      // console.log('Clicking row ' + row + ' at ' + clickedTime.format());
-      this.props.onRowClick && this.props.onRowClick(e, row, clickedTime);
+      rowCallback && rowCallback(e, row, clickedTime);
     }
-  }
+  };
 
   /**
    * @param  {} width container width (in px)
@@ -375,15 +446,23 @@ export default class Timeline extends Component {
       if (itemCol == columnIndex) {
         let itemsInRow = this.rowItemMap[rowIndex];
         return (
-          <div key={key} style={style} row-index={rowIndex} className="rct9k-row" onClick={this._itemRowClickHandler}>
+          <div
+            key={key}
+            style={style}
+            row-index={rowIndex}
+            className="rct9k-row"
+            onClick={e => this._handleItemRowEvent(e, this.props.onItemClick, this.props.onRowClick)}
+            onContextMenu={e =>
+              this._handleItemRowEvent(e, this.props.onItemContextClick, this.props.onRowContextClick)
+            }
+            onDoubleClick={e => this._handleItemRowEvent(e, this.props.onItemDoubleClick, this.props.onRowDoubleClick)}>
             {rowItemsRenderer(
               itemsInRow,
               this.props.startDate,
               this.props.endDate,
               width,
               this.props.itemHeight,
-              this.props.selectedItems,
-              this.props.onItemClick
+              this.props.selectedItems
             )}
           </div>
         );

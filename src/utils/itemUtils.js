@@ -11,15 +11,7 @@ import moment from 'moment';
  * @param  {moment} vis_end The visible end of the timeline
  * @param  {number} total_width pixel width of the timeline
  */
-export function rowItemsRenderer(
-  items,
-  vis_start,
-  vis_end,
-  total_width,
-  itemHeight,
-  selectedItems = [],
-  onItemClick = () => {}
-) {
+export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHeight, selectedItems = []) {
   const start_end_min = vis_end.diff(vis_start, 'minutes');
   const pixels_per_min = total_width / start_end_min;
   let filtered_items = _.sortBy(
@@ -71,13 +63,7 @@ export function rowItemsRenderer(
         item-index={i.key}
         className="rct9k-items-outer item_draggable"
         style={{left, width, top, backgroundColor: 'transparent'}}>
-        <span
-          className={classnames}
-          style={style}
-          // onClick={e => {
-          //   onItemClick && onItemClick(e, Number(i.key));
-          // }}
-        >
+        <span className={classnames} style={style}>
           {i.title}
         </span>
       </span>
