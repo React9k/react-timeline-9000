@@ -5,7 +5,7 @@ import moment from 'moment';
 import _ from 'lodash';
 import Timeline from './timeline';
 
-import {Layout, Form, InputNumber, Button, DatePicker, Checkbox} from 'antd';
+import {Layout, Form, InputNumber, Button, DatePicker, Checkbox, Switch} from 'antd';
 import 'antd/dist/antd.css';
 
 const {TIMELINE_MODES} = Timeline;
@@ -25,6 +25,22 @@ const SPACE_DURATIONS = [
 ];
 const COLORS = ['#0099cc', '#f03a36', '#06ad96', '#fce05b', '#dd5900', '#cc6699'];
 
+export function customItemRenderer(props) {
+  const {item, ...rest} = props;
+
+  return <span {...rest}> Custom </span>;
+}
+
+export function customGroupRenderer(props) {
+  const {group, ...rest} = props;
+
+  return (
+    <span group-index={group.id} {...rest}>
+      Custom {group.title}
+    </span>
+  );
+}
+
 export default class DemoTimeline extends Component {
   constructor(props) {
     super(props);
@@ -43,6 +59,7 @@ export default class DemoTimeline extends Component {
     this.reRender = this.reRender.bind(this);
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
+    this.toggleCustomRenderers = this.toggleCustomRenderers.bind(this);
     this.toggleSelectable = this.toggleSelectable.bind(this);
     this.toggleDraggable = this.toggleDraggable.bind(this);
     this.toggleResizable = this.toggleResizable.bind(this);
@@ -96,6 +113,11 @@ export default class DemoTimeline extends Component {
     let newMins = currentMins * 2;
     this.setState({endDate: this.state.startDate.clone().add(newMins, 'minutes')});
   }
+
+  toggleCustomRenderers(checked) {
+    this.setState({useCustomRenderers: checked});
+  }
+
   toggleSelectable() {
     const {timelineMode} = this.state;
     let newMode = timelineMode ^ TIMELINE_MODES.SELECT;
@@ -170,8 +192,6 @@ export default class DemoTimeline extends Component {
   handleInteraction = (type, changes, items) => {
     console.log('interaction ', type, changes, items);
 
-    const newItems = _.clone(this.state.items);
-
     /**
      * this is to appease the codefactor gods,
      * whose wrath condemns those who dare
@@ -194,6 +214,8 @@ export default class DemoTimeline extends Component {
         return this.state.selectedItems;
       }
       case Timeline.changeTypes.dragEnd: {
+        const newItems = _.clone(this.state.items);
+
         absorbChange(newItems, items);
         this.setState({items: newItems});
         break;
@@ -202,6 +224,8 @@ export default class DemoTimeline extends Component {
         return this.state.selectedItems;
       }
       case Timeline.changeTypes.resizeEnd: {
+        const newItems = _.clone(this.state.items);
+
         // Fold the changes into the item list
         absorbChange(newItems, items);
 
@@ -228,6 +252,7 @@ export default class DemoTimeline extends Component {
       items,
       groups,
       message,
+      useCustomRenderers,
       timelineMode
     } = this.state;
     const rangeValue = [startDate, endDate];
@@ -270,6 +295,9 @@ export default class DemoTimeline extends Component {
               <Form.Item>
                 <Button onClick={this.zoomOut}>Zoom out</Button>
               </Form.Item>
+              <Form.Item label="Custom Renderers">
+                <Switch onChange={this.toggleCustomRenderers} />
+              </Form.Item>
               <Form.Item>
                 <Checkbox onChange={this.toggleSelectable} checked={selectable}>
                   Enable selecting
@@ -306,6 +334,8 @@ export default class DemoTimeline extends Component {
             onRowClick={this.handleRowClick}
             onRowContextClick={this.handleRowContextClick}
             onRowDoubleClick={this.handleRowDoubleClick}
+            itemRenderer={useCustomRenderers ? customItemRenderer : undefined}
+            groupRenderer={useCustomRenderers ? customGroupRenderer : undefined}
           />
         </Layout.Content>
       </Layout>
