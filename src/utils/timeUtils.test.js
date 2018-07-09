@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 
 import moment from 'moment';
-import {timeSnap, getTimeAtPixel, getPixelAtTime, getDurationFromPixels} from './timeUtils';
+import {timeSnap, getTimeAtPixel, getPixelAtTime, getDurationFromPixels, getSnapPixelFromDelta} from './timeUtils';
 
 describe('Time Utils', function() {
   describe('timeSnap', function() {
@@ -183,6 +183,13 @@ describe('Time Utils', function() {
       const expectedDuration = (pixelOffset / timelineWidth) * 7 * 24 * 60 * 60;
       let duration = getDurationFromPixels(pixelOffset, visStart, visEnd, timelineWidth);
       expect(duration.asSeconds()).to.equal(expectedDuration);
+    });
+  });
+  describe('getSnapPixelFromDelta', function() {
+    it('Should snap to the nearest pixel', function() {
+      const snapMinutes = 15;
+
+      expect(true);
     });
   });
 });
