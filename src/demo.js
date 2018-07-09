@@ -135,7 +135,6 @@ export default class DemoTimeline extends Component {
   }
   handleItemClick = (e, key) => {
     const message = `Item Click ${key}`;
-    console.log(message);
     const {selectedItems} = this.state;
 
     let newSelection = selectedItems.slice();
@@ -164,7 +163,6 @@ export default class DemoTimeline extends Component {
 
   handleRowDoubleClick = (e, rowNumber, time) => {
     const message = `Row Double Click row=${rowNumber} time=${time.toString()}`;
-    console.log(message);
 
     let end = time.clone().add(5, 'hours');
     let duration = moment.duration(end.diff(time));
