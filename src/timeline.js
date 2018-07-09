@@ -146,6 +146,10 @@ export default class Timeline extends Component {
 
   setUpDragging() {
     interact('.item_draggable')
+      .on('click', e => {
+        debugger;
+        e.stopImmediatePropagation();
+      })
       .draggable({
         enabled: true
       })
@@ -302,8 +306,6 @@ export default class Timeline extends Component {
           this.getTimelineWidth(),
           this.props.snapMinutes
         );
-
-        console.log('deltas', snappedDx, dx, snappedDw, dw, minimumWidth);
 
         _.forEach(animatedItems, item => {
           item.style.width = intToPix(Number(item.getAttribute('initialWidth')) + snappedDw + minimumWidth);
