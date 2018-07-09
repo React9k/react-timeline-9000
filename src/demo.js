@@ -5,7 +5,7 @@ import moment from 'moment';
 import _ from 'lodash';
 import Timeline from './timeline';
 
-import {Layout, Form, InputNumber, Button, DatePicker} from 'antd';
+import {Layout, Form, InputNumber, Button, DatePicker, Switch} from 'antd';
 import 'antd/dist/antd.css';
 
 const ITEM_DURATIONS = [
@@ -29,6 +29,16 @@ export function customItemRenderer(props) {
   return <span {...rest}> Custom </span>;
 }
 
+export function customGroupRenderer(props) {
+  const {group, ...rest} = props;
+
+  return (
+    <span group-index={group.id} {...rest}>
+      Custom {group.title}
+    </span>
+  );
+}
+
 export default class DemoTimeline extends Component {
   constructor(props) {
     super(props);
@@ -38,6 +48,7 @@ export default class DemoTimeline extends Component {
     this.reRender = this.reRender.bind(this);
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
+    this.toggleCustomRenderers = this.toggleCustomRenderers.bind(this);
   }
 
   componentWillMount() {
@@ -87,6 +98,10 @@ export default class DemoTimeline extends Component {
     let currentMins = this.state.endDate.diff(this.state.startDate, 'minutes');
     let newMins = currentMins * 2;
     this.setState({endDate: this.state.startDate.clone().add(newMins, 'minutes')});
+  }
+
+  toggleCustomRenderers(checked) {
+    this.setState({useCustomRenderers: checked});
   }
 
   handleItemClick = (e, key) => {
@@ -198,7 +213,18 @@ export default class DemoTimeline extends Component {
   };
 
   render() {
-    const {selectedItems, rows, items_per_row, snap, startDate, endDate, items, groups, message} = this.state;
+    const {
+      selectedItems,
+      rows,
+      items_per_row,
+      snap,
+      startDate,
+      endDate,
+      items,
+      groups,
+      message,
+      useCustomRenderers
+    } = this.state;
     const rangeValue = [startDate, endDate];
 
     return (
@@ -236,6 +262,9 @@ export default class DemoTimeline extends Component {
               <Form.Item>
                 <Button onClick={this.zoomOut}>Zoom out</Button>
               </Form.Item>
+              <Form.Item label="Custom Renderers">
+                <Switch onChange={this.toggleCustomRenderers} />
+              </Form.Item>
             </Form>
             <div>
               <span>Debug: </span>
@@ -256,7 +285,8 @@ export default class DemoTimeline extends Component {
             onRowClick={this.handleRowClick}
             onRowContextClick={this.handleRowContextClick}
             onRowDoubleClick={this.handleRowDoubleClick}
-            itemRenderer={customItemRenderer}
+            itemRenderer={useCustomRenderers ? customItemRenderer : undefined}
+            groupRenderer={useCustomRenderers ? customGroupRenderer : undefined}
           />
         </Layout.Content>
       </Layout>
