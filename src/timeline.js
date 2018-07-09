@@ -11,9 +11,9 @@ import _ from 'lodash';
 import {pixToInt, intToPix, sumStyle} from 'utils/commonUtils';
 import {rowItemsRenderer, getNearestRowHeight, getMaxOverlappingItems} from 'utils/itemUtils';
 import {getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta, pixelsPerMinute} from 'utils/timeUtils';
-import {groupRenderer} from 'utils/groupUtils';
 import Timebar from 'components/timebar';
 import SelectBox from 'components/selector';
+import {DefaultGroupRenderer, DefaultItemRenderer} from 'components/renderers';
 
 import './style.css';
 
@@ -33,13 +33,17 @@ export default class Timeline extends Component {
     onInteraction: PropTypes.func,
     onRowClick: PropTypes.func,
     onRowContext: PropTypes.func,
-    onRowDoubleClick: PropTypes.func
+    onRowDoubleClick: PropTypes.func,
+    itemRenderer: PropTypes.func,
+    groupRenderer: PropTypes.func
   };
 
   static defaultProps = {
     groupOffset: 150,
     itemHeight: 40,
-    snapMinutes: 15
+    snapMinutes: 15,
+    groupRenderer: DefaultGroupRenderer,
+    itemRenderer: DefaultItemRenderer
   };
 
   static changeTypes = {
@@ -465,15 +469,17 @@ export default class Timeline extends Component {
               this.props.endDate,
               width,
               this.props.itemHeight,
+              this.props.itemRenderer,
               this.props.selectedItems
             )}
           </div>
         );
       } else {
+        const GroupComp = this.props.groupRenderer;
         let group = _.find(this.props.groups, g => g.id == rowIndex);
         return (
           <div key={key} style={style} className="rct9k-group">
-            {groupRenderer(group)}
+            <GroupComp group={group} />
           </div>
         );
       }

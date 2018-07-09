@@ -23,6 +23,12 @@ const SPACE_DURATIONS = [
 ];
 const COLORS = ['#0099cc', '#f03a36', '#06ad96', '#fce05b', '#dd5900', '#cc6699'];
 
+export function customItemRenderer(props) {
+  const {item, ...rest} = props;
+
+  return <span {...rest}> Custom </span>;
+}
+
 export default class DemoTimeline extends Component {
   constructor(props) {
     super(props);
@@ -142,8 +148,6 @@ export default class DemoTimeline extends Component {
   handleInteraction = (type, changes, items) => {
     console.log('interaction ', type, changes, items);
 
-    const newItems = _.clone(this.state.items);
-
     /**
      * this is to appease the codefactor gods,
      * whose wrath condemns those who dare
@@ -166,6 +170,8 @@ export default class DemoTimeline extends Component {
         return this.state.selectedItems;
       }
       case Timeline.changeTypes.dragEnd: {
+        const newItems = _.clone(this.state.items);
+
         absorbChange(newItems, items);
         this.setState({items: newItems});
         break;
@@ -174,6 +180,8 @@ export default class DemoTimeline extends Component {
         return this.state.selectedItems;
       }
       case Timeline.changeTypes.resizeEnd: {
+        const newItems = _.clone(this.state.items);
+
         // Fold the changes into the item list
         absorbChange(newItems, items);
 
@@ -248,6 +256,7 @@ export default class DemoTimeline extends Component {
             onRowClick={this.handleRowClick}
             onRowContextClick={this.handleRowContextClick}
             onRowDoubleClick={this.handleRowDoubleClick}
+            itemRenderer={customItemRenderer}
           />
         </Layout.Content>
       </Layout>

@@ -11,7 +11,7 @@ import moment from 'moment';
  * @param  {moment} vis_end The visible end of the timeline
  * @param  {number} total_width pixel width of the timeline
  */
-export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHeight, selectedItems = []) {
+export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHeight, itemRenderer, selectedItems = []) {
   const start_end_min = vis_end.diff(vis_start, 'minutes');
   const pixels_per_min = total_width / start_end_min;
   let filtered_items = _.sortBy(
@@ -43,6 +43,7 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHei
   //console.groupEnd('New row');
   return _.map(displayItems, i => {
     const {color} = i;
+    const Comp = itemRenderer;
     let top = itemHeight * i['rowOffset'];
     let item_offset_mins = i.start.diff(vis_start, 'minutes');
     let item_duration_mins = i.end.diff(i.start, 'minutes');
@@ -63,9 +64,7 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHei
         item-index={i.key}
         className="rct9k-items-outer item_draggable"
         style={{left, width, top, backgroundColor: 'transparent'}}>
-        <span className={classnames} style={style}>
-          {i.title}
-        </span>
+        <Comp key={i.key} item={i} className={classnames} style={style} />
       </span>
     );
   });
