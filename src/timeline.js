@@ -18,6 +18,12 @@ import SelectBox from 'components/selector';
 import './style.css';
 
 export default class Timeline extends Component {
+  static timelineModes = Object.freeze({
+    SELECT: 1,
+    DRAG: 2,
+    RESIZE: 4
+  });
+
   static propTypes = {
     items: PropTypes.arrayOf(PropTypes.object).isRequired,
     groups: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -27,6 +33,7 @@ export default class Timeline extends Component {
     endDate: PropTypes.object.isRequired,
     snapMinutes: PropTypes.number,
     itemHeight: PropTypes.number,
+    timelineMode: PropTypes.number,
     onItemClick: PropTypes.func,
     onItemDoubleClick: PropTypes.func,
     onItemContext: PropTypes.func,
@@ -39,7 +46,8 @@ export default class Timeline extends Component {
   static defaultProps = {
     groupOffset: 150,
     itemHeight: 40,
-    snapMinutes: 15
+    snapMinutes: 15,
+    timelineMode: Timeline.timelineModes.SELECT | Timeline.timelineModes.DRAG | Timeline.timelineModes.RESIZE
   };
 
   static changeTypes = {
@@ -50,6 +58,9 @@ export default class Timeline extends Component {
     itemsSelected: 'itemsSelected'
   };
 
+  static isBitSet(bit, mask) {
+    return (bit & mask) === bit;
+  }
   constructor(props) {
     super(props);
     this.state = {selection: []};
@@ -145,11 +156,15 @@ export default class Timeline extends Component {
   };
 
   setUpDragging() {
+    const {timelineMode} = this.props;
+    const canDrag = Timeline.isBitSet(Timeline.timelineModes.DRAG, timelineMode);
+    const canResize = Timeline.isBitSet(Timeline.timelineModes.RESIZE, timelineMode);
     interact('.item_draggable')
       .draggable({
         enabled: true
       })
       .on('dragstart', e => {
+        if (!canDrag) return;
         let selections = [];
         const animatedItems = this.props.onInteraction(Timeline.changeTypes.dragStart, null, this.props.selectedItems);
 
@@ -163,6 +178,7 @@ export default class Timeline extends Component {
         this.setSelection(selections);
       })
       .on('dragmove', e => {
+        if (!canDrag) return;
         const target = e.target;
         let animatedItems = document.querySelectorAll("span[isDragging='True'") || [];
 
@@ -204,6 +220,7 @@ export default class Timeline extends Component {
         this.setSelection(selections);
       })
       .on('dragend', e => {
+        if (!canDrag) return;
         const {item, rowNo} = this.itemFromElement(e.target);
         let animatedItems = document.querySelectorAll("span[isDragging='True'") || [];
 
@@ -268,6 +285,7 @@ export default class Timeline extends Component {
         edges: {left: true, right: true, bottom: false, top: false}
       })
       .on('resizestart', e => {
+        if (!canResize) return;
         const selected = this.props.onInteraction(Timeline.changeTypes.resizeStart, null, this.props.selectedItems);
         _.forEach(selected, id => {
           let domItem = document.querySelector("span[item-index='" + id + "'");
@@ -277,6 +295,7 @@ export default class Timeline extends Component {
         });
       })
       .on('resizemove', e => {
+        if (!canResize) return;
         let animatedItems = document.querySelectorAll("span[isResizing='True'") || [];
 
         let dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
@@ -312,6 +331,7 @@ export default class Timeline extends Component {
         e.target.setAttribute('delta-x', dx);
       })
       .on('resizeend', e => {
+        if (!canResize) return;
         let animatedItems = document.querySelectorAll("span[isResizing='True'") || [];
         // Update time
         const dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
@@ -377,12 +397,15 @@ export default class Timeline extends Component {
       })
       .styleCursor(false)
       .on('dragstart', e => {
+        if (!canDrag) return;
         this._selectBox.start(e.clientX, e.clientY);
       })
       .on('dragmove', e => {
+        if (!canDrag) return;
         this._selectBox.move(e.dx, e.dy);
       })
       .on('dragend', e => {
+        if (!canDrag) return;
         let {top, left, width, height} = this._selectBox.end();
         left = left - this.props.groupOffset;
         console.log({top, left, width, height});
@@ -444,6 +467,9 @@ export default class Timeline extends Component {
      * @param  {} rowIndex Vertical (row) index of cell
      * @param  {} style Style object to be applied to cell (to position it);
      */
+    const {timelineMode} = this.props;
+    const canSelect = Timeline.isBitSet(Timeline.timelineModes.SELECT, timelineMode);
+
     return ({columnIndex, key, parent, rowIndex, style}) => {
       let itemCol = 1;
       if (itemCol == columnIndex) {
@@ -465,7 +491,7 @@ export default class Timeline extends Component {
               this.props.endDate,
               width,
               this.props.itemHeight,
-              this.props.selectedItems
+              canSelect ? this.props.selectedItems : []
             )}
           </div>
         );
