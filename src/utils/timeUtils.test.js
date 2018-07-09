@@ -185,11 +185,4 @@ describe('Time Utils', function() {
       expect(duration.asSeconds()).to.equal(expectedDuration);
     });
   });
-  describe('getSnapPixelFromDelta', function() {
-    it('Should snap to the nearest pixel', function() {
-      const snapMinutes = 15;
-
-      expect(true);
-    });
-  });
 });
