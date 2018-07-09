@@ -104,6 +104,8 @@ export default class Timeline extends Component {
     }
   }
 
+  no_op = () => {};
+
   setTimeMap(items, startDate, endDate) {
     if (!startDate || !endDate) {
       startDate = this.props.startDate;
@@ -174,6 +176,10 @@ export default class Timeline extends Component {
 
     this._itemInteractable = interact('.item_draggable');
     this._selectRectangleInteractable = interact('.parent-div');
+
+    this._itemInteractable.on('tap', e => {
+      this._handleItemRowEvent(e, this.props.onItemClick, this.props.onRowClick);
+    });
 
     if (canDrag) {
       this._itemInteractable
@@ -342,8 +348,6 @@ export default class Timeline extends Component {
             this.props.snapMinutes
           );
 
-          console.log('deltas', snappedDx, dx, snappedDw, dw, minimumWidth);
-
           _.forEach(animatedItems, item => {
             item.style.width = intToPix(Number(item.getAttribute('initialWidth')) + snappedDw + minimumWidth);
             item.style.webkitTransform = item.style.transform = 'translate(' + snappedDx + 'px, 0px)';
@@ -503,7 +507,7 @@ export default class Timeline extends Component {
             style={style}
             row-index={rowIndex}
             className="rct9k-row"
-            onClick={e => this._handleItemRowEvent(e, this.props.onItemClick, this.props.onRowClick)}
+            onClick={e => this._handleItemRowEvent(e, this.no_op, this.props.onRowClick)}
             onContextMenu={e =>
               this._handleItemRowEvent(e, this.props.onItemContextClick, this.props.onRowContextClick)
             }
