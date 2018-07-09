@@ -18,7 +18,7 @@ import SelectBox from 'components/selector';
 import './style.css';
 
 export default class Timeline extends Component {
-  static timelineModes = Object.freeze({
+  static TIMELINE_MODES = Object.freeze({
     SELECT: 1,
     DRAG: 2,
     RESIZE: 4
@@ -47,7 +47,7 @@ export default class Timeline extends Component {
     groupOffset: 150,
     itemHeight: 40,
     snapMinutes: 15,
-    timelineMode: Timeline.timelineModes.SELECT | Timeline.timelineModes.DRAG | Timeline.timelineModes.RESIZE
+    timelineMode: Timeline.TIMELINE_MODES.SELECT | Timeline.TIMELINE_MODES.DRAG | Timeline.TIMELINE_MODES.RESIZE
   };
 
   static changeTypes = {
@@ -77,7 +77,10 @@ export default class Timeline extends Component {
     this.getTimelineWidth = this.getTimelineWidth.bind(this);
     this.itemFromElement = this.itemFromElement.bind(this);
 
-    this.setUpDragging();
+    const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, this.props.timelineMode);
+    const canDrag = Timeline.isBitSet(Timeline.TIMELINE_MODES.DRAG, this.props.timelineMode);
+    const canResize = Timeline.isBitSet(Timeline.TIMELINE_MODES.RESIZE, this.props.timelineMode);
+    this.setUpDragging(canSelect, canDrag, canResize);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -88,6 +91,12 @@ export default class Timeline extends Component {
     // when double click -> add an item
     if (this.props.items.length !== nextProps.items.length) {
       this.refreshGrid();
+    }
+    if (this.props.timelineMode !== nextProps.timelineMode) {
+      const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, nextProps.timelineMode);
+      const canDrag = Timeline.isBitSet(Timeline.TIMELINE_MODES.DRAG, nextProps.timelineMode);
+      const canResize = Timeline.isBitSet(Timeline.TIMELINE_MODES.RESIZE, nextProps.timelineMode);
+      this.setUpDragging(canSelect, canDrag, canResize);
     }
   }
 
@@ -155,50 +164,92 @@ export default class Timeline extends Component {
     this._grid.recomputeGridSize(config);
   };
 
-  setUpDragging() {
-    const {timelineMode} = this.props;
-    const canDrag = Timeline.isBitSet(Timeline.timelineModes.DRAG, timelineMode);
-    const canResize = Timeline.isBitSet(Timeline.timelineModes.RESIZE, timelineMode);
-    interact('.item_draggable')
-      .draggable({
-        enabled: true
-      })
-      .on('dragstart', e => {
-        if (!canDrag) return;
-        let selections = [];
-        const animatedItems = this.props.onInteraction(Timeline.changeTypes.dragStart, null, this.props.selectedItems);
+  setUpDragging(canSelect, canDrag, canResize) {
+    if (this._itemInteractable) this._itemInteractable.unset();
+    if (this._selectRectangleInteractable) this._selectRectangleInteractable.unset();
 
-        _.forEach(animatedItems, id => {
-          let domItem = document.querySelector("span[item-index='" + id + "'");
-          selections.push([this.getItem(id).start, this.getItem(id).end]);
-          domItem.setAttribute('isDragging', 'True');
-          domItem.style['z-index'] = 3;
-        });
+    this._itemInteractable = interact('.item_draggable');
+    this._selectRectangleInteractable = interact('.parent-div');
 
-        this.setSelection(selections);
-      })
-      .on('dragmove', e => {
-        if (!canDrag) return;
-        const target = e.target;
-        let animatedItems = document.querySelectorAll("span[isDragging='True'") || [];
+    if (canDrag) {
+      this._itemInteractable
+        .draggable({
+          enabled: true
+        })
+        .on('dragstart', e => {
+          let selections = [];
+          const animatedItems = this.props.onInteraction(
+            Timeline.changeTypes.dragStart,
+            null,
+            this.props.selectedItems
+          );
 
-        let dx = (parseFloat(target.getAttribute('drag-x')) || 0) + e.dx;
-        let dy = (parseFloat(target.getAttribute('drag-y')) || 0) + e.dy;
-        let selections = [];
+          _.forEach(animatedItems, id => {
+            let domItem = document.querySelector("span[item-index='" + id + "'");
+            selections.push([this.getItem(id).start, this.getItem(id).end]);
+            domItem.setAttribute('isDragging', 'True');
+            domItem.setAttribute('drag-x', 0);
+            domItem.setAttribute('drag-y', 0);
+            domItem.style['z-index'] = 3;
+          });
+          this.setSelection(selections);
+        })
+        .on('dragmove', e => {
+          const target = e.target;
+          let animatedItems = document.querySelectorAll("span[isDragging='True'") || [];
 
-        // Snap the movement to the current snap interval
-        const snapDx = getSnapPixelFromDelta(
-          dx,
-          this.props.startDate,
-          this.props.endDate,
-          this.getTimelineWidth(),
-          this.props.snapMinutes
-        );
+          let dx = (parseFloat(target.getAttribute('drag-x')) || 0) + e.dx;
+          let dy = (parseFloat(target.getAttribute('drag-y')) || 0) + e.dy;
+          let selections = [];
 
-        _.forEach(animatedItems, domItem => {
-          const {item} = this.itemFromElement(domItem);
-          let itemDuration = item.end.diff(item.start);
-          let newPixelOffset = pixToInt(domItem.style.left) + snapDx;
+          // Snap the movement to the current snap interval
+          const snapDx = getSnapPixelFromDelta(
+            dx,
+            this.props.startDate,
+            this.props.endDate,
+            this.getTimelineWidth(),
+            this.props.snapMinutes
+          );
+
+          _.forEach(animatedItems, domItem => {
+            const {item} = this.itemFromElement(domItem);
+            let itemDuration = item.end.diff(item.start);
+            let newPixelOffset = pixToInt(domItem.style.left) + snapDx;
+            let newStart = getTimeAtPixel(
+              newPixelOffset,
+              this.props.startDate,
+              this.props.endDate,
+              this.getTimelineWidth(),
+              this.props.snapMinutes
+            );
+
+            let newEnd = newStart.clone().add(itemDuration);
+            selections.push([newStart, newEnd]);
+
+            // Translate the new start time back to pixels, so we can animate the snap
+            domItem.style.webkitTransform = domItem.style.transform = 'translate(' + snapDx + 'px, ' + dy + 'px)';
+          });
+
+          target.setAttribute('drag-x', dx);
+          target.setAttribute('drag-y', dy);
+
+          this.setSelection(selections);
+        })
+        .on('dragend', e => {
+          const {item, rowNo} = this.itemFromElement(e.target);
+          let animatedItems = document.querySelectorAll("span[isDragging='True'") || [];
+
+          this.setSelection([[item.start, item.end]]);
+          this.clearSelection();
+
+          // Change row
+          console.log('From row', rowNo);
+          let newRow = getNearestRowHeight(e.clientX, e.clientY);
+          console.log('To row', newRow);
+
+          let rowChangeDelta = newRow - rowNo;
+          // Update time
+          let newPixelOffset = pixToInt(e.target.style.left) + (parseFloat(e.target.getAttribute('drag-x')) || 0);
           let newStart = getTimeAtPixel(
             newPixelOffset,
             this.props.startDate,
@@ -207,241 +258,209 @@ export default class Timeline extends Component {
             this.props.snapMinutes
           );
 
-          let newEnd = newStart.clone().add(itemDuration);
-          selections.push([newStart, newEnd]);
+          const timeDelta = newStart.clone().diff(item.start, 'minutes');
+          const changes = {rowChangeDelta, timeDelta};
+          let items = [];
 
-          // Translate the new start time back to pixels, so we can animate the snap
-          domItem.style.webkitTransform = domItem.style.transform = 'translate(' + snapDx + 'px, ' + dy + 'px)';
-        });
+          // Default, all items move by the same offset during a drag
+          _.forEach(animatedItems, domItem => {
+            const {item, rowNo} = this.itemFromElement(domItem);
 
-        target.setAttribute('drag-x', dx);
-        target.setAttribute('drag-y', dy);
-
-        this.setSelection(selections);
-      })
-      .on('dragend', e => {
-        if (!canDrag) return;
-        const {item, rowNo} = this.itemFromElement(e.target);
-        let animatedItems = document.querySelectorAll("span[isDragging='True'") || [];
-
-        this.setSelection([[item.start, item.end]]);
-        this.clearSelection();
-
-        // Change row
-        console.log('From row', rowNo);
-        let newRow = getNearestRowHeight(e.clientX, e.clientY);
-        console.log('To row', newRow);
-
-        let rowChangeDelta = newRow - rowNo;
-        // Update time
-        let newPixelOffset = pixToInt(e.target.style.left) + (parseFloat(e.target.getAttribute('drag-x')) || 0);
-        let newStart = getTimeAtPixel(
-          newPixelOffset,
-          this.props.startDate,
-          this.props.endDate,
-          this.getTimelineWidth(),
-          this.props.snapMinutes
-        );
-
-        const timeDelta = newStart.clone().diff(item.start, 'minutes');
-        const changes = {rowChangeDelta, timeDelta};
-        let items = [];
-
-        // Default, all items move by the same offset during a drag
-        _.forEach(animatedItems, domItem => {
-          const {item, rowNo} = this.itemFromElement(domItem);
-
-          let itemDuration = item.end.diff(item.start);
-          let newStart = item.start.clone().add(timeDelta, 'minutes');
-          let newEnd = newStart.clone().add(itemDuration);
-          item.start = newStart;
-          item.end = newEnd;
-          if (rowChangeDelta < 0) {
-            item.row = Math.max(0, item.row + rowChangeDelta);
-          } else if (rowChangeDelta > 0) {
-            item.row = Math.min(this.props.groups.length - 1, item.row + rowChangeDelta);
-          }
-
-          items.push(item);
-        });
-
-        this.props.onInteraction(Timeline.changeTypes.dragEnd, changes, items);
-
-        // Reset the styles
-        animatedItems.forEach(domItem => {
-          domItem.style.webkitTransform = domItem.style.transform = 'translate(0px, 0px)';
-          domItem.setAttribute('drag-x', 0);
-          domItem.setAttribute('drag-y', 0);
-          domItem.style['z-index'] = 2;
-          domItem.style['top'] = intToPix(
-            this.props.itemHeight * Math.round(pixToInt(domItem.style['top']) / this.props.itemHeight)
-          );
-          domItem.removeAttribute('isDragging');
-        });
-
-        this._grid.recomputeGridSize({rowIndex: 0});
-      })
-      .resizable({
-        edges: {left: true, right: true, bottom: false, top: false}
-      })
-      .on('resizestart', e => {
-        if (!canResize) return;
-        const selected = this.props.onInteraction(Timeline.changeTypes.resizeStart, null, this.props.selectedItems);
-        _.forEach(selected, id => {
-          let domItem = document.querySelector("span[item-index='" + id + "'");
-          domItem.setAttribute('isResizing', 'True');
-          domItem.setAttribute('initialWidth', pixToInt(domItem.style.width));
-          domItem.style['z-index'] = 3;
-        });
-      })
-      .on('resizemove', e => {
-        if (!canResize) return;
-        let animatedItems = document.querySelectorAll("span[isResizing='True'") || [];
-
-        let dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
-        dx += e.deltaRect.left;
-
-        let dw = e.rect.width - Number(e.target.getAttribute('initialWidth'));
-
-        const minimumWidth =
-          pixelsPerMinute(this.props.startDate, this.props.endDate, this.getTimelineWidth()) * this.props.snapMinutes;
-
-        const snappedDx = getSnapPixelFromDelta(
-          dx,
-          this.props.startDate,
-          this.props.endDate,
-          this.getTimelineWidth(),
-          this.props.snapMinutes
-        );
-
-        const snappedDw = getSnapPixelFromDelta(
-          dw,
-          this.props.startDate,
-          this.props.endDate,
-          this.getTimelineWidth(),
-          this.props.snapMinutes
-        );
-
-        console.log('deltas', snappedDx, dx, snappedDw, dw, minimumWidth);
-
-        _.forEach(animatedItems, item => {
-          item.style.width = intToPix(Number(item.getAttribute('initialWidth')) + snappedDw + minimumWidth);
-          item.style.webkitTransform = item.style.transform = 'translate(' + snappedDx + 'px, 0px)';
-        });
-        e.target.setAttribute('delta-x', dx);
-      })
-      .on('resizeend', e => {
-        if (!canResize) return;
-        let animatedItems = document.querySelectorAll("span[isResizing='True'") || [];
-        // Update time
-        const dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
-        const isStartTimeChange = dx != 0;
-
-        const changes = {isStartTimeChange, timeDelta: dx};
-        let items = [];
-        let minRowNo = Infinity;
-
-        // Calculate the default item positions
-        _.forEach(animatedItems, domItem => {
-          let startPixelOffset = pixToInt(domItem.style.left) + dx;
-          const {item, rowNo} = this.itemFromElement(domItem);
-
-          minRowNo = Math.min(minRowNo, rowNo);
-
-          if (isStartTimeChange) {
-            let newStart = getTimeAtPixel(
-              startPixelOffset,
-              this.props.startDate,
-              this.props.endDate,
-              this.getTimelineWidth(),
-              this.props.snapMinutes
-            );
+            let itemDuration = item.end.diff(item.start);
+            let newStart = item.start.clone().add(timeDelta, 'minutes');
+            let newEnd = newStart.clone().add(itemDuration);
             item.start = newStart;
-          } else {
-            let endPixelOffset = startPixelOffset + pixToInt(domItem.style.width);
-            let newEnd = getTimeAtPixel(
-              endPixelOffset,
-              this.props.startDate,
-              this.props.endDate,
-              this.getTimelineWidth(),
-              this.props.snapMinutes
-            );
             item.end = newEnd;
-          }
+            if (rowChangeDelta < 0) {
+              item.row = Math.max(0, item.row + rowChangeDelta);
+            } else if (rowChangeDelta > 0) {
+              item.row = Math.min(this.props.groups.length - 1, item.row + rowChangeDelta);
+            }
 
-          // Check row height doesn't need changing
-          let new_row_height = getMaxOverlappingItems(this.rowItemMap[rowNo], this.props.startDate, this.props.endDate);
-          if (new_row_height !== this.rowHeightCache[rowNo]) {
-            this.rowHeightCache[rowNo] = new_row_height;
-          }
+            items.push(item);
+          });
 
-          //Reset styles
-          domItem.removeAttribute('isResizing');
-          domItem.removeAttribute('initialWidth');
-          domItem.style['z-index'] = 2;
-          domItem.style.webkitTransform = domItem.style.transform = 'translate(0px, 0px)';
+          this.props.onInteraction(Timeline.changeTypes.dragEnd, changes, items);
 
-          items.push(item);
+          // Reset the styles
+          animatedItems.forEach(domItem => {
+            domItem.style.webkitTransform = domItem.style.transform = 'translate(0px, 0px)';
+            domItem.setAttribute('drag-x', 0);
+            domItem.setAttribute('drag-y', 0);
+            domItem.style['z-index'] = 2;
+            domItem.style['top'] = intToPix(
+              this.props.itemHeight * Math.round(pixToInt(domItem.style['top']) / this.props.itemHeight)
+            );
+            domItem.removeAttribute('isDragging');
+          });
+
+          this._grid.recomputeGridSize({rowIndex: 0});
         });
+    }
+    if (canResize) {
+      this._itemInteractable
+        .resizable({
+          edges: {left: true, right: true, bottom: false, top: false}
+        })
+        .on('resizestart', e => {
+          const selected = this.props.onInteraction(Timeline.changeTypes.resizeStart, null, this.props.selectedItems);
+          _.forEach(selected, id => {
+            let domItem = document.querySelector("span[item-index='" + id + "'");
+            domItem.setAttribute('isResizing', 'True');
+            domItem.setAttribute('initialWidth', pixToInt(domItem.style.width));
+            domItem.style['z-index'] = 3;
+          });
+        })
+        .on('resizemove', e => {
+          let animatedItems = document.querySelectorAll("span[isResizing='True'") || [];
 
-        this.props.onInteraction(Timeline.changeTypes.resizeEnd, changes, items);
+          let dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
+          dx += e.deltaRect.left;
 
-        e.target.setAttribute('delta-x', 0);
-        this._grid.recomputeGridSize({rowIndex: minRowNo});
-      });
+          let dw = e.rect.width - Number(e.target.getAttribute('initialWidth'));
 
-    interact('.parent-div')
-      .draggable({
-        enabled: true,
-        ignoreFrom: '.item_draggable'
-      })
-      .styleCursor(false)
-      .on('dragstart', e => {
-        if (!canDrag) return;
-        this._selectBox.start(e.clientX, e.clientY);
-      })
-      .on('dragmove', e => {
-        if (!canDrag) return;
-        this._selectBox.move(e.dx, e.dy);
-      })
-      .on('dragend', e => {
-        if (!canDrag) return;
-        let {top, left, width, height} = this._selectBox.end();
-        left = left - this.props.groupOffset;
-        console.log({top, left, width, height});
-        //Get the start and end row of the selection rectangle
-        const topRow = Number(getNearestRowHeight(left, top));
-        const bottomRow = Number(getNearestRowHeight(left + width, top + height));
-        console.log('top', topRow, 'bottom', bottomRow);
-        //Get the start and end time of the selection rectangle
-        let startOffset = width > 0 ? left : left + width;
-        let endOffset = width > 0 ? left + width : left;
-        const startTime = getTimeAtPixel(
-          startOffset,
-          this.props.startDate,
-          this.props.endDate,
-          this.getTimelineWidth(),
-          this.props.snapMinutes
-        );
-        const endTime = getTimeAtPixel(
-          endOffset,
-          this.props.startDate,
-          this.props.endDate,
-          this.getTimelineWidth(),
-          this.props.snapMinutes
-        );
-        console.log('Start', startTime.format(), 'End', endTime.format());
-        //Get items in these ranges
-        let selectedItems = [];
-        for (let r = Math.min(topRow, bottomRow); r <= Math.max(topRow, bottomRow); r++) {
-          selectedItems.push(
-            ..._.filter(this.rowItemMap[r], i => {
-              return i.start.isBefore(endTime) && i.end.isAfter(startTime);
-            })
+          const minimumWidth =
+            pixelsPerMinute(this.props.startDate, this.props.endDate, this.getTimelineWidth()) * this.props.snapMinutes;
+
+          const snappedDx = getSnapPixelFromDelta(
+            dx,
+            this.props.startDate,
+            this.props.endDate,
+            this.getTimelineWidth(),
+            this.props.snapMinutes
           );
-        }
-        this.props.onInteraction(Timeline.changeTypes.itemsSelected, selectedItems);
-      });
+
+          const snappedDw = getSnapPixelFromDelta(
+            dw,
+            this.props.startDate,
+            this.props.endDate,
+            this.getTimelineWidth(),
+            this.props.snapMinutes
+          );
+
+          console.log('deltas', snappedDx, dx, snappedDw, dw, minimumWidth);
+
+          _.forEach(animatedItems, item => {
+            item.style.width = intToPix(Number(item.getAttribute('initialWidth')) + snappedDw + minimumWidth);
+            item.style.webkitTransform = item.style.transform = 'translate(' + snappedDx + 'px, 0px)';
+          });
+          e.target.setAttribute('delta-x', dx);
+        })
+        .on('resizeend', e => {
+          let animatedItems = document.querySelectorAll("span[isResizing='True'") || [];
+          // Update time
+          const dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
+          const isStartTimeChange = dx != 0;
+
+          const changes = {isStartTimeChange, timeDelta: dx};
+          let items = [];
+          let minRowNo = Infinity;
+
+          // Calculate the default item positions
+          _.forEach(animatedItems, domItem => {
+            let startPixelOffset = pixToInt(domItem.style.left) + dx;
+            const {item, rowNo} = this.itemFromElement(domItem);
+
+            minRowNo = Math.min(minRowNo, rowNo);
+
+            if (isStartTimeChange) {
+              let newStart = getTimeAtPixel(
+                startPixelOffset,
+                this.props.startDate,
+                this.props.endDate,
+                this.getTimelineWidth(),
+                this.props.snapMinutes
+              );
+              item.start = newStart;
+            } else {
+              let endPixelOffset = startPixelOffset + pixToInt(domItem.style.width);
+              let newEnd = getTimeAtPixel(
+                endPixelOffset,
+                this.props.startDate,
+                this.props.endDate,
+                this.getTimelineWidth(),
+                this.props.snapMinutes
+              );
+              item.end = newEnd;
+            }
+
+            // Check row height doesn't need changing
+            let new_row_height = getMaxOverlappingItems(
+              this.rowItemMap[rowNo],
+              this.props.startDate,
+              this.props.endDate
+            );
+            if (new_row_height !== this.rowHeightCache[rowNo]) {
+              this.rowHeightCache[rowNo] = new_row_height;
+            }
+
+            //Reset styles
+            domItem.removeAttribute('isResizing');
+            domItem.removeAttribute('initialWidth');
+            domItem.style['z-index'] = 2;
+            domItem.style.webkitTransform = domItem.style.transform = 'translate(0px, 0px)';
+
+            items.push(item);
+          });
+
+          this.props.onInteraction(Timeline.changeTypes.resizeEnd, changes, items);
+
+          e.target.setAttribute('delta-x', 0);
+          this._grid.recomputeGridSize({rowIndex: minRowNo});
+        });
+    }
+
+    if (canSelect) {
+      this._selectRectangleInteractable
+        .draggable({
+          enabled: true,
+          ignoreFrom: '.item_draggable'
+        })
+        .styleCursor(false)
+        .on('dragstart', e => {
+          this._selectBox.start(e.clientX, e.clientY);
+        })
+        .on('dragmove', e => {
+          this._selectBox.move(e.dx, e.dy);
+        })
+        .on('dragend', e => {
+          let {top, left, width, height} = this._selectBox.end();
+          left = left - this.props.groupOffset;
+          console.log({top, left, width, height});
+          //Get the start and end row of the selection rectangle
+          const topRow = Number(getNearestRowHeight(left, top));
+          const bottomRow = Number(getNearestRowHeight(left + width, top + height));
+          console.log('top', topRow, 'bottom', bottomRow);
+          //Get the start and end time of the selection rectangle
+          let startOffset = width > 0 ? left : left + width;
+          let endOffset = width > 0 ? left + width : left;
+          const startTime = getTimeAtPixel(
+            startOffset,
+            this.props.startDate,
+            this.props.endDate,
+            this.getTimelineWidth(),
+            this.props.snapMinutes
+          );
+          const endTime = getTimeAtPixel(
+            endOffset,
+            this.props.startDate,
+            this.props.endDate,
+            this.getTimelineWidth(),
+            this.props.snapMinutes
+          );
+          console.log('Start', startTime.format(), 'End', endTime.format());
+          //Get items in these ranges
+          let selectedItems = [];
+          for (let r = Math.min(topRow, bottomRow); r <= Math.max(topRow, bottomRow); r++) {
+            selectedItems.push(
+              ..._.filter(this.rowItemMap[r], i => {
+                return i.start.isBefore(endTime) && i.end.isAfter(startTime);
+              })
+            );
+          }
+          this.props.onInteraction(Timeline.changeTypes.itemsSelected, selectedItems);
+        });
+    }
   }
 
   _handleItemRowEvent = (e, itemCallback, rowCallback) => {
@@ -468,7 +487,7 @@ export default class Timeline extends Component {
      * @param  {} style Style object to be applied to cell (to position it);
      */
     const {timelineMode} = this.props;
-    const canSelect = Timeline.isBitSet(Timeline.timelineModes.SELECT, timelineMode);
+    const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, timelineMode);
 
     return ({columnIndex, key, parent, rowIndex, style}) => {
       let itemCol = 1;
