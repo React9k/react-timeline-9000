@@ -5,8 +5,10 @@ import moment from 'moment';
 import _ from 'lodash';
 import Timeline from './timeline';
 
-import {Layout, Form, InputNumber, Button, DatePicker, Switch} from 'antd';
+import {Layout, Form, InputNumber, Button, DatePicker, Checkbox, Switch} from 'antd';
 import 'antd/dist/antd.css';
+
+const {TIMELINE_MODES} = Timeline;
 
 const ITEM_DURATIONS = [
   moment.duration(15, 'minutes'),
@@ -44,11 +46,23 @@ export default class DemoTimeline extends Component {
     super(props);
     const startDate = moment('2000-01-01');
     const endDate = startDate.clone().add(2, 'days');
-    this.state = {selectedItems: [], rows: 100, items_per_row: 30, snap: 15, startDate, endDate, message: ''};
+    this.state = {
+      selectedItems: [],
+      rows: 100,
+      items_per_row: 30,
+      snap: 15,
+      startDate,
+      endDate,
+      message: '',
+      timelineMode: TIMELINE_MODES.SELECT | TIMELINE_MODES.DRAG | TIMELINE_MODES.RESIZE
+    };
     this.reRender = this.reRender.bind(this);
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
     this.toggleCustomRenderers = this.toggleCustomRenderers.bind(this);
+    this.toggleSelectable = this.toggleSelectable.bind(this);
+    this.toggleDraggable = this.toggleDraggable.bind(this);
+    this.toggleResizable = this.toggleResizable.bind(this);
   }
 
   componentWillMount() {
@@ -104,6 +118,21 @@ export default class DemoTimeline extends Component {
     this.setState({useCustomRenderers: checked});
   }
 
+  toggleSelectable() {
+    const {timelineMode} = this.state;
+    let newMode = timelineMode ^ TIMELINE_MODES.SELECT;
+    this.setState({timelineMode: newMode, message: 'Timeline mode change: ' + timelineMode + ' -> ' + newMode});
+  }
+  toggleDraggable() {
+    const {timelineMode} = this.state;
+    let newMode = timelineMode ^ TIMELINE_MODES.DRAG;
+    this.setState({timelineMode: newMode, message: 'Timeline mode change: ' + timelineMode + ' -> ' + newMode});
+  }
+  toggleResizable() {
+    const {timelineMode} = this.state;
+    let newMode = timelineMode ^ TIMELINE_MODES.RESIZE;
+    this.setState({timelineMode: newMode, message: 'Timeline mode change: ' + timelineMode + ' -> ' + newMode});
+  }
   handleItemClick = (e, key) => {
     const message = `Item Click ${key}`;
     console.log(message);
@@ -223,10 +252,14 @@ export default class DemoTimeline extends Component {
       items,
       groups,
       message,
-      useCustomRenderers
+      useCustomRenderers,
+      timelineMode
     } = this.state;
     const rangeValue = [startDate, endDate];
 
+    const selectable = (TIMELINE_MODES.SELECT & timelineMode) === TIMELINE_MODES.SELECT;
+    const draggable = (TIMELINE_MODES.DRAG & timelineMode) === TIMELINE_MODES.DRAG;
+    const resizeable = (TIMELINE_MODES.RESIZE & timelineMode) === TIMELINE_MODES.RESIZE;
     return (
       <Layout className="layout">
         <Layout.Content>
@@ -265,6 +298,21 @@ export default class DemoTimeline extends Component {
               <Form.Item label="Custom Renderers">
                 <Switch onChange={this.toggleCustomRenderers} />
               </Form.Item>
+              <Form.Item>
+                <Checkbox onChange={this.toggleSelectable} checked={selectable}>
+                  Enable selecting
+                </Checkbox>
+              </Form.Item>
+              <Form.Item>
+                <Checkbox onChange={this.toggleDraggable} checked={draggable}>
+                  Enable dragging
+                </Checkbox>
+              </Form.Item>
+              <Form.Item>
+                <Checkbox onChange={this.toggleResizable} checked={resizeable}>
+                  Enable resizing
+                </Checkbox>
+              </Form.Item>
             </Form>
             <div>
               <span>Debug: </span>
@@ -277,6 +325,7 @@ export default class DemoTimeline extends Component {
             startDate={startDate}
             endDate={endDate}
             selectedItems={selectedItems}
+            timelineMode={timelineMode}
             snapMinutes={snap}
             onItemClick={this.handleItemClick}
             onItemDoubleClick={this.handleItemDoubleClick}
