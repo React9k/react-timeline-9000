@@ -38,7 +38,7 @@ export default class DemoTimeline extends Component {
       startDate,
       endDate,
       message: '',
-      timelineMode: 0
+      timelineMode: TIMELINE_MODES.SELECT | TIMELINE_MODES.DRAG | TIMELINE_MODES.RESIZE
     };
     this.reRender = this.reRender.bind(this);
     this.zoomIn = this.zoomIn.bind(this);
@@ -271,17 +271,17 @@ export default class DemoTimeline extends Component {
                 <Button onClick={this.zoomOut}>Zoom out</Button>
               </Form.Item>
               <Form.Item>
-                <Checkbox onChange={this.toggleSelectable} value={selectable}>
+                <Checkbox onChange={this.toggleSelectable} checked={selectable}>
                   Enable selecting
                 </Checkbox>
               </Form.Item>
               <Form.Item>
-                <Checkbox onChange={this.toggleDraggable} value={draggable}>
+                <Checkbox onChange={this.toggleDraggable} checked={draggable}>
                   Enable dragging
                 </Checkbox>
               </Form.Item>
               <Form.Item>
-                <Checkbox onChange={this.toggleResizable} value={resizeable}>
+                <Checkbox onChange={this.toggleResizable} checked={resizeable}>
                   Enable resizing
                 </Checkbox>
               </Form.Item>
