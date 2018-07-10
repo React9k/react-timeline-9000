@@ -1,9 +1,12 @@
 mocha := node_modules/.bin/mocha
 
-.PHONY: all clean install
+.PHONY: all clean install demo
 
 all: install
 	npm run build
+
+demo: install
+	npm run build_demo
 
 run: install
 	npm run start
