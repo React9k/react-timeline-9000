@@ -61,7 +61,7 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHei
     return (
       <span
         key={i.key}
-        item-index={i.key}
+        data-item-index={i.key}
         className="rct9k-items-outer item_draggable"
         style={{left, width, top, backgroundColor: 'transparent'}}>
         <Comp key={i.key} item={i} className={classnames} style={style} />
@@ -78,9 +78,9 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHei
 export function getNearestRowHeight(x, y) {
   let elementsAtPixel = document.elementsFromPoint(x, y);
   let targetRow = _.find(elementsAtPixel, e => {
-    return e.hasAttribute('row-index');
+    return e.hasAttribute('data-row-index');
   });
-  return targetRow ? targetRow.getAttribute('row-index') : 0;
+  return targetRow ? targetRow.getAttribute('data-row-index') : 0;
 }
 
 /**

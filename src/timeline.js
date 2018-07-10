@@ -37,7 +37,7 @@ export default class Timeline extends Component {
     onItemClick: PropTypes.func,
     onItemDoubleClick: PropTypes.func,
     onItemContext: PropTypes.func,
-    onInteraction: PropTypes.func,
+    onInteraction: PropTypes.func.isRequired,
     onRowClick: PropTypes.func,
     onRowContext: PropTypes.func,
     onRowDoubleClick: PropTypes.func,
@@ -144,7 +144,7 @@ export default class Timeline extends Component {
   }
 
   itemFromElement(e) {
-    const index = e.getAttribute('item-index');
+    const index = e.getAttribute('data-item-index');
     const rowNo = this.itemRowMap[index];
     const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == index);
     const item = this.rowItemMap[rowNo][itemIndex];
@@ -209,7 +209,7 @@ export default class Timeline extends Component {
           );
 
           _.forEach(animatedItems, id => {
-            let domItem = document.querySelector("span[item-index='" + id + "'");
+            let domItem = document.querySelector("span[data-item-index='" + id + "'");
             selections.push([this.getItem(id).start, this.getItem(id).end]);
             domItem.setAttribute('isDragging', 'True');
             domItem.setAttribute('drag-x', 0);
@@ -329,7 +329,7 @@ export default class Timeline extends Component {
         .on('resizestart', e => {
           const selected = this.props.onInteraction(Timeline.changeTypes.resizeStart, null, this.props.selectedItems);
           _.forEach(selected, id => {
-            let domItem = document.querySelector("span[item-index='" + id + "'");
+            let domItem = document.querySelector("span[data-item-index='" + id + "'");
             domItem.setAttribute('isResizing', 'True');
             domItem.setAttribute('initialWidth', pixToInt(domItem.style.width));
             domItem.style['z-index'] = 3;
@@ -487,11 +487,11 @@ export default class Timeline extends Component {
 
   _handleItemRowEvent = (e, itemCallback, rowCallback) => {
     e.preventDefault();
-    if (e.target.hasAttribute('item-index') || e.target.parentElement.hasAttribute('item-index')) {
-      let itemKey = e.target.getAttribute('item-index') || e.target.parentElement.getAttribute('item-index');
+    if (e.target.hasAttribute('data-item-index') || e.target.parentElement.hasAttribute('data-item-index')) {
+      let itemKey = e.target.getAttribute('data-item-index') || e.target.parentElement.getAttribute('data-item-index');
       itemCallback && itemCallback(e, Number(itemKey));
     } else {
-      let row = e.target.getAttribute('row-index');
+      let row = e.target.getAttribute('data-row-index');
       let clickedTime = getTimeAtPixel(e.clientX, this.props.startDate, this.props.endDate, this.getTimelineWidth());
       rowCallback && rowCallback(e, row, clickedTime);
     }
@@ -518,7 +518,7 @@ export default class Timeline extends Component {
           <div
             key={key}
             style={style}
-            row-index={rowIndex}
+            data-row-index={rowIndex}
             className="rct9k-row"
             onClick={e => this._handleItemRowEvent(e, this.no_op, this.props.onRowClick)}
             onContextMenu={e =>

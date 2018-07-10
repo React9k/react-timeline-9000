@@ -10,7 +10,7 @@ export const DefaultGroupRenderer = props => {
   const {group, ...rest} = props;
 
   return (
-    <span group-index={group.id} {...rest}>
+    <span data-group-index={group.id} {...rest}>
       {group.title}
     </span>
   );
