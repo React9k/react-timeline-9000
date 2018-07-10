@@ -4,42 +4,16 @@ import React, {Component} from 'react';
 import moment from 'moment';
 import _ from 'lodash';
 import Timeline from './timeline';
+import {customItemRenderer, customGroupRenderer} from 'demo/customRenderers';
 
 import {Layout, Form, InputNumber, Button, DatePicker, Checkbox, Switch} from 'antd';
 import 'antd/dist/antd.css';
 
 const {TIMELINE_MODES} = Timeline;
 
-const ITEM_DURATIONS = [
-  moment.duration(15, 'minutes'),
-  moment.duration(30, 'minutes'),
-  moment.duration(1, 'hours'),
-  moment.duration(2, 'hours'),
-  moment.duration(3, 'hours')
-];
-const SPACE_DURATIONS = [
-  moment.duration(0, 'minutes'),
-  moment.duration(1, 'hours'),
-  moment.duration(3, 'hours'),
-  moment.duration(30, 'minutes')
-];
+const ITEM_DURATIONS = [moment.duration(6, 'hours'), moment.duration(12, 'hours'), moment.duration(18, 'hours')];
+
 const COLORS = ['#0099cc', '#f03a36', '#06ad96', '#fce05b', '#dd5900', '#cc6699'];
-
-export function customItemRenderer(props) {
-  const {item, ...rest} = props;
-
-  return <span {...rest}> Custom </span>;
-}
-
-export function customGroupRenderer(props) {
-  const {group, ...rest} = props;
-
-  return (
-    <span group-index={group.id} {...rest}>
-      Custom {group.title}
-    </span>
-  );
-}
 
 export default class DemoTimeline extends Component {
   constructor(props) {
@@ -72,17 +46,20 @@ export default class DemoTimeline extends Component {
   reRender() {
     const list = [];
     const groups = [];
+
     this.key = 0;
     for (let i = 0; i < this.state.rows; i++) {
-      let last_moment = moment('2000-01-01');
       groups.push({id: i, title: `Row ${i}`});
       for (let j = 0; j < this.state.items_per_row; j++) {
         this.key += 1;
         const color = COLORS[(i + j) % COLORS.length];
         const duration = ITEM_DURATIONS[Math.floor(Math.random() * ITEM_DURATIONS.length)];
-        let start = last_moment;
+        // let start = last_moment;
+        let start = moment(
+          Math.random() * (this.state.endDate.valueOf() - this.state.startDate.valueOf()) +
+            this.state.startDate.valueOf()
+        );
         let end = start.clone().add(duration);
-        last_moment = end.clone().add(SPACE_DURATIONS[Math.floor(Math.random() * SPACE_DURATIONS.length)]);
         list.push({
           key: this.key,
           title: duration.humanize(),
@@ -164,15 +141,17 @@ export default class DemoTimeline extends Component {
   handleRowDoubleClick = (e, rowNumber, time) => {
     const message = `Row Double Click row=${rowNumber} time=${time.toString()}`;
 
-    let end = time.clone().add(5, 'hours');
-    let duration = moment.duration(end.diff(time));
+    const randomIndex = Math.floor(Math.random() * Math.floor(ITEM_DURATIONS.length));
+    let start = time.clone();
+    let end = time.clone().add(ITEM_DURATIONS[randomIndex]);
+    let duration = ITEM_DURATIONS[randomIndex].clone();
 
     const item = {
       key: this.key++,
       title: 'New item',
       color: 'yellow',
       row: rowNumber,
-      start: time,
+      start: start,
       end: end
     };
 
@@ -284,7 +263,7 @@ export default class DemoTimeline extends Component {
               </Form.Item>
               <Form.Item>
                 <Button type="primary" onClick={() => this.reRender()}>
-                  Set
+                  Regenerate
                 </Button>
               </Form.Item>
               <Form.Item>
