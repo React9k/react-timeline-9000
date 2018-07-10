@@ -570,7 +570,8 @@ export default class Timeline extends Component {
     return children;
   }
   rowHeight({index}) {
-    return this.rowHeightCache[index] * this.props.itemHeight;
+    let rh = this.rowHeightCache[index] ? this.rowHeightCache[index] : 1;
+    return rh * this.props.itemHeight;
   }
 
   render() {
