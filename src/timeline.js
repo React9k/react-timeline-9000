@@ -8,12 +8,12 @@ import moment from 'moment';
 import interact from 'interactjs';
 import _ from 'lodash';
 
-import {pixToInt, intToPix, sumStyle} from 'utils/commonUtils';
-import {rowItemsRenderer, getNearestRowHeight, getMaxOverlappingItems} from 'utils/itemUtils';
-import {getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta, pixelsPerMinute} from 'utils/timeUtils';
-import Timebar from 'components/timebar';
-import SelectBox from 'components/selector';
-import {DefaultGroupRenderer, DefaultItemRenderer} from 'components/renderers';
+import {pixToInt, intToPix, sumStyle} from './utils/commonUtils';
+import {rowItemsRenderer, getNearestRowHeight, getMaxOverlappingItems} from './utils/itemUtils';
+import {getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta, pixelsPerMinute} from './utils/timeUtils';
+import Timebar from './components/timebar';
+import SelectBox from './components/selector';
+import {DefaultGroupRenderer, DefaultItemRenderer} from './components/renderers';
 
 import './style.css';
 
@@ -510,7 +510,6 @@ export default class Timeline extends Component {
      */
     const {timelineMode} = this.props;
     const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, timelineMode);
-
     return ({columnIndex, key, parent, rowIndex, style}) => {
       let itemCol = 1;
       if (itemCol == columnIndex) {
