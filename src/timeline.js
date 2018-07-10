@@ -96,9 +96,9 @@ export default class Timeline extends Component {
     // @TODO
     // investigate if we need this, only added to refresh the grid
     // when double click -> add an item
-    if (this.props.items.length !== nextProps.items.length) {
-      this.refreshGrid();
-    }
+    // if (this.props.items.length !== nextProps.items.length) {
+    this.refreshGrid();
+    // }
     if (this.props.timelineMode !== nextProps.timelineMode) {
       const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, nextProps.timelineMode);
       const canDrag = Timeline.isBitSet(Timeline.TIMELINE_MODES.DRAG, nextProps.timelineMode);
