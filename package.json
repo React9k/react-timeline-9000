@@ -5,6 +5,7 @@
   "private": false,
   "scripts": {
     "build": "webpack --config webpack.prod.js",
+    "build_demo": "webpack --config webpack.dev.js",
     "start": "webpack-dev-server --open --config webpack.dev.js",
     "pretty": "prettier --write --tab-width 4 \"src/**/*.js\"",
     "precommit": "lint-staged"
