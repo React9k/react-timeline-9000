@@ -2,7 +2,7 @@
   "name": "react-timeline-9000",
   "version": "1.0.0",
   "description": "Performance focused timeline for react",
-  "private": true,
+  "private": false,
   "scripts": {
     "build": "webpack --config webpack.prod.js",
     "start": "webpack-dev-server --open --config webpack.dev.js",
@@ -26,7 +26,7 @@
   "engines": {
     "node": ">=4.2.4"
   },
-  "author": "Leighton",
+  "author": "BHP-ES-DevHub",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/lilfolr/react-timeline-9000/issues"
