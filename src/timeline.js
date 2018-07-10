@@ -80,6 +80,7 @@ export default class Timeline extends Component {
     this.clearSelection = this.clearSelection.bind(this);
     this.getTimelineWidth = this.getTimelineWidth.bind(this);
     this.itemFromElement = this.itemFromElement.bind(this);
+    this.updateDimensions = this.updateDimensions.bind(this);
 
     const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, this.props.timelineMode);
     const canDrag = Timeline.isBitSet(Timeline.TIMELINE_MODES.DRAG, this.props.timelineMode);
@@ -87,9 +88,11 @@ export default class Timeline extends Component {
     this.setUpDragging(canSelect, canDrag, canResize);
   }
 
+  componentDidMount() {
+    window.addEventListener('resize', this.updateDimensions);
+  }
   componentWillReceiveProps(nextProps) {
     this.setTimeMap(nextProps.items, nextProps.startDate, nextProps.endDate);
-
     // @TODO
     // investigate if we need this, only added to refresh the grid
     // when double click -> add an item
@@ -102,6 +105,17 @@ export default class Timeline extends Component {
       const canResize = Timeline.isBitSet(Timeline.TIMELINE_MODES.RESIZE, nextProps.timelineMode);
       this.setUpDragging(canSelect, canDrag, canResize);
     }
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.updateDimensions);
+  }
+
+  updateDimensions() {
+    clearTimeout(this.resizeTimeout);
+    this.resizeTimeout = setTimeout(() => {
+      this.forceUpdate();
+      this._grid.recomputeGridSize();
+    }, 100);
   }
 
   no_op = () => {};
