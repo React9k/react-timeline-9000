@@ -2,7 +2,8 @@ import React, {Component} from 'react';
 
 export function customItemRenderer(props) {
   const {item, ...rest} = props;
-  return <span {...rest}> Custom </span>;
+  const text = `${item.start.format('HH:mm')} - ${item.end.format('HH:mm')}`;
+  return <span {...rest}> {text} </span>;
 }
 
 export function customGroupRenderer(props) {

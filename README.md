@@ -47,11 +47,11 @@ TBA
 `onItemContextClick(e, key)`
 
 ## Row Level
-`onRowClick(e, rowNumber, time)`
+`onRowClick(e, rowNumber, clickedTime, snappedClickedTime)`
 
-`onRowDoubleClick(e, rowNumber, time)`
+`onRowDoubleClick(e, rowNumber, clickedTime, snappedClickedTime)`
 
-`onRowContextClick (e, rowNumber, time)`
+`onRowContextClick (e, rowNumber, clickedTime, snappedClickedTime)`
 
 ## Z-indexes
 | Item                                  | Index |
