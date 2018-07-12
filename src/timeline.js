@@ -428,7 +428,7 @@ export default class Timeline extends Component {
             items.push(item);
           });
           if (durationChange === null) durationChange = 0;
-          const changes = {isStartTimeChange, timeDelta: durationChange};
+          const changes = {isStartTimeChange, timeDelta: -durationChange};
 
           this.props.onInteraction(Timeline.changeTypes.resizeEnd, changes, items);
 
