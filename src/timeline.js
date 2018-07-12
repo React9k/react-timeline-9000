@@ -374,10 +374,10 @@ export default class Timeline extends Component {
           const dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
           const isStartTimeChange = dx != 0;
 
-          const changes = {isStartTimeChange, timeDelta: dx};
           let items = [];
           let minRowNo = Infinity;
 
+          let durationChange = null;
           // Calculate the default item positions
           _.forEach(animatedItems, domItem => {
             let startPixelOffset = pixToInt(domItem.style.left) + dx;
@@ -393,6 +393,7 @@ export default class Timeline extends Component {
                 this.getTimelineWidth(),
                 this.props.snapMinutes
               );
+              if (durationChange === null) durationChange = item.start.diff(newStart, 'minutes');
               item.start = newStart;
             } else {
               let endPixelOffset = startPixelOffset + pixToInt(domItem.style.width);
@@ -403,6 +404,8 @@ export default class Timeline extends Component {
                 this.getTimelineWidth(),
                 this.props.snapMinutes
               );
+              if (durationChange === null) durationChange = item.end.diff(newEnd, 'minutes');
+
               item.end = newEnd;
             }
 
@@ -424,6 +427,8 @@ export default class Timeline extends Component {
 
             items.push(item);
           });
+          if (durationChange === null) durationChange = 0;
+          const changes = {isStartTimeChange, timeDelta: durationChange};
 
           this.props.onInteraction(Timeline.changeTypes.resizeEnd, changes, items);
 
