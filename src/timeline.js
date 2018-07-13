@@ -497,8 +497,19 @@ export default class Timeline extends Component {
       itemCallback && itemCallback(e, Number(itemKey));
     } else {
       let row = e.target.getAttribute('data-row-index');
-      let clickedTime = getTimeAtPixel(e.clientX, this.props.startDate, this.props.endDate, this.getTimelineWidth());
-      rowCallback && rowCallback(e, row, clickedTime);
+      let clickedTime = getTimeAtPixel(
+        e.clientX - this.props.groupOffset,
+        this.props.startDate,
+        this.props.endDate,
+        this.getTimelineWidth()
+      );
+
+      const roundedStartMinutes = Math.round(clickedTime.minute() / this.props.snapMinutes) * this.props.snapMinutes;
+      let snappedClickedTime = clickedTime
+        .clone()
+        .minutes(roundedStartMinutes)
+        .seconds(0);
+      rowCallback && rowCallback(e, row, clickedTime, snappedClickedTime);
     }
   };
 

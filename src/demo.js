@@ -3,6 +3,7 @@
 import React, {Component} from 'react';
 import moment from 'moment';
 import _ from 'lodash';
+
 import Timeline from './timeline';
 import {customItemRenderer, customGroupRenderer} from 'demo/customRenderers';
 
@@ -15,11 +16,17 @@ const ITEM_DURATIONS = [moment.duration(6, 'hours'), moment.duration(12, 'hours'
 
 const COLORS = ['#0099cc', '#f03a36', '#06ad96', '#fce05b', '#dd5900', '#cc6699'];
 
+// Moment timezones can be enabled using the following
+// import moment from 'moment-timezone';
+// moment.locale('en-au');
+// moment.tz.setDefault('Australia/Perth');
+
 export default class DemoTimeline extends Component {
   constructor(props) {
     super(props);
+
     const startDate = moment('2000-01-01');
-    const endDate = startDate.clone().add(2, 'days');
+    const endDate = startDate.clone().add(4, 'days');
     this.state = {
       selectedItems: [],
       rows: 100,
@@ -46,6 +53,7 @@ export default class DemoTimeline extends Component {
   reRender() {
     const list = [];
     const groups = [];
+    const {snap} = this.state;
 
     this.key = 0;
     for (let i = 0; i < this.state.rows; i++) {
@@ -60,6 +68,13 @@ export default class DemoTimeline extends Component {
             this.state.startDate.valueOf()
         );
         let end = start.clone().add(duration);
+
+        // Round to the nearest snap distance
+        const roundedStartMinutes = Math.floor(start.minute() / snap) * snap;
+        const roundedEndMinutes = Math.floor(end.minute() / snap) * snap;
+        start.minute(roundedStartMinutes).second(0);
+        end.minute(roundedEndMinutes).second(0);
+
         list.push({
           key: this.key,
           title: duration.humanize(),
@@ -76,8 +91,8 @@ export default class DemoTimeline extends Component {
     this.setState({items: list, groups});
   }
 
-  handleRowClick = (e, rowNumber, time) => {
-    const message = `Row Click row=${rowNumber} @${time.toString()}`;
+  handleRowClick = (e, rowNumber, clickedTime, snappedClickedTime) => {
+    const message = `Row Click row=${rowNumber} @ time/snapped=${clickedTime.toString()}/${snappedClickedTime.toString()}`;
     this.setState({selectedItems: [], message});
   };
   zoomIn() {
@@ -138,13 +153,14 @@ export default class DemoTimeline extends Component {
     this.setState({message});
   };
 
-  handleRowDoubleClick = (e, rowNumber, time) => {
-    const message = `Row Double Click row=${rowNumber} time=${time.toString()}`;
+  handleRowDoubleClick = (e, rowNumber, clickedTime, snappedClickedTime) => {
+    const message = `Row Double Click row=${rowNumber} time/snapped=${clickedTime.toString()}/${snappedClickedTime.toString()}`;
 
     const randomIndex = Math.floor(Math.random() * Math.floor(ITEM_DURATIONS.length));
-    let start = time.clone();
-    let end = time.clone().add(ITEM_DURATIONS[randomIndex]);
-    let duration = ITEM_DURATIONS[randomIndex].clone();
+
+    let start = snappedClickedTime.clone();
+    let end = snappedClickedTime.clone().add(ITEM_DURATIONS[randomIndex]);
+    this.key++;
 
     const item = {
       key: this.key++,
@@ -161,8 +177,8 @@ export default class DemoTimeline extends Component {
     this.setState({items: newItems, message});
   };
 
-  handleRowContextClick = (e, rowNumber, time) => {
-    const message = `Row Context Click row=${rowNumber} time=${time.toString()}`;
+  handleRowContextClick = (e, rowNumber, clickedTime, snappedClickedTime) => {
+    const message = `Row Click row=${rowNumber} @ time/snapped=${clickedTime.toString()}/${snappedClickedTime.toString()}`;
     this.setState({message});
   };
 
