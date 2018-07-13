@@ -5,8 +5,8 @@ import PropTypes from 'prop-types';
 
 import _ from 'lodash';
 import moment from 'moment';
-import {intToPix} from 'utils/commonUtils';
-import {timebarFormat as defaultTimebarFormat} from 'consts/timebarConsts';
+import {intToPix} from '../utils/commonUtils';
+import {timebarFormat as defaultTimebarFormat} from '../consts/timebarConsts';
 
 export default class Timebar extends React.Component {
   static propTypes = {

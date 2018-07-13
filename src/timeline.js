@@ -8,12 +8,12 @@ import moment from 'moment';
 import interact from 'interactjs';
 import _ from 'lodash';
 
-import {pixToInt, intToPix, sumStyle} from 'utils/commonUtils';
-import {rowItemsRenderer, getNearestRowHeight, getMaxOverlappingItems} from 'utils/itemUtils';
-import {getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta, pixelsPerMinute} from 'utils/timeUtils';
-import Timebar from 'components/timebar';
-import SelectBox from 'components/selector';
-import {DefaultGroupRenderer, DefaultItemRenderer} from 'components/renderers';
+import {pixToInt, intToPix, sumStyle} from './utils/commonUtils';
+import {rowItemsRenderer, getNearestRowHeight, getMaxOverlappingItems} from './utils/itemUtils';
+import {getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta, pixelsPerMinute} from './utils/timeUtils';
+import Timebar from './components/timebar';
+import SelectBox from './components/selector';
+import {DefaultGroupRenderer, DefaultItemRenderer} from './components/renderers';
 
 import './style.css';
 
@@ -37,7 +37,7 @@ export default class Timeline extends Component {
     onItemClick: PropTypes.func,
     onItemDoubleClick: PropTypes.func,
     onItemContext: PropTypes.func,
-    onInteraction: PropTypes.func,
+    onInteraction: PropTypes.func.isRequired,
     onRowClick: PropTypes.func,
     onRowContext: PropTypes.func,
     onRowDoubleClick: PropTypes.func,
@@ -144,7 +144,7 @@ export default class Timeline extends Component {
   }
 
   itemFromElement(e) {
-    const index = e.getAttribute('item-index');
+    const index = e.getAttribute('data-item-index');
     const rowNo = this.itemRowMap[index];
     const itemIndex = _.findIndex(this.rowItemMap[rowNo], i => i.key == index);
     const item = this.rowItemMap[rowNo][itemIndex];
@@ -209,7 +209,7 @@ export default class Timeline extends Component {
           );
 
           _.forEach(animatedItems, id => {
-            let domItem = document.querySelector("span[item-index='" + id + "'");
+            let domItem = document.querySelector("span[data-item-index='" + id + "'");
             selections.push([this.getItem(id).start, this.getItem(id).end]);
             domItem.setAttribute('isDragging', 'True');
             domItem.setAttribute('drag-x', 0);
@@ -329,7 +329,7 @@ export default class Timeline extends Component {
         .on('resizestart', e => {
           const selected = this.props.onInteraction(Timeline.changeTypes.resizeStart, null, this.props.selectedItems);
           _.forEach(selected, id => {
-            let domItem = document.querySelector("span[item-index='" + id + "'");
+            let domItem = document.querySelector("span[data-item-index='" + id + "'");
             domItem.setAttribute('isResizing', 'True');
             domItem.setAttribute('initialWidth', pixToInt(domItem.style.width));
             domItem.style['z-index'] = 3;
@@ -374,10 +374,10 @@ export default class Timeline extends Component {
           const dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
           const isStartTimeChange = dx != 0;
 
-          const changes = {isStartTimeChange, timeDelta: dx};
           let items = [];
           let minRowNo = Infinity;
 
+          let durationChange = null;
           // Calculate the default item positions
           _.forEach(animatedItems, domItem => {
             let startPixelOffset = pixToInt(domItem.style.left) + dx;
@@ -393,6 +393,7 @@ export default class Timeline extends Component {
                 this.getTimelineWidth(),
                 this.props.snapMinutes
               );
+              if (durationChange === null) durationChange = item.start.diff(newStart, 'minutes');
               item.start = newStart;
             } else {
               let endPixelOffset = startPixelOffset + pixToInt(domItem.style.width);
@@ -403,6 +404,8 @@ export default class Timeline extends Component {
                 this.getTimelineWidth(),
                 this.props.snapMinutes
               );
+              if (durationChange === null) durationChange = item.end.diff(newEnd, 'minutes');
+
               item.end = newEnd;
             }
 
@@ -424,6 +427,8 @@ export default class Timeline extends Component {
 
             items.push(item);
           });
+          if (durationChange === null) durationChange = 0;
+          const changes = {isStartTimeChange, timeDelta: -durationChange};
 
           this.props.onInteraction(Timeline.changeTypes.resizeEnd, changes, items);
 
@@ -487,11 +492,11 @@ export default class Timeline extends Component {
 
   _handleItemRowEvent = (e, itemCallback, rowCallback) => {
     e.preventDefault();
-    if (e.target.hasAttribute('item-index') || e.target.parentElement.hasAttribute('item-index')) {
-      let itemKey = e.target.getAttribute('item-index') || e.target.parentElement.getAttribute('item-index');
+    if (e.target.hasAttribute('data-item-index') || e.target.parentElement.hasAttribute('data-item-index')) {
+      let itemKey = e.target.getAttribute('data-item-index') || e.target.parentElement.getAttribute('data-item-index');
       itemCallback && itemCallback(e, Number(itemKey));
     } else {
-      let row = e.target.getAttribute('row-index');
+      let row = e.target.getAttribute('data-row-index');
       let clickedTime = getTimeAtPixel(
         e.clientX - this.props.groupOffset,
         this.props.startDate,
@@ -521,7 +526,6 @@ export default class Timeline extends Component {
      */
     const {timelineMode} = this.props;
     const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, timelineMode);
-
     return ({columnIndex, key, parent, rowIndex, style}) => {
       let itemCol = 1;
       if (itemCol == columnIndex) {
@@ -530,7 +534,7 @@ export default class Timeline extends Component {
           <div
             key={key}
             style={style}
-            row-index={rowIndex}
+            data-row-index={rowIndex}
             className="rct9k-row"
             onClick={e => this._handleItemRowEvent(e, this.no_op, this.props.onRowClick)}
             onContextMenu={e =>
@@ -582,7 +586,8 @@ export default class Timeline extends Component {
     return children;
   }
   rowHeight({index}) {
-    return this.rowHeightCache[index] * this.props.itemHeight;
+    let rh = this.rowHeightCache[index] ? this.rowHeightCache[index] : 1;
+    return rh * this.props.itemHeight;
   }
 
   render() {
