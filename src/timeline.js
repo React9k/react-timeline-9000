@@ -34,6 +34,7 @@ export default class Timeline extends Component {
     snapMinutes: PropTypes.number,
     itemHeight: PropTypes.number,
     timelineMode: PropTypes.number,
+    timebarFormat: PropTypes.object,
     onItemClick: PropTypes.func,
     onItemDoubleClick: PropTypes.func,
     onItemContext: PropTypes.func,
@@ -441,7 +442,7 @@ export default class Timeline extends Component {
       this._selectRectangleInteractable
         .draggable({
           enabled: true,
-          ignoreFrom: '.item_draggable'
+          ignoreFrom: '.item_draggable, .rct9k-group'
         })
         .styleCursor(false)
         .on('dragstart', e => {
@@ -591,7 +592,11 @@ export default class Timeline extends Component {
   }
 
   render() {
-    const {groupOffset} = this.props;
+    const {groupOffset, timebarFormat} = this.props;
+
+    let varTimebarProps = {};
+    if (timebarFormat)
+      varTimebarProps['timeFormats'] = timebarFormat;
 
     function columnWidth(width) {
       return ({index}) => {
@@ -611,6 +616,7 @@ export default class Timeline extends Component {
                 width={width}
                 leftOffset={groupOffset}
                 selectedRanges={this.state.selection}
+                {...varTimebarProps}
               />
               <Grid
                 ref={ref => (this._grid = ref)}
