@@ -82,6 +82,8 @@ export default class Timeline extends Component {
     this.getTimelineWidth = this.getTimelineWidth.bind(this);
     this.itemFromElement = this.itemFromElement.bind(this);
     this.updateDimensions = this.updateDimensions.bind(this);
+    this.grid_ref_callback = this.grid_ref_callback.bind(this);
+    this.select_ref_callback = this.select_ref_callback.bind(this);
 
     const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, this.props.timelineMode);
     const canDrag = Timeline.isBitSet(Timeline.TIMELINE_MODES.DRAG, this.props.timelineMode);
@@ -590,6 +592,12 @@ export default class Timeline extends Component {
     let rh = this.rowHeightCache[index] ? this.rowHeightCache[index] : 1;
     return rh * this.props.itemHeight;
   }
+  grid_ref_callback(domElement) {
+    this._grid = domElement;
+  }
+  select_ref_callback(domElement) {
+    this._selectBox = domElement;
+  }
 
   render() {
     const {groupOffset, timebarFormat} = this.props;
@@ -609,7 +617,7 @@ export default class Timeline extends Component {
         <AutoSizer>
           {({height, width}) => (
             <div className="parent-div">
-              <SelectBox ref={ref => (this._selectBox = ref)} />
+              <SelectBox ref={this.select_ref_callback} />
               <Timebar
                 start={this.props.startDate}
                 end={this.props.endDate}
@@ -619,7 +627,7 @@ export default class Timeline extends Component {
                 {...varTimebarProps}
               />
               <Grid
-                ref={ref => (this._grid = ref)}
+                ref={this.grid_ref_callback}
                 autoContainerWidth
                 cellRenderer={this.cellRenderer(this.getTimelineWidth(width))}
                 cellRangeRenderer={this.cellRangeRenderer}
