@@ -455,13 +455,12 @@ export default class Timeline extends Component {
         })
         .on('dragend', e => {
           let {top, left, width, height} = this._selectBox.end();
-          left = left - this.props.groupOffset;
-          console.log({top, left, width, height});
           //Get the start and end row of the selection rectangle
           const topRow = Number(getNearestRowHeight(left, top));
           const bottomRow = Number(getNearestRowHeight(left + width, top + height));
           console.log('top', topRow, 'bottom', bottomRow);
           //Get the start and end time of the selection rectangle
+          left = left - this.props.groupOffset;
           let startOffset = width > 0 ? left : left + width;
           let endOffset = width > 0 ? left + width : left;
           const startTime = getTimeAtPixel(
@@ -559,7 +558,7 @@ export default class Timeline extends Component {
         const GroupComp = this.props.groupRenderer;
         let group = _.find(this.props.groups, g => g.id == rowIndex);
         return (
-          <div key={key} style={style} className="rct9k-group">
+          <div data-row-index={rowIndex} key={key} style={style} className="rct9k-group">
             <GroupComp group={group} />
           </div>
         );
