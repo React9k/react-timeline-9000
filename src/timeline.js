@@ -613,7 +613,7 @@ export default class Timeline extends Component {
     }
     return (
       <div className="rct9k-timeline-div">
-        <AutoSizer>
+        <AutoSizer onResize={this.refreshGrid}>
           {({height, width}) => (
             <div className="parent-div">
               <SelectBox ref={this.select_ref_callback} />
