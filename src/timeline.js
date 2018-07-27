@@ -110,6 +110,9 @@ export default class Timeline extends Component {
     }
   }
   componentWillUnmount() {
+    if (this._itemInteractable) this._itemInteractable.unset();
+    if (this._selectRectangleInteractable) this._selectRectangleInteractable.unset();
+
     window.removeEventListener('resize', this.updateDimensions);
   }
 
@@ -191,6 +194,7 @@ export default class Timeline extends Component {
     if (this._itemInteractable) this._itemInteractable.unset();
     if (this._selectRectangleInteractable) this._selectRectangleInteractable.unset();
 
+    console.warn("Setting up dragging")
     this._itemInteractable = interact('.item_draggable');
     this._selectRectangleInteractable = interact('.parent-div');
 
