@@ -110,6 +110,9 @@ export default class Timeline extends Component {
     }
   }
   componentWillUnmount() {
+    if (this._itemInteractable) this._itemInteractable.unset();
+    if (this._selectRectangleInteractable) this._selectRectangleInteractable.unset();
+
     window.removeEventListener('resize', this.updateDimensions);
   }
 
