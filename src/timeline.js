@@ -576,9 +576,11 @@ export default class Timeline extends Component {
     const height = props.parent.props.height;
     const top = props.scrollTop;
     let markers = [];
-    if (showCursorTime && this.mouse_offset) {
+    if (showCursorTime && this.mouse_snapped_time) {
+      console.log("At time", this.mouse_snapped_time.format());
+      const cursorPix = getPixelAtTime(this.mouse_snapped_time, this.props.startDate, this.props.endDate, this.getTimelineWidth())
       markers.push({
-        location: this.mouse_offset,
+        location: cursorPix + this.props.groupOffset,
         key: 1
       });
     }
@@ -598,8 +600,17 @@ export default class Timeline extends Component {
     this._selectBox = domElement;
   }
   mouseMoveFunc(e) {
-    this.mouse_offset = e.clientX;
-    this._grid.forceUpdate();
+    const cursorSnappedTime = getTimeAtPixel(
+       e.clientX - this.props.groupOffset,
+       this.props.startDate,
+       this.props.endDate,
+       this.getTimelineWidth(),
+       this.props.snapMinutes
+    );
+    if (!this.mouse_snapped_time || this.mouse_snapped_time.unix() !== cursorSnappedTime.unix()) {
+      this.mouse_snapped_time = cursorSnappedTime;
+      this._grid.forceUpdate();
+    }
   }
 
   render() {
