@@ -28,6 +28,7 @@
   position: absolute;
   width: 2px;
   background: red;
+  pointer-events: none
 }
 .rct9k-row {
   /* white-space: nowrap; */
