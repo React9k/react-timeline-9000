@@ -32,6 +32,7 @@ export default class Timeline extends Component {
     startDate: PropTypes.object.isRequired,
     endDate: PropTypes.object.isRequired,
     snapMinutes: PropTypes.number,
+    showCursorTime: PropTypes.bool,
     itemHeight: PropTypes.number,
     timelineMode: PropTypes.number,
     timebarFormat: PropTypes.object,
@@ -50,6 +51,7 @@ export default class Timeline extends Component {
     groupOffset: 150,
     itemHeight: 40,
     snapMinutes: 15,
+    showCursorTime: true,
     groupRenderer: DefaultGroupRenderer,
     itemRenderer: DefaultItemRenderer,
     timelineMode: Timeline.TIMELINE_MODES.SELECT | Timeline.TIMELINE_MODES.DRAG | Timeline.TIMELINE_MODES.RESIZE
@@ -60,7 +62,8 @@ export default class Timeline extends Component {
     resizeEnd: 'resizeEnd',
     dragEnd: 'dragEnd',
     dragStart: 'dragStart',
-    itemsSelected: 'itemsSelected'
+    itemsSelected: 'itemsSelected',
+    snappedMouseMove: 'snappedMouseMove'
   };
 
   static isBitSet(bit, mask) {
@@ -84,6 +87,7 @@ export default class Timeline extends Component {
     this.updateDimensions = this.updateDimensions.bind(this);
     this.grid_ref_callback = this.grid_ref_callback.bind(this);
     this.select_ref_callback = this.select_ref_callback.bind(this);
+    this.mouseMoveFunc = this.mouseMoveFunc.bind(this);
 
     const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, this.props.timelineMode);
     const canDrag = Timeline.isBitSet(Timeline.TIMELINE_MODES.DRAG, this.props.timelineMode);
@@ -99,9 +103,7 @@ export default class Timeline extends Component {
     // @TODO
     // investigate if we need this, only added to refresh the grid
     // when double click -> add an item
-    // if (this.props.items.length !== nextProps.items.length) {
     this.refreshGrid();
-    // }
     if (this.props.timelineMode !== nextProps.timelineMode) {
       const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, nextProps.timelineMode);
       const canDrag = Timeline.isBitSet(Timeline.TIMELINE_MODES.DRAG, nextProps.timelineMode);
@@ -570,21 +572,18 @@ export default class Timeline extends Component {
   }
 
   cellRangeRenderer(props) {
+    const {showCursorTime} = this.props;
     const children = defaultCellRangeRenderer(props);
     const height = props.parent.props.height;
     const top = props.scrollTop;
     let markers = [];
-    // today
-    markers.push({
-      location:
-        getPixelAtTime(
-          moment('2000-01-01 10:00:00'),
-          this.props.startDate,
-          this.props.endDate,
-          this.getTimelineWidth(props.parent.props.width)
-        ) + this.props.groupOffset,
-      key: 1
-    });
+    if (showCursorTime && this.mouse_snapped_time) {
+      const cursorPix = getPixelAtTime(this.mouse_snapped_time, this.props.startDate, this.props.endDate, this.getTimelineWidth())
+      markers.push({
+        location: cursorPix + this.props.groupOffset,
+        key: 1
+      });
+    }
     _.forEach(markers, m => {
       children.push(<div key={m.key} className="rct9k-marker-overlay" style={{height, left: m.location, top}} />);
     });
@@ -599,6 +598,22 @@ export default class Timeline extends Component {
   }
   select_ref_callback(domElement) {
     this._selectBox = domElement;
+  }
+  mouseMoveFunc(e) {
+    const cursorSnappedTime = getTimeAtPixel(
+       e.clientX - this.props.groupOffset,
+       this.props.startDate,
+       this.props.endDate,
+       this.getTimelineWidth(),
+       this.props.snapMinutes
+    );
+    if (!this.mouse_snapped_time || this.mouse_snapped_time.unix() !== cursorSnappedTime.unix()) {
+      if (cursorSnappedTime.isSameOrAfter(this.props.startDate)) {
+        this.mouse_snapped_time = cursorSnappedTime;
+        this.props.onInteraction(Timeline.changeTypes.snappedMouseMove, {'snappedTime': this.mouse_snapped_time.clone()}, null); // TODO: Document
+        this._grid.forceUpdate();
+      }
+    }
   }
 
   render() {
@@ -618,7 +633,7 @@ export default class Timeline extends Component {
       <div className="rct9k-timeline-div">
         <AutoSizer onResize={this.refreshGrid}>
           {({height, width}) => (
-            <div className="parent-div">
+            <div className="parent-div" onMouseMove={this.mouseMoveFunc}>
               <SelectBox ref={this.select_ref_callback} />
               <Timebar
                 start={this.props.startDate}
