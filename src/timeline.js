@@ -62,7 +62,8 @@ export default class Timeline extends Component {
     resizeEnd: 'resizeEnd',
     dragEnd: 'dragEnd',
     dragStart: 'dragStart',
-    itemsSelected: 'itemsSelected'
+    itemsSelected: 'itemsSelected',
+    snappedMouseMove: 'snappedMouseMove'
   };
 
   static isBitSet(bit, mask) {
@@ -577,7 +578,6 @@ export default class Timeline extends Component {
     const top = props.scrollTop;
     let markers = [];
     if (showCursorTime && this.mouse_snapped_time) {
-      console.log("At time", this.mouse_snapped_time.format());
       const cursorPix = getPixelAtTime(this.mouse_snapped_time, this.props.startDate, this.props.endDate, this.getTimelineWidth())
       markers.push({
         location: cursorPix + this.props.groupOffset,
@@ -608,8 +608,11 @@ export default class Timeline extends Component {
        this.props.snapMinutes
     );
     if (!this.mouse_snapped_time || this.mouse_snapped_time.unix() !== cursorSnappedTime.unix()) {
-      this.mouse_snapped_time = cursorSnappedTime;
-      this._grid.forceUpdate();
+      if (cursorSnappedTime.isSameOrAfter(this.props.startDate)) {
+        this.mouse_snapped_time = cursorSnappedTime;
+        this.props.onInteraction(Timeline.changeTypes.snappedMouseMove, {'snappedTime': this.mouse_snapped_time.clone()}, null); // TODO: Document
+        this._grid.forceUpdate();
+      }
     }
   }
 
