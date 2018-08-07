@@ -207,7 +207,7 @@ export default class Timebar extends React.Component {
   render() {
     return (
       <div className="rct9k-timebar-outer" style={{width: this.props.width, paddingLeft: this.props.leftOffset}}>
-        <div className="rct9k-timebar-inner">
+        <div className="rct9k-timebar-inner rct9k-timebar-inner-top">
           {_.map(this.renderTopBar(), i => {
             let className = 'rct9k-timebar-item';
             if (i.isSelected) className += ' rct9k-timebar-item-selected';
@@ -218,7 +218,7 @@ export default class Timebar extends React.Component {
             );
           })}
         </div>
-        <div className="rct9k-timebar-inner">
+        <div className="rct9k-timebar-inner rct9k-timebar-inner-bottom">
           {_.map(this.renderBottomBar(), i => {
             let className = 'rct9k-timebar-item';
             if (i.isSelected) className += ' rct9k-timebar-item-selected';

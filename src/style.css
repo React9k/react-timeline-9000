@@ -16,12 +16,6 @@
   overflow: hidden;
   z-index: 2;
 }
-.rct9k-items-inner {
-  display: inline-block;
-  margin: 3px;
-  padding: 3px;
-  width: 100%;
-}
 .rct9k-marker-overlay {
   z-index: 1;
   height: 475px;
@@ -30,66 +24,18 @@
   background: red;
   pointer-events: none
 }
-.rct9k-row {
-  /* white-space: nowrap; */
-  box-sizing: border-box;
-  border: 1px solid black;
-  border-top: 0;
-}
-.rct9k-row:nth-child(2) {
-  border-top: 1px solid black;
-}
-
-.rct9k-items-selected {
-  background-color: magenta;
-}
 
 .ReactVirtualized__Grid {
   overflow-x: hidden;
+  outline: none;
 }
 
 /* Timeline groups */
-.rct9k-group {
-  text-align: center;
-  box-sizing: border-box;
-  border: 1px solid black;
-  border-top: 0;
-  background-color: white;
-  z-index: 5;
-}
-
-.rct9k-group:first-child {
-  border-top: 1px solid black;
-}
 
 /* Timeline top timebar */
-.rct9k-timebar-outer {
-  height: 60px;
-  background-color: white;
-  border: 1px solid black;
-  box-sizing: border-box;
-}
-.rct9k-timebar-inner {
-  height: 30px;
-  white-space: nowrap;
-  overflow: hidden;
-}
-.rct9k-timebar-item {
-  text-align: center;
-  display: inline-block;
-  border-left: 1px solid;
-  white-space: nowrap;
-  box-sizing: border-box;
-}
 .rct9k-timebar-item-selected {
-  background-color: lightblue;
 }
 
 /* Multi-select box */
 .rct9k-selector-outer {
-  background-color: #5bb3ff80;
-  width: 1px;
-  height: 1px;
-  position: fixed;
-  z-index: 4;
 }

@@ -49,7 +49,7 @@ export default class Timeline extends Component {
 
   static defaultProps = {
     groupOffset: 150,
-    itemHeight: 40,
+    itemHeight: 60,
     snapMinutes: 15,
     showCursorTime: true,
     groupRenderer: DefaultGroupRenderer,
