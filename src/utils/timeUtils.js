@@ -8,6 +8,11 @@ import moment from 'moment';
  * @returns {} Snapped time
  */
 export function timeSnap(time, snapSeconds) {
+  if (snapSeconds === 0) {
+    const newTime = time.clone();
+    newTime.set('millisecond', 0);
+    return newTime;
+  }
   const newUnix = Math.round(time.unix() / snapSeconds) * snapSeconds;
   return moment(newUnix * 1000);
 }

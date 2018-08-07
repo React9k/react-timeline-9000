@@ -10,7 +10,7 @@ import _ from 'lodash';
 
 import {pixToInt, intToPix, sumStyle} from './utils/commonUtils';
 import {rowItemsRenderer, getNearestRowHeight, getMaxOverlappingItems} from './utils/itemUtils';
-import {getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta, pixelsPerMinute} from './utils/timeUtils';
+import {timeSnap, getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta, pixelsPerMinute} from './utils/timeUtils';
 import Timebar from './components/timebar';
 import SelectBox from './components/selector';
 import {DefaultGroupRenderer, DefaultItemRenderer} from './components/renderers';
@@ -512,10 +512,7 @@ export default class Timeline extends Component {
       );
 
       const roundedStartMinutes = Math.round(clickedTime.minute() / this.props.snapMinutes) * this.props.snapMinutes;
-      let snappedClickedTime = clickedTime
-        .clone()
-        .minutes(roundedStartMinutes)
-        .seconds(0);
+      let snappedClickedTime = timeSnap(clickedTime, roundedStartMinutes * 60);
       rowCallback && rowCallback(e, row, clickedTime, snappedClickedTime);
     }
   };
