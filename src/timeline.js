@@ -511,8 +511,9 @@ export default class Timeline extends Component {
         this.getTimelineWidth()
       );
 
-      const roundedStartMinutes = Math.round(clickedTime.minute() / this.props.snapMinutes) * this.props.snapMinutes;
-      let snappedClickedTime = timeSnap(clickedTime, roundedStartMinutes * 60);
+      //const roundedStartMinutes = Math.round(clickedTime.minute() / this.props.snapMinutes) * this.props.snapMinutes; // I dont know what this does
+      let snappedClickedTime = timeSnap(clickedTime, this.props.snapMinutes * 60);
+      console.log("snapped click", snappedClickedTime.format())
       rowCallback && rowCallback(e, row, clickedTime, snappedClickedTime);
     }
   };
