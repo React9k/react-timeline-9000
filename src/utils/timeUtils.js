@@ -31,9 +31,8 @@ export function pixelsPerMinute(vis_start, vis_end, total_width) {
  * @param {number} snapMinutes the number of minutes to snap to
  */
 export function getSnapPixelFromDelta(delta, vis_start, vis_end, total_width, snapMinutes = 0) {
-  const deltaMins = delta / pixelsPerMinute(vis_start, vis_end, total_width);
-  const snapMins = Math.round(deltaMins / snapMinutes) * snapMinutes;
-  return snapMins;
+  const pixelsPerSnapSegment = pixelsPerMinute(vis_start, vis_end, total_width) * snapMinutes;
+  return Math.round(delta / pixelsPerSnapSegment) * pixelsPerSnapSegment;
 }
 
 /**
