@@ -188,6 +188,7 @@ export default class Timebar extends Component {
   }
 
   render() {
+    const { cursorTime } = this.props;
     return (
       <div className="rct9k-timebar-outer" style={{width: this.props.width, paddingLeft: this.props.leftOffset}}>
         <div className="rct9k-timebar-inner rct9k-timebar-inner-top">
@@ -196,7 +197,7 @@ export default class Timebar extends Component {
             if (i.isSelected) className += ' rct9k-timebar-item-selected';
             return (
               <span className={className} key={i.key} style={{width: intToPix(i.size)}}>
-                {i.label}
+                {`${i.label} [${cursorTime}]`}
               </span>
             );
           })}
@@ -218,6 +219,7 @@ export default class Timebar extends Component {
 }
 
 Timebar.propTypes = {
+  cursorTime: PropTypes.any.isRequired,
   start: PropTypes.object.isRequired, //moment
   end: PropTypes.object.isRequired, //moment
   width: PropTypes.number.isRequired,
