@@ -218,11 +218,13 @@ export default class Timeline extends Component {
 
           _.forEach(animatedItems, id => {
             let domItem = document.querySelector("span[data-item-index='" + id + "'");
-            selections.push([this.getItem(id).start, this.getItem(id).end]);
-            domItem.setAttribute('isDragging', 'True');
-            domItem.setAttribute('drag-x', 0);
-            domItem.setAttribute('drag-y', 0);
-            domItem.style['z-index'] = 3;
+            if (domItem) {
+              selections.push([this.getItem(id).start, this.getItem(id).end]);
+              domItem.setAttribute('isDragging', 'True');
+              domItem.setAttribute('drag-x', 0);
+              domItem.setAttribute('drag-y', 0);
+              domItem.style['z-index'] = 3;
+            }
           });
           this.setSelection(selections);
         })
@@ -338,9 +340,11 @@ export default class Timeline extends Component {
           const selected = this.props.onInteraction(Timeline.changeTypes.resizeStart, null, this.props.selectedItems);
           _.forEach(selected, id => {
             let domItem = document.querySelector("span[data-item-index='" + id + "'");
-            domItem.setAttribute('isResizing', 'True');
-            domItem.setAttribute('initialWidth', pixToInt(domItem.style.width));
-            domItem.style['z-index'] = 3;
+            if (domItem) {
+              domItem.setAttribute('isResizing', 'True');
+              domItem.setAttribute('initialWidth', pixToInt(domItem.style.width));
+              domItem.style['z-index'] = 3;
+            }
           });
         })
         .on('resizemove', e => {
