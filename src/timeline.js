@@ -71,6 +71,7 @@ export default class Timeline extends Component {
   }
   constructor(props) {
     super(props);
+    this.selecting = false;
     this.state = {selection: []};
     this.setTimeMap(this.props.items);
 
@@ -218,11 +219,13 @@ export default class Timeline extends Component {
 
           _.forEach(animatedItems, id => {
             let domItem = document.querySelector("span[data-item-index='" + id + "'");
-            selections.push([this.getItem(id).start, this.getItem(id).end]);
-            domItem.setAttribute('isDragging', 'True');
-            domItem.setAttribute('drag-x', 0);
-            domItem.setAttribute('drag-y', 0);
-            domItem.style['z-index'] = 3;
+            if (domItem) {
+              selections.push([this.getItem(id).start, this.getItem(id).end]);
+              domItem.setAttribute('isDragging', 'True');
+              domItem.setAttribute('drag-x', 0);
+              domItem.setAttribute('drag-y', 0);
+              domItem.style['z-index'] = 3;
+            }
           });
           this.setSelection(selections);
         })
@@ -338,9 +341,11 @@ export default class Timeline extends Component {
           const selected = this.props.onInteraction(Timeline.changeTypes.resizeStart, null, this.props.selectedItems);
           _.forEach(selected, id => {
             let domItem = document.querySelector("span[data-item-index='" + id + "'");
-            domItem.setAttribute('isResizing', 'True');
-            domItem.setAttribute('initialWidth', pixToInt(domItem.style.width));
-            domItem.style['z-index'] = 3;
+            if (domItem) {
+              domItem.setAttribute('isResizing', 'True');
+              domItem.setAttribute('initialWidth', pixToInt(domItem.style.width));
+              domItem.style['z-index'] = 3;
+            }
           });
         })
         .on('resizemove', e => {
@@ -499,6 +504,10 @@ export default class Timeline extends Component {
 
   _handleItemRowEvent = (e, itemCallback, rowCallback) => {
     e.preventDefault();
+    // Skip click handler if selecting with selection box
+    if (this.selecting) {
+      return
+    }
     if (e.target.hasAttribute('data-item-index') || e.target.parentElement.hasAttribute('data-item-index')) {
       let itemKey = e.target.getAttribute('data-item-index') || e.target.parentElement.getAttribute('data-item-index');
       itemCallback && itemCallback(e, Number(itemKey));
@@ -542,6 +551,8 @@ export default class Timeline extends Component {
             data-row-index={rowIndex}
             className="rct9k-row"
             onClick={e => this._handleItemRowEvent(e, this.no_op, this.props.onRowClick)}
+            onMouseDown={e => this.selecting = false}
+            onMouseMove={e => this.selecting = true}
             onContextMenu={e =>
               this._handleItemRowEvent(e, this.props.onItemContextClick, this.props.onRowContextClick)
             }
