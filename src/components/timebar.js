@@ -1,13 +1,30 @@
 'use strict';
 
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import moment from 'moment';
 import {intToPix} from '../utils/commonUtils';
 import {timebarFormat as defaultTimebarFormat} from '../consts/timebarConsts';
 
-export default class Timebar extends Component {
+export default class Timebar extends React.Component {
+  static propTypes = {
+    cursorTime: PropTypes.any.isRequired,
+    start: PropTypes.object.isRequired, //moment
+    end: PropTypes.object.isRequired, //moment
+    width: PropTypes.number.isRequired,
+    leftOffset: PropTypes.number,
+    top_resolution: PropTypes.string,
+    bottom_resolution: PropTypes.string,
+    selectedRanges: PropTypes.arrayOf(PropTypes.object), // [start: moment ,end: moment (end)]
+    timeFormats: PropTypes.object
+  };
+  static defaultProps = {
+    selectedRanges: [],
+    leftOffset: 0,
+    timeFormats: defaultTimebarFormat
+  };
+
   constructor(props) {
     super(props);
     this.state = {};
@@ -188,6 +205,7 @@ export default class Timebar extends Component {
   }
 
   render() {
+    const { cursorTime } = this.props;
     return (
       <div className="rct9k-timebar-outer" style={{width: this.props.width, paddingLeft: this.props.leftOffset}}>
         <div className="rct9k-timebar-inner rct9k-timebar-inner-top">
@@ -196,7 +214,7 @@ export default class Timebar extends Component {
             if (i.isSelected) className += ' rct9k-timebar-item-selected';
             return (
               <span className={className} key={i.key} style={{width: intToPix(i.size)}}>
-                {i.label}
+                {`${i.label} [${cursorTime}]`}
               </span>
             );
           })}
@@ -216,19 +234,3 @@ export default class Timebar extends Component {
     );
   }
 }
-
-Timebar.propTypes = {
-  start: PropTypes.object.isRequired, //moment
-  end: PropTypes.object.isRequired, //moment
-  width: PropTypes.number.isRequired,
-  leftOffset: PropTypes.number,
-  top_resolution: PropTypes.string,
-  bottom_resolution: PropTypes.string,
-  selectedRanges: PropTypes.arrayOf(PropTypes.object), // [start: moment ,end: moment (end)]
-  timeFormats: PropTypes.object
-};
-Timebar.defaultProps = {
-  selectedRanges: [],
-  leftOffset: 0,
-  timeFormats: defaultTimebarFormat
-};
