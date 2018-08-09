@@ -25,6 +25,7 @@ export default class Timeline extends Component {
   });
 
   static propTypes = {
+    cursorTime: PropTypes.any.isRequired,
     items: PropTypes.arrayOf(PropTypes.object).isRequired,
     groups: PropTypes.arrayOf(PropTypes.object).isRequired,
     groupOffset: PropTypes.number.isRequired,
@@ -615,7 +616,7 @@ export default class Timeline extends Component {
   }
 
   render() {
-    const {groupOffset, timebarFormat} = this.props;
+    const {cursorTime, groupOffset, timebarFormat} = this.props;
 
     let varTimebarProps = {};
     if (timebarFormat)
@@ -634,6 +635,7 @@ export default class Timeline extends Component {
             <div className="parent-div" onMouseMove={this.mouseMoveFunc}>
               <SelectBox ref={this.select_ref_callback} />
               <Timebar
+                cursorTime={cursorTime}
                 start={this.props.startDate}
                 end={this.props.endDate}
                 width={width}
