@@ -1,13 +1,13 @@
 'use strict';
 
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import moment from 'moment';
 import {intToPix} from '../utils/commonUtils';
 import {timebarFormat as defaultTimebarFormat} from '../consts/timebarConsts';
 
-export default class Timebar extends Component {
+export default class Timebar extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};

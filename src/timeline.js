@@ -25,6 +25,7 @@ export default class Timeline extends Component {
   });
 
   static propTypes = {
+    cursorTime: PropTypes.any.isRequired,
     items: PropTypes.arrayOf(PropTypes.object).isRequired,
     groups: PropTypes.arrayOf(PropTypes.object).isRequired,
     groupOffset: PropTypes.number.isRequired,
