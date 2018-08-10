@@ -25,7 +25,6 @@ export default class Timeline extends Component {
   });
 
   static propTypes = {
-    cursorTime: PropTypes.any.isRequired,
     items: PropTypes.arrayOf(PropTypes.object).isRequired,
     groups: PropTypes.arrayOf(PropTypes.object).isRequired,
     groupOffset: PropTypes.number.isRequired,
@@ -89,6 +88,7 @@ export default class Timeline extends Component {
     this.grid_ref_callback = this.grid_ref_callback.bind(this);
     this.select_ref_callback = this.select_ref_callback.bind(this);
     this.mouseMoveFunc = this.mouseMoveFunc.bind(this);
+    this.getCursor = this.getCursor.bind(this);
 
     const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, this.props.timelineMode);
     const canDrag = Timeline.isBitSet(Timeline.TIMELINE_MODES.DRAG, this.props.timelineMode);
@@ -570,6 +570,11 @@ export default class Timeline extends Component {
     };
   }
 
+  getCursor() {
+    const { showCursorTime } = this.props;
+    return showCursorTime && this.mouse_snapped_time ? this.mouse_snapped_time.clone().format('[Day] DDD - HH:mm') : null;
+  }
+
   cellRangeRenderer(props) {
     const {showCursorTime} = this.props;
     const children = defaultCellRangeRenderer(props);
@@ -616,7 +621,7 @@ export default class Timeline extends Component {
   }
 
   render() {
-    const {cursorTime, groupOffset, timebarFormat} = this.props;
+    const {onInteraction, groupOffset, timebarFormat} = this.props;
 
     let varTimebarProps = {};
     if (timebarFormat)
@@ -635,7 +640,7 @@ export default class Timeline extends Component {
             <div className="parent-div" onMouseMove={this.mouseMoveFunc}>
               <SelectBox ref={this.select_ref_callback} />
               <Timebar
-                cursorTime={cursorTime}
+                cursorTime={this.getCursor()}
                 start={this.props.startDate}
                 end={this.props.endDate}
                 width={width}
