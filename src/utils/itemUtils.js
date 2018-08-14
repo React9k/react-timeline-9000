@@ -67,6 +67,7 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHei
         <Comp key={i.key} item={i} className={classnames} style={style} />
       </span>
     );
+
   });
 }
 /**
