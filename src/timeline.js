@@ -44,17 +44,21 @@ export default class Timeline extends Component {
     onRowContext: PropTypes.func,
     onRowDoubleClick: PropTypes.func,
     itemRenderer: PropTypes.func,
-    groupRenderer: PropTypes.func
+    groupRenderer: PropTypes.func,
+    onItemHover: PropTypes.func,
+    onItemLeave: PropTypes.func
   };
 
   static defaultProps = {
     groupOffset: 150,
-    itemHeight: 40,
+    itemHeight: 60,
     snapMinutes: 15,
     showCursorTime: true,
     groupRenderer: DefaultGroupRenderer,
     itemRenderer: DefaultItemRenderer,
-    timelineMode: Timeline.TIMELINE_MODES.SELECT | Timeline.TIMELINE_MODES.DRAG | Timeline.TIMELINE_MODES.RESIZE
+    timelineMode: Timeline.TIMELINE_MODES.SELECT | Timeline.TIMELINE_MODES.DRAG | Timeline.TIMELINE_MODES.RESIZE,
+    onItemHover() {},
+    onItemLeave() {}
   };
 
   static changeTypes = {
@@ -538,7 +542,7 @@ export default class Timeline extends Component {
      * @param  {} rowIndex Vertical (row) index of cell
      * @param  {} style Style object to be applied to cell (to position it);
      */
-    const {timelineMode} = this.props;
+    const { timelineMode, onItemHover, onItemLeave } = this.props;
     const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, timelineMode);
     return ({columnIndex, key, parent, rowIndex, style}) => {
       let itemCol = 1;
@@ -553,6 +557,14 @@ export default class Timeline extends Component {
             onClick={e => this._handleItemRowEvent(e, this.no_op, this.props.onRowClick)}
             onMouseDown={e => this.selecting = false}
             onMouseMove={e => this.selecting = true}
+            onMouseOver={e => {
+              this.selecting = false;
+              return this._handleItemRowEvent(e, onItemHover, null)
+            }}
+            onMouseLeave={e => {
+              this.selecting = false;
+              return this._handleItemRowEvent(e, onItemLeave, null)
+            }}
             onContextMenu={e =>
               this._handleItemRowEvent(e, this.props.onItemContextClick, this.props.onRowContextClick)
             }
