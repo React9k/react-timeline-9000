@@ -15,8 +15,6 @@ import Timebar from './components/timebar';
 import SelectBox from './components/selector';
 import {DefaultGroupRenderer, DefaultItemRenderer} from './components/renderers';
 
-import { Popover } from 'antd';
-
 import './style.css';
 
 export default class Timeline extends Component {
