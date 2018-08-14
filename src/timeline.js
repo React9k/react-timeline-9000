@@ -76,7 +76,7 @@ export default class Timeline extends Component {
   constructor(props) {
     super(props);
     this.selecting = false;
-    this.state = {selection: [], hover: {active:false}};
+    this.state = {selection: []};
     this.setTimeMap(this.props.items);
 
     this.cellRenderer = this.cellRenderer.bind(this);
