@@ -544,7 +544,7 @@ export default class Timeline extends Component {
      * @param  {} rowIndex Vertical (row) index of cell
      * @param  {} style Style object to be applied to cell (to position it);
      */
-    const { timelineMode, onItemHover, onItemLeave, currentHover, showHover } = this.props;
+    const { timelineMode, onItemHover, onItemLeave } = this.props;
     const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, timelineMode);
     return ({columnIndex, key, parent, rowIndex, style}) => {
       let itemCol = 1;
