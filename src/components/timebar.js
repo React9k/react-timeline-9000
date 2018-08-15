@@ -189,6 +189,7 @@ export default class Timebar extends React.Component {
 
   render() {
     const { cursorTime } = this.props;
+    console.log(cursorTime);
     return (
       <div className="rct9k-timebar-outer" style={{width: this.props.width, paddingLeft: this.props.leftOffset}}>
         <div className="rct9k-timebar-inner rct9k-timebar-inner-top">
@@ -219,7 +220,7 @@ export default class Timebar extends React.Component {
 }
 
 Timebar.propTypes = {
-  cursorTime: PropTypes.any.isRequired,
+  cursorTime: PropTypes.any,
   start: PropTypes.object.isRequired, //moment
   end: PropTypes.object.isRequired, //moment
   width: PropTypes.number.isRequired,

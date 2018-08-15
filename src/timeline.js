@@ -18,6 +18,7 @@ import {DefaultGroupRenderer, DefaultItemRenderer} from './components/renderers'
 import './style.css';
 
 export default class Timeline extends Component {
+
   static TIMELINE_MODES = Object.freeze({
     SELECT: 1,
     DRAG: 2,
@@ -51,7 +52,7 @@ export default class Timeline extends Component {
 
   static defaultProps = {
     groupOffset: 150,
-    itemHeight: 60,
+    itemHeight: 40,
     snapMinutes: 15,
     showCursorTime: true,
     groupRenderer: DefaultGroupRenderer,
@@ -76,7 +77,7 @@ export default class Timeline extends Component {
   constructor(props) {
     super(props);
     this.selecting = false;
-    this.state = {selection: []};
+    this.state = {selection: [], cursorTime: null};
     this.setTimeMap(this.props.items);
 
     this.cellRenderer = this.cellRenderer.bind(this);
@@ -595,7 +596,8 @@ export default class Timeline extends Component {
 
   getCursor() {
     const { showCursorTime } = this.props;
-    return showCursorTime && this.mouse_snapped_time ? this.mouse_snapped_time.clone().format('[Day] DDD - HH:mm') : null;
+    const { cursorTime } = this.state;
+    return showCursorTime && cursorTime ? cursorTime.clone().format('[Day] DDD - HH:mm') : null;
   }
 
   cellRangeRenderer(props) {
@@ -637,6 +639,7 @@ export default class Timeline extends Component {
     if (!this.mouse_snapped_time || this.mouse_snapped_time.unix() !== cursorSnappedTime.unix()) {
       if (cursorSnappedTime.isSameOrAfter(this.props.startDate)) {
         this.mouse_snapped_time = cursorSnappedTime;
+        this.setState({ cursorTime: this.mouse_snapped_time });
         this.props.onInteraction(Timeline.changeTypes.snappedMouseMove, {'snappedTime': this.mouse_snapped_time.clone()}, null); // TODO: Document
         this._grid.forceUpdate();
       }
@@ -656,6 +659,7 @@ export default class Timeline extends Component {
         return width - groupOffset;
       };
     }
+
     return (
       <div className="rct9k-timeline-div">
         <AutoSizer onResize={this.refreshGrid}>
