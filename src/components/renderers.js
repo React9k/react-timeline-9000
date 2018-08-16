@@ -3,7 +3,7 @@ import React from 'react';
 export const DefaultItemRenderer = props => {
   const {item, ...rest} = props;
 
-  return <span {...rest}>{item.title}</span>;
+  return <span {...rest}><span>{item.title}</span></span>;
 };
 
 export const DefaultGroupRenderer = props => {
@@ -11,7 +11,7 @@ export const DefaultGroupRenderer = props => {
 
   return (
     <span data-group-index={group.id} {...rest}>
-      {group.title}
+      <span>{group.title}</span>
     </span>
   );
 };
