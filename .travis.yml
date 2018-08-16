@@ -26,6 +26,7 @@ jobs:
         repo: lilfolr/react-timeline-9000
         branch: master
   - stage: deploy_npm
+      script: make
       provider: npm
       email: lrlilford+npm@gmail.com
       api_key:
