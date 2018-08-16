@@ -11,12 +11,12 @@ jobs:
   include:
   - stage: test
     script: make test
-  - stage: deploy
+  - stage: deploy_demo
     script: make demo
     deploy:
       provider: s3
-      access_key_id: $AWS_KEY
-      secret_access_key: $AWS_SECRET
+      access_key_id: "$AWS_KEY"
+      secret_access_key: "$AWS_SECRET"
       bucket: bhp-react-timeline-9k
       local-dir: dist
       acl: public_read
@@ -25,6 +25,14 @@ jobs:
       on:
         repo: lilfolr/react-timeline-9000
         branch: master
+  - stage: deploy_npm
+      provider: npm
+      email: lrlilford+npm@gmail.com
+      api_key:
+        secure: OVvjYeOVe1qLdUfnhcM22UgGSrDxwwdRFfp8aXD/cHKFlxGMHwpPZzQe/Iob8nvxbsSmmjZp3jIoVj6Uf9BUeLtOSQ7W7dUoMHaEx9NfLy6SWQOKE1xEBzh57HZTL1VoZD6L9bivO6n1k65uvfTTf40/zhuN5SL8QBYoXUU8gWmCbe64Wi1DsETJz20WE0PA2X/etb39V/PQRUVMS3WDpnTB+93Vygwj7I3UCzHfv0YD17jZD9nb3mfBEUoBYJYrrXvOZRpPwvw+88Jm5xCdtQEqRV+OOxL/+1br6/4dWyzFzPXPGuPGvuIujLJxfkEP95z72CM7Z8rIIda2AVTpj7MTYYTfoESdM/lqvaGKL2RQREBjf0IHyTM2kKnUgdVnZa40cWDhgZpwmNGPluymPTobyKUUhqsfus5FbjxVs4u6Tvc6Qvdc32a56iZ87c7VmuTqLu2/xXIoXkb2y5mBxYgzZi00POH57vUQrDEg8uYKl5SkH2XGRd94W6Aa7Dnx3b7Wynq+mMHd6KkFpaszP/zTCpWVGUi8ochVgU0HKl/DZwKFHlogHeJVipaGxtDhotj/4Nnl4HuIfHRi0CPh0PTechKzaZBfIApAprqx0XxanAELsGkEvC2xVnArDz9X26zwAy6HrQkqMMoufGFj4IpBJbgH/go5UE4cZUTsL7Q=
+      on:
+        branch: master
+        repo: BHP-DevHub/react-timeline-9000
 cache:
   yarn: true
   directories:
@@ -33,3 +41,4 @@ env:
   global:
   - secure: ecUH3bj7BE1lUJgggtLkiWPjY4t2m0lvZz+BABPz0SLyWd7zBTK6RYw+a6ui7oNXHdMT5TRIcS7rdlWmnKzCVHMdOgb+Cx7MG55pWaPce40YKplhKarzWmTcqQzr/pgDm3ou0klYYHmQQvLXENNcicwIuM+ov8ZcJDF0zZ7C9sbriaLjP8aaROh+Z17g0EYFrXKn0bVzpjl8u8rVy1+v2gyfha9cCtK6YZve19gxuHD3DrgXrSnhjAoWLi/82PxuLo7SbRpVHZwU0pOLfnc+nWfbu0qX3PJkZaVn2+dJSxEK7WTBwt9oy6OI7GoHDW24/ywzE1YHBigKPUWaxnXb5RRrM7n6yJloqo9/WB7f+jBt3UB5ffhA2WeSEu0+w26m12VYFbwRXDLf/u6iu13m9TH/1NjpCR9dt06t7t0RECnKi5crqcRwC1mhAwE6+US4DcbjkbDcQDlHmrCJqw0eLWpB7HXue+rLbIt567AyZhwuHl04z9N8Dq6LpFFfFUFcLOQPIHUSvy8y5gewjoOboOSyYpXC83WwcrxfWvZWESTXSVDmO5olXx78emUs2WyvzKIkpNVSBK0xpmibGtUrh0J7PgZOI/Z3k9ocnDu0bvXbV0/QnwSuw7oz2kC5iE8SYpC2XQ72R4tJScWdIj5Br7c+xZacfGc7VMBtBZzOG2Y=
   - secure: CucflhXxGIT+hWUPL8bt7jQIBqjVStTTCRHezohMr6Hb4NJ/dIr4E8MXE1Wd7Py+UIHtoqJp2k42p+ba92dpow0jtA0/pGS2vyfDEtHNFka9C4jMuT5woxtsxacdrNxnRZp97b23iD5V1i55jrIIjk7D0Lx+jdHDPwoNsLBu5XEyGFIP7Fk0GpuCgwrRs62BS1jSbu7Ri4lclgaBfAhOMQtzW3Z5H3hv+4dw1IZxM9kCYW5KCNT0To8AgQxlpI/1qkMujzFrfiZVwUWMuB4K6USoMSguejEdra1qZLt8TV80deL0PT8yIT6hmXySoc0Au6GXR0A0I2PLJL37za/71m+0G7RG75m6Vc0pjD10RLqjdlXBhrGKV/D16yFLkSbmNQT0/JU6BEKk4KOyMKZTrkfQFOxJxXdPjyBYOxPROgTbn/VOtdRMz4TqbrFg233SZv3Fh2QoMeVHPDhSEooT4ZB/cRJsTEYMzQM6iM2B1i6UEkBmpLFisKKpj33uGvv1A1vatlLfK4F3fqX07Nqp8pTu5niXgOmvsfVUg1bS+ck4a9sGVvhDaI5d00p0cd/GVYYo7aruI/6hpRU/qN25JK/ChVZhmhlbTZ2J07FVTL3jVO7heQHTEc3zZVrYzbY7ICbIWYdo/gPcYsZ7K7O4I4XUkdoD1M9ERBFrIN/Z9VM=
+deploy:
