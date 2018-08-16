@@ -15,9 +15,6 @@
 ## Demo
 * http://bhp-react-timeline-9k.s3-website-ap-southeast-2.amazonaws.com/
 
-# Documentation
-
-
 # Interaction
 
 Default interaction for multiple selection is largely governed by the leading item, which is defined as the item that is directly interacted with when multiple items are selected.
