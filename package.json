@@ -1,6 +1,6 @@
 {
   "name": "react-timeline-9000",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Performance focused timeline for react",
   "private": false,
   "scripts": {
@@ -32,6 +32,10 @@
   "bugs": {
     "url": "https://github.com/lilfolr/react-timeline-9000/issues"
   },
+  "files": [
+    "dist"
+  ],
+  "main": "dist/main.bundle.js",
   "homepage": "https://github.com/lilfolr/react-timeline-9000#readme",
   "devDependencies": {
     "antd": "^3.6.5",
