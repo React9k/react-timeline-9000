@@ -3,8 +3,11 @@ node_js:
 - '8'
 stages:
 - test
-- name: deploy
+- name: deploy_demo
   if: "(NOT type IN (pull_request)) AND (branch = master)"
+- name: deploy_npm
+  if: "(NOT type IN (pull_request)) AND (branch = master)"
+
 install:
 - make install
 jobs:
@@ -12,7 +15,7 @@ jobs:
   - stage: test
     script: make test
   - stage: deploy_demo
-    script: make demo
+    before_deploy: make demo
     deploy:
       provider: s3
       access_key_id: "$AWS_KEY"
@@ -23,10 +26,10 @@ jobs:
       skip_cleanup: true
       region: ap-southeast-2
       on:
-        repo: lilfolr/react-timeline-9000
         branch: master
+        repo: BHP-DevHub/react-timeline-9000
   - stage: deploy_npm
-    script: make
+    before_deploy: make
     deploy:
       provider: npm
       email: lrlilford+npm@gmail.com
