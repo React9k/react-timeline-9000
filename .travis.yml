@@ -23,6 +23,7 @@ jobs:
         branch: master
         repo: BHP-DevHub/react-timeline-9000
   - stage: deploy npm
+    if: branch = release/npm
     script: make
     deploy:
       skip_cleanup: true
