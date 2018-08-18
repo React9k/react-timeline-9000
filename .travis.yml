@@ -9,7 +9,7 @@ jobs:
   - stage: test
     script: make test
   - stage: deploy demo
-    before_deploy: make demo
+    script: make demo
     deploy:
       provider: s3
       access_key_id: "$AWS_KEY"
@@ -23,7 +23,7 @@ jobs:
         branch: master
         repo: BHP-DevHub/react-timeline-9000
   - stage: deploy npm
-    before_deploy: make
+    script: make
     deploy:
       skip_cleanup: true
       provider: npm
