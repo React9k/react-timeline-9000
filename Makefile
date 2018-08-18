@@ -2,8 +2,9 @@ mocha := node_modules/.bin/mocha
 
 .PHONY: all clean install demo
 
-all: install
-	yarn build
+all: clean install
+	yarn build &&\
+	yarn build_lib
 
 demo: install
 	yarn build_demo
@@ -22,3 +23,4 @@ install:
 
 clean:
 	rm -rf dist
+	rm -rf lib
