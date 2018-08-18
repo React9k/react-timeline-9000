@@ -1,12 +1,6 @@
 language: node_js
 node_js:
 - '8'
-stages:
-- test
-- name: deploy_demo
-  if: "(NOT type IN (pull_request)) AND (branch = master)"
-- name: deploy_npm
-  if: "(NOT type IN (pull_request)) AND (branch = master)"
 
 install:
 - make install
@@ -14,7 +8,7 @@ jobs:
   include:
   - stage: test
     script: make test
-  - stage: deploy_demo
+  - stage: deploy demo
     before_deploy: make demo
     deploy:
       provider: s3
@@ -28,7 +22,7 @@ jobs:
       on:
         branch: master
         repo: BHP-DevHub/react-timeline-9000
-  - stage: deploy_npm
+  - stage: deploy npm
     before_deploy: make
     deploy:
       skip_cleanup: true
