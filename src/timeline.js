@@ -33,6 +33,7 @@ export default class Timeline extends Component {
     endDate: PropTypes.object.isRequired,
     snapMinutes: PropTypes.number,
     showCursorTime: PropTypes.bool,
+    cursorTimeFormat: PropTypes.string,
     itemHeight: PropTypes.number,
     timelineMode: PropTypes.number,
     timebarFormat: PropTypes.object,
@@ -53,6 +54,7 @@ export default class Timeline extends Component {
     groupOffset: 150,
     itemHeight: 40,
     snapMinutes: 15,
+    cursorTimeFormat: '[Day] DDD - HH:mm',
     showCursorTime: true,
     groupRenderer: DefaultGroupRenderer,
     itemRenderer: DefaultItemRenderer,
@@ -593,9 +595,9 @@ export default class Timeline extends Component {
   }
 
   getCursor() {
-    const {showCursorTime} = this.props;
+    const {showCursorTime, cursorTimeFormat} = this.props;
     const {cursorTime} = this.state;
-    return showCursorTime && cursorTime ? cursorTime.clone().format('[Day] DDD - HH:mm') : null;
+    return showCursorTime && cursorTime ? cursorTime.clone().format(cursorTimeFormat) : null;
   }
 
   cellRangeRenderer(props) {
