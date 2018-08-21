@@ -285,9 +285,9 @@ export default class Timeline extends Component {
           this.clearSelection();
 
           // Change row
-          console.log('From row', rowNo);
+          // console.log('From row', rowNo);
           let newRow = getNearestRowHeight(e.clientX, e.clientY);
-          console.log('To row', newRow);
+          // console.log('To row', newRow);
 
           let rowChangeDelta = newRow - rowNo;
           // Update time
@@ -475,7 +475,7 @@ export default class Timeline extends Component {
           //Get the start and end row of the selection rectangle
           const topRow = Number(getNearestRowHeight(left, top));
           const bottomRow = Number(getNearestRowHeight(left + width, top + height));
-          console.log('top', topRow, 'bottom', bottomRow);
+          // console.log('top', topRow, 'bottom', bottomRow);
           //Get the start and end time of the selection rectangle
           left = left - this.props.groupOffset;
           let startOffset = width > 0 ? left : left + width;
@@ -494,7 +494,7 @@ export default class Timeline extends Component {
             this.getTimelineWidth(),
             this.props.snapMinutes
           );
-          console.log('Start', startTime.format(), 'End', endTime.format());
+          // console.log('Start', startTime.format(), 'End', endTime.format());
           //Get items in these ranges
           let selectedItems = [];
           for (let r = Math.min(topRow, bottomRow); r <= Math.max(topRow, bottomRow); r++) {
@@ -529,7 +529,6 @@ export default class Timeline extends Component {
 
       //const roundedStartMinutes = Math.round(clickedTime.minute() / this.props.snapMinutes) * this.props.snapMinutes; // I dont know what this does
       let snappedClickedTime = timeSnap(clickedTime, this.props.snapMinutes * 60);
-      console.log('snapped click', snappedClickedTime.format());
       rowCallback && rowCallback(e, row, clickedTime, snappedClickedTime);
     }
   };

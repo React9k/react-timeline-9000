@@ -183,8 +183,6 @@ export default class DemoTimeline extends Component {
   };
 
   handleInteraction = (type, changes, items) => {
-    console.log('interaction ', type, changes, items);
-
     /**
      * this is to appease the codefactor gods,
      * whose wrath condemns those who dare
