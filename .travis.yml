@@ -9,6 +9,7 @@ jobs:
   - stage: test
     script: make test
   - stage: deploy demo
+    if: branch = release/npm
     script: make demo
     deploy:
       provider: s3
@@ -20,7 +21,7 @@ jobs:
       skip_cleanup: true
       region: ap-southeast-2
       on:
-        branch: master
+        branch: release/npm
         repo: BHP-DevHub/react-timeline-9000
   - stage: deploy npm
     if: branch = release/npm
