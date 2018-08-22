@@ -15,6 +15,9 @@ import Timebar from './components/timebar';
 import SelectBox from './components/selector';
 import {DefaultGroupRenderer, DefaultItemRenderer} from './components/renderers';
 
+// startsWith polyfill for IE11 support
+import 'core-js/fn/string/starts-with';
+
 import './style.css';
 
 export default class Timeline extends Component {
