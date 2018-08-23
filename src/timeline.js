@@ -15,10 +15,12 @@ import Timebar from './components/timebar';
 import SelectBox from './components/selector';
 import {DefaultGroupRenderer, DefaultItemRenderer} from './components/renderers';
 
+// startsWith polyfill for IE11 support
+import 'core-js/fn/string/starts-with';
+
 import './style.css';
 
 export default class Timeline extends Component {
-
   static TIMELINE_MODES = Object.freeze({
     SELECT: 1,
     DRAG: 2,
@@ -34,6 +36,7 @@ export default class Timeline extends Component {
     endDate: PropTypes.object.isRequired,
     snapMinutes: PropTypes.number,
     showCursorTime: PropTypes.bool,
+    cursorTimeFormat: PropTypes.string,
     itemHeight: PropTypes.number,
     timelineMode: PropTypes.number,
     timebarFormat: PropTypes.object,
@@ -54,6 +57,7 @@ export default class Timeline extends Component {
     groupOffset: 150,
     itemHeight: 40,
     snapMinutes: 15,
+    cursorTimeFormat: '[Day] DDD - HH:mm',
     showCursorTime: true,
     groupRenderer: DefaultGroupRenderer,
     itemRenderer: DefaultItemRenderer,
@@ -284,9 +288,9 @@ export default class Timeline extends Component {
           this.clearSelection();
 
           // Change row
-          console.log('From row', rowNo);
+          // console.log('From row', rowNo);
           let newRow = getNearestRowHeight(e.clientX, e.clientY);
-          console.log('To row', newRow);
+          // console.log('To row', newRow);
 
           let rowChangeDelta = newRow - rowNo;
           // Update time
@@ -474,7 +478,7 @@ export default class Timeline extends Component {
           //Get the start and end row of the selection rectangle
           const topRow = Number(getNearestRowHeight(left, top));
           const bottomRow = Number(getNearestRowHeight(left + width, top + height));
-          console.log('top', topRow, 'bottom', bottomRow);
+          // console.log('top', topRow, 'bottom', bottomRow);
           //Get the start and end time of the selection rectangle
           left = left - this.props.groupOffset;
           let startOffset = width > 0 ? left : left + width;
@@ -493,7 +497,7 @@ export default class Timeline extends Component {
             this.getTimelineWidth(),
             this.props.snapMinutes
           );
-          console.log('Start', startTime.format(), 'End', endTime.format());
+          // console.log('Start', startTime.format(), 'End', endTime.format());
           //Get items in these ranges
           let selectedItems = [];
           for (let r = Math.min(topRow, bottomRow); r <= Math.max(topRow, bottomRow); r++) {
@@ -512,7 +516,7 @@ export default class Timeline extends Component {
     e.preventDefault();
     // Skip click handler if selecting with selection box
     if (this.selecting) {
-      return
+      return;
     }
     if (e.target.hasAttribute('data-item-index') || e.target.parentElement.hasAttribute('data-item-index')) {
       let itemKey = e.target.getAttribute('data-item-index') || e.target.parentElement.getAttribute('data-item-index');
@@ -528,7 +532,6 @@ export default class Timeline extends Component {
 
       //const roundedStartMinutes = Math.round(clickedTime.minute() / this.props.snapMinutes) * this.props.snapMinutes; // I dont know what this does
       let snappedClickedTime = timeSnap(clickedTime, this.props.snapMinutes * 60);
-      console.log("snapped click", snappedClickedTime.format())
       rowCallback && rowCallback(e, row, clickedTime, snappedClickedTime);
     }
   };
@@ -544,7 +547,7 @@ export default class Timeline extends Component {
      * @param  {} rowIndex Vertical (row) index of cell
      * @param  {} style Style object to be applied to cell (to position it);
      */
-    const { timelineMode, onItemHover, onItemLeave } = this.props;
+    const {timelineMode, onItemHover, onItemLeave} = this.props;
     const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, timelineMode);
     return ({columnIndex, key, parent, rowIndex, style}) => {
       let itemCol = 1;
@@ -557,15 +560,15 @@ export default class Timeline extends Component {
             data-row-index={rowIndex}
             className="rct9k-row"
             onClick={e => this._handleItemRowEvent(e, this.no_op, this.props.onRowClick)}
-            onMouseDown={e => this.selecting = false}
-            onMouseMove={e => this.selecting = true}
+            onMouseDown={e => (this.selecting = false)}
+            onMouseMove={e => (this.selecting = true)}
             onMouseOver={e => {
               this.selecting = false;
-              return this._handleItemRowEvent(e, onItemHover, null)
+              return this._handleItemRowEvent(e, onItemHover, null);
             }}
             onMouseLeave={e => {
               this.selecting = false;
-              return this._handleItemRowEvent(e, onItemLeave, null)
+              return this._handleItemRowEvent(e, onItemLeave, null);
             }}
             onContextMenu={e =>
               this._handleItemRowEvent(e, this.props.onItemContextClick, this.props.onRowContextClick)
@@ -595,9 +598,9 @@ export default class Timeline extends Component {
   }
 
   getCursor() {
-    const { showCursorTime } = this.props;
-    const { cursorTime } = this.state;
-    return showCursorTime && cursorTime ? cursorTime.clone().format('[Day] DDD - HH:mm') : null;
+    const {showCursorTime, cursorTimeFormat} = this.props;
+    const {cursorTime} = this.state;
+    return showCursorTime && cursorTime ? cursorTime.clone().format(cursorTimeFormat) : null;
   }
 
   cellRangeRenderer(props) {
@@ -607,7 +610,12 @@ export default class Timeline extends Component {
     const top = props.scrollTop;
     let markers = [];
     if (showCursorTime && this.mouse_snapped_time) {
-      const cursorPix = getPixelAtTime(this.mouse_snapped_time, this.props.startDate, this.props.endDate, this.getTimelineWidth())
+      const cursorPix = getPixelAtTime(
+        this.mouse_snapped_time,
+        this.props.startDate,
+        this.props.endDate,
+        this.getTimelineWidth()
+      );
       markers.push({
         location: cursorPix + this.props.groupOffset,
         key: 1
@@ -630,17 +638,21 @@ export default class Timeline extends Component {
   }
   mouseMoveFunc(e) {
     const cursorSnappedTime = getTimeAtPixel(
-       e.clientX - this.props.groupOffset,
-       this.props.startDate,
-       this.props.endDate,
-       this.getTimelineWidth(),
-       this.props.snapMinutes
+      e.clientX - this.props.groupOffset,
+      this.props.startDate,
+      this.props.endDate,
+      this.getTimelineWidth(),
+      this.props.snapMinutes
     );
     if (!this.mouse_snapped_time || this.mouse_snapped_time.unix() !== cursorSnappedTime.unix()) {
       if (cursorSnappedTime.isSameOrAfter(this.props.startDate)) {
         this.mouse_snapped_time = cursorSnappedTime;
-        this.setState({ cursorTime: this.mouse_snapped_time });
-        this.props.onInteraction(Timeline.changeTypes.snappedMouseMove, {'snappedTime': this.mouse_snapped_time.clone()}, null); // TODO: Document
+        this.setState({cursorTime: this.mouse_snapped_time});
+        this.props.onInteraction(
+          Timeline.changeTypes.snappedMouseMove,
+          {snappedTime: this.mouse_snapped_time.clone()},
+          null
+        ); // TODO: Document
         this._grid.forceUpdate();
       }
     }
@@ -650,8 +662,7 @@ export default class Timeline extends Component {
     const {onInteraction, groupOffset, timebarFormat} = this.props;
 
     let varTimebarProps = {};
-    if (timebarFormat)
-      varTimebarProps['timeFormats'] = timebarFormat;
+    if (timebarFormat) varTimebarProps['timeFormats'] = timebarFormat;
 
     function columnWidth(width) {
       return ({index}) => {

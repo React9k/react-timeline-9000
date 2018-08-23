@@ -1,11 +1,11 @@
 {
   "name": "react-timeline-9000",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Performance focused timeline for react",
   "private": false,
   "scripts": {
     "build": "webpack --config webpack.prod.js",
-    "build_lib": "babel src --out-dir lib --ignore demo*,setupTests.js,*.test.js --copy-files",
+    "build_lib": "babel src --out-dir lib --ignore demo*,setupTests.js,*.test.js --copy-files --source-maps inline",
     "build_demo": "webpack --config webpack.dev.js",
     "start": "webpack-dev-server --open --config webpack.dev.js",
     "pretty": "prettier --write --tab-width 4 \"src/**/*.js\"",
@@ -71,7 +71,8 @@
     "webpack": "^4.12.0",
     "webpack-cli": "^3.0.8",
     "webpack-dev-server": "^3.1.4",
-    "webpack-merge": "^4.1.3"
+    "webpack-merge": "^4.1.3",
+    "core-js": "^2.4.0"
   },
   "dependencies": {
     "interactjs": "^1.3.4",

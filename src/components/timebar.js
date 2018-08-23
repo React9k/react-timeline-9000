@@ -188,16 +188,20 @@ export default class Timebar extends React.Component {
   }
 
   render() {
-    const { cursorTime } = this.props;
+    const {cursorTime} = this.props;
     return (
       <div className="rct9k-timebar-outer" style={{width: this.props.width, paddingLeft: this.props.leftOffset}}>
         <div className="rct9k-timebar-inner rct9k-timebar-inner-top">
           {_.map(this.renderTopBar(), i => {
+            let topLabel = i.label;
+            if (cursorTime) {
+              topLabel += ` [${cursorTime}]`;
+            }
             let className = 'rct9k-timebar-item';
             if (i.isSelected) className += ' rct9k-timebar-item-selected';
             return (
               <span className={className} key={i.key} style={{width: intToPix(i.size)}}>
-                {`${i.label} [${cursorTime}]`}
+                {topLabel}
               </span>
             );
           })}
