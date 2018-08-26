@@ -31,11 +31,11 @@ All items will move by the same horizontal delta and row changes will be calcula
 
 All items will gain the resize delta from the leading item.
 
-<!-- ### Overriding the default behaviour
+ ### Overriding the default behaviour
 
 TBA
 
-`onInteraction(type, changes, leadTimeDelta, leaderGroupDelta,selectedItems)` -->
+`onInteraction(type, changes, leadTimeDelta, leaderGroupDelta,selectedItems)` 
 
 # Props
 
@@ -74,7 +74,7 @@ TBA
 | onItemHover
 | onItemLeave
 
-<!-- ## Item level
+## Item level
 
 `onItemClick(e, key)`
 
@@ -87,7 +87,7 @@ TBA
 
 `onRowDoubleClick(e, rowNumber, clickedTime, snappedClickedTime)`
 
-`onRowContextClick (e, rowNumber, clickedTime, snappedClickedTime)` -->
+`onRowContextClick (e, rowNumber, clickedTime, snappedClickedTime)`
 
 ## Styling
 View `src/style.css` for styling examples

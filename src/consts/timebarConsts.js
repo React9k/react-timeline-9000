@@ -1,3 +1,6 @@
+/**
+ * Default timebar format
+ */
 export const timebarFormat = {
   majorLabels: {
     minute: {

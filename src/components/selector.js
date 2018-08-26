@@ -1,8 +1,9 @@
 'use strict';
-// Component to show a selection box (like on windows desktop)
-
 import React from 'react';
 
+/**
+ * Component to show a selection box (like on windows desktop)
+ */
 export default class SelectBox extends React.Component {
   /**
    * @ignore

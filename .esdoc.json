@@ -1,10 +1,14 @@
 {
   "source": "./src",
   "destination": "./docs",
+  "excludes": ["demo_index\\.js", "demo\\\\.*"],
   "plugins": [
     {"name": "esdoc-standard-plugin"},
     {"name": "esdoc-react-plugin"},
     {"name": "esdoc-jsx-plugin", "option": {"enable": true}},
-    {"name": "esdoc-ecmascript-proposal-plugin", "option": {"all": true}}
+    {"name": "esdoc-ecmascript-proposal-plugin", "option": {"all": true}},
+    {"name": "esdoc-publish-html-plugin",
+      "option": { "template": "./node_modules/esdoc-custom-theme/template"}
+    }
   ]
 }

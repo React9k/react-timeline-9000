@@ -1,6 +1,6 @@
 'use strict';
 
-import React, {Component} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import {Grid, AutoSizer, defaultCellRangeRenderer} from 'react-virtualized';
 
@@ -20,7 +20,15 @@ import 'core-js/fn/string/starts-with';
 
 import './style.css';
 
-export default class Timeline extends Component {
+/**
+ * Timeline class
+ * @reactProps {!number} items - this is prop1
+ * @reactProps {string} prop2 - this is prop2
+ */
+export default class Timeline extends React.Component {
+  /**
+   * @type {object}
+   */
   static TIMELINE_MODES = Object.freeze({
     SELECT: 1,
     DRAG: 2,
