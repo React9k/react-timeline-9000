@@ -74,6 +74,9 @@ export default class Timeline extends React.Component {
     onItemLeave() {}
   };
 
+  /**
+   * The types of interactions - see {@link onInteraction}
+   */
   static changeTypes = {
     resizeStart: 'resizeStart',
     resizeEnd: 'resizeEnd',
@@ -83,9 +86,21 @@ export default class Timeline extends React.Component {
     snappedMouseMove: 'snappedMouseMove'
   };
 
+  /**
+   * Checks if the given bit is set in the given mask
+   * @param {number} bit Bit to check
+   * @param {number} mask Mask to check against
+   * @returns {boolean} True if bit is set; else false
+   */
   static isBitSet(bit, mask) {
     return (bit & mask) === bit;
   }
+
+  /**
+   * Alias for no op function
+   */
+  static no_op = () => {};
+
   constructor(props) {
     super(props);
     this.selecting = false;
@@ -137,6 +152,9 @@ export default class Timeline extends React.Component {
     window.removeEventListener('resize', this.updateDimensions);
   }
 
+  /**
+   * Re-renders the grid when the window or container is resized
+   */
   updateDimensions() {
     clearTimeout(this.resizeTimeout);
     this.resizeTimeout = setTimeout(() => {
@@ -145,8 +163,12 @@ export default class Timeline extends React.Component {
     }, 100);
   }
 
-  no_op = () => {};
-
+  /**
+   * Sets the internal maps used by the component for looking up item & row data
+   * @param {Object[]} items The items to be displayed in the grid
+   * @param {moment} startDate The visible start date of the timeline
+   * @param {moment} endDate The visible end date of the timeline
+   */
   setTimeMap(items, startDate, endDate) {
     if (!startDate || !endDate) {
       startDate = this.props.startDate;
@@ -170,6 +192,15 @@ export default class Timeline extends React.Component {
     });
   }
 
+  /**
+   * Returns an item given its DOM element
+   * @param {Object} e the DOM element of the item
+   * @return {Object} Item details
+   * @prop {number|string} index The item's index
+   * @prop {number} rowNo The row number the item is in
+   * @prop {number} itemIndex Not really used - gets the index of the item in the row map
+   * @prop {Object} item The provided item object
+   */
   itemFromElement(e) {
     const index = e.getAttribute('data-item-index');
     const rowNo = this.itemRowMap[index];
@@ -178,6 +209,12 @@ export default class Timeline extends React.Component {
 
     return {index, rowNo, itemIndex, item};
   }
+
+  /**
+   * Gets an item given its ID
+   * @param {number} id item id
+   * @return {Object} Item object
+   */
   getItem(id) {
     // This is quite stupid and shouldn't really be needed
     const rowNo = this.itemRowMap[id];
@@ -185,28 +222,52 @@ export default class Timeline extends React.Component {
     return this.rowItemMap[rowNo][itemIndex];
   }
 
+  /**
+   * Move an item from one row to another
+   * @param {object} item The item object whose groups is to be changed
+   * @param {number} curRow The item's current row index
+   * @param {number} newRow The item's new row index
+   */
   changeGroup(item, curRow, newRow) {
     item.row = newRow;
     this.itemRowMap[item.key] = newRow;
     this.rowItemMap[curRow] = this.rowItemMap[curRow].filter(i => i.key !== item.key);
     this.rowItemMap[newRow].push(item);
   }
-  // [[start, end], [start, end], ...]
+
+  /**
+   * Set the currently selected time ranges (for the timebar to display)
+   * @param {Object[]} selections Of the form `[[start, end], [start, end], ...]`
+   */
   setSelection(selections) {
     let newSelection = _.map(selections, s => {
       return {start: s[0].clone(), end: s[1].clone()};
     });
     this.setState({selection: newSelection});
   }
+
+  /**
+   * Clears the currently selected time range state
+   */
   clearSelection() {
     this.setState({selection: []});
   }
+
+  /**
+   * Get the width of the timeline NOT including the left group list
+   * @param {?number} totalWidth Total timeline width. If not supplied we use the timeline ref
+   * @returns {number} The width in pixels
+   */
   getTimelineWidth(totalWidth) {
     const {groupOffset} = this.props;
     if (totalWidth !== undefined) return totalWidth - groupOffset;
     return this._grid.props.width - groupOffset;
   }
 
+  /**
+   * re-computes the grid's row sizes
+   * @param {Object?} config Config to pass wo react-virtualized's compute func
+   */
   refreshGrid = (config = {}) => {
     this._grid.recomputeGridSize(config);
   };
@@ -545,7 +606,7 @@ export default class Timeline extends React.Component {
   };
 
   /**
-   * @param  {} width container width (in px)
+   * @param {number} width container width (in px)
    */
   cellRenderer(width) {
     /**
@@ -567,7 +628,7 @@ export default class Timeline extends React.Component {
             style={style}
             data-row-index={rowIndex}
             className="rct9k-row"
-            onClick={e => this._handleItemRowEvent(e, this.no_op, this.props.onRowClick)}
+            onClick={e => this._handleItemRowEvent(e, Timeline.no_op, this.props.onRowClick)}
             onMouseDown={e => (this.selecting = false)}
             onMouseMove={e => (this.selecting = true)}
             onMouseOver={e => {
@@ -634,16 +695,35 @@ export default class Timeline extends React.Component {
     });
     return children;
   }
+
+  /**
+   * Helper for react virtuaized to get the row height given a row index
+   */
   rowHeight({index}) {
     let rh = this.rowHeightCache[index] ? this.rowHeightCache[index] : 1;
     return rh * this.props.itemHeight;
   }
+
+  /**
+   * Set the grid ref.
+   * @param {Object} domElement Grid react element
+   */
   grid_ref_callback(domElement) {
     this._grid = domElement;
   }
+
+  /**
+   * Set the select box ref.
+   * @param {Object} domElement Selectbox react element
+   */
   select_ref_callback(domElement) {
     this._selectBox = domElement;
   }
+
+  /**
+   * Event handler for onMouseMove.
+   * Only calls back if a new snap time is reached
+   */
   mouseMoveFunc(e) {
     const cursorSnappedTime = getTimeAtPixel(
       e.clientX - this.props.groupOffset,

@@ -45,10 +45,11 @@ export function getSnapPixelFromDelta(delta, vis_start, vis_end, total_width, sn
 
 /**
  * Get the time at a pixel location
- * @param  {number} pixel_location the pixel location (generally from left css style)
- * @param  {moment} vis_start The visible start of the timeline
- * @param  {moment} vis_end The visible end of the timeline
- * @param  {number} total_width The pixel width of the timeline (row portion)
+ * @param {number} pixel_location the pixel location (generally from left css style)
+ * @param {moment} vis_start The visible start of the timeline
+ * @param {moment} vis_end The visible end of the timeline
+ * @param {number} total_width The pixel width of the timeline (row portion)
+ * @param {number} snapMinutes The snap resolution (in mins)
  * @returns {moment} Moment object
  */
 export function getTimeAtPixel(pixel_location, vis_start, vis_end, total_width, snapMinutes = 0) {

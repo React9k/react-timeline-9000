@@ -8,6 +8,10 @@ A performance focused timeline component in react
 ## Demo
 * http://bhp-react-timeline-9k.s3-website-ap-southeast-2.amazonaws.com/
 
+## Documentation
+* http://bhp-react-timeline-9k.s3-website-ap-southeast-2.amazonaws.com/docs/
+
+
 ## Getting Started
 
 | Action         | Command                               |
@@ -37,11 +41,13 @@ TBA
 
 `onInteraction(type, changes, leadTimeDelta, leaderGroupDelta,selectedItems)` 
 
-# Props
+# Props Summary
+
+See http://bhp-react-timeline-9k.s3-website-ap-southeast-2.amazonaws.com/docs for detailed docs
 
 ## Settings
-| Name             | Description | Example | Shape | Required | Default |
-| ---------------- | ----------- | ------- | ----- | -------- | ------- |
+| Name             | 
+| ---------------- | 
 | groupOffset      |
 | startDate        |
 | endDate          |
@@ -55,15 +61,15 @@ TBA
 | groupRenderer    |
 
 ## Data
-| Name | Description | Shape | Required | Default |
-| ---------------- | ----------- | ------- | ----- | -------- | ------- |
+| Name |
+| ---------------- |
 | items
 | groups
 | selectedItems
 
 ## Callbacks
-| Name | Description | Shape | Required | Default |
-| ---------------- | ----------- | ------- | ----- | -------- | ------- |
+| Name | 
+| ---------------- | 
 | onItemClick
 | onItemDoubleClick
 | onItemContext
@@ -74,23 +80,9 @@ TBA
 | onItemHover
 | onItemLeave
 
-## Item level
-
-`onItemClick(e, key)`
-
-`onItemDoubleClick(e, key)`
-
-`onItemContextClick(e, key)`
-
-## Row Level
-`onRowClick(e, rowNumber, clickedTime, snappedClickedTime)`
-
-`onRowDoubleClick(e, rowNumber, clickedTime, snappedClickedTime)`
-
-`onRowContextClick (e, rowNumber, clickedTime, snappedClickedTime)`
-
-## Styling
-View `src/style.css` for styling examples
+# Styling
+* View `src/style.css` for styling examples.
+* For the default styles, import `react-timeline-9000/style.css`
 
 ### Default Z-indexes
 | Item                                  | Index |

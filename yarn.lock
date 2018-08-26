@@ -1561,17 +1561,6 @@ cheerio@0.22.0:
     lodash.reject "^4.4.0"
     lodash.some "^4.4.0"
 
-cheerio@1.0.0-rc.1:
-  version "1.0.0-rc.1"
-  resolved "https://registry.yarnpkg.com/cheerio/-/cheerio-1.0.0-rc.1.tgz#2af37339eab713ef6b72cde98cefa672b87641fe"
-  dependencies:
-    css-select "~1.2.0"
-    dom-serializer "~0.1.0"
-    entities "~1.1.1"
-    htmlparser2 "^3.9.1"
-    lodash "^4.15.0"
-    parse5 "^3.0.1"
-
 cheerio@1.0.0-rc.2, cheerio@^1.0.0-rc.2:
   version "1.0.0-rc.2"
   resolved "https://registry.yarnpkg.com/cheerio/-/cheerio-1.0.0-rc.2.tgz#4b9f53a81b27e4d5dac31c0ffd0cfa03cc6830db"
@@ -1718,10 +1707,6 @@ coa@~1.0.1:
 code-point-at@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
-
-codemirror@^5.34.0:
-  version "5.40.0"
-  resolved "https://registry.yarnpkg.com/codemirror/-/codemirror-5.40.0.tgz#2f5ed47366e514f41349ba0fe34daaa39be4e257"
 
 collection-visit@^1.0.0:
   version "1.0.0"
@@ -2620,7 +2605,7 @@ esdoc-accessor-plugin@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/esdoc-accessor-plugin/-/esdoc-accessor-plugin-1.0.0.tgz#791ba4872e6c403515ce749b1348d6f0293ad9eb"
 
-esdoc-brand-plugin@^1.0.0, esdoc-brand-plugin@^1.0.1:
+esdoc-brand-plugin@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/esdoc-brand-plugin/-/esdoc-brand-plugin-1.0.1.tgz#7c0e1ae90e84c30b2d3369d3a6449f9dc9f8d511"
   dependencies:
@@ -2630,12 +2615,6 @@ esdoc-coverage-plugin@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/esdoc-coverage-plugin/-/esdoc-coverage-plugin-1.1.0.tgz#3869869cd7f87891f972625787695a299aece45c"
 
-esdoc-custom-theme@^1.4.2:
-  version "1.4.2"
-  resolved "https://registry.yarnpkg.com/esdoc-custom-theme/-/esdoc-custom-theme-1.4.2.tgz#7b2fc65c84977b75ec8a7c85fcbeacb50aaa27bc"
-  dependencies:
-    codemirror "^5.34.0"
-
 esdoc-ecmascript-proposal-plugin@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/esdoc-ecmascript-proposal-plugin/-/esdoc-ecmascript-proposal-plugin-1.0.0.tgz#390dc5656ba8a2830e39dba3570d79138df2ffd9"
@@ -2644,13 +2623,6 @@ esdoc-external-ecmascript-plugin@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/esdoc-external-ecmascript-plugin/-/esdoc-external-ecmascript-plugin-1.0.0.tgz#78f565d4a0c5185ac63152614dce1fe1a86688db"
   dependencies:
-    fs-extra "1.0.0"
-
-esdoc-inject-style-plugin@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/esdoc-inject-style-plugin/-/esdoc-inject-style-plugin-1.0.0.tgz#a13597368bb9fb89c365e066495caf97a4decbb1"
-  dependencies:
-    cheerio "0.22.0"
     fs-extra "1.0.0"
 
 esdoc-integrate-manual-plugin@^1.0.0:
@@ -2669,7 +2641,7 @@ esdoc-lint-plugin@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/esdoc-lint-plugin/-/esdoc-lint-plugin-1.0.2.tgz#4962930c6dc5b25d80cf6eff1b0f3c24609077f7"
 
-esdoc-publish-html-plugin@^1.0.0, esdoc-publish-html-plugin@^1.1.2:
+esdoc-publish-html-plugin@^1.0.0:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/esdoc-publish-html-plugin/-/esdoc-publish-html-plugin-1.1.2.tgz#bdece7bc7a0a3e419933503252db7a6772879dab"
   dependencies:
@@ -2680,12 +2652,6 @@ esdoc-publish-html-plugin@^1.0.0, esdoc-publish-html-plugin@^1.1.2:
     ice-cap "0.0.4"
     marked "0.3.19"
     taffydb "2.7.2"
-
-esdoc-react-plugin@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/esdoc-react-plugin/-/esdoc-react-plugin-1.0.1.tgz#214a1215d0e61659f51a2d99efe48e340c3fa6f4"
-  dependencies:
-    cheerio "1.0.0-rc.1"
 
 esdoc-standard-plugin@^1.0.0:
   version "1.0.0"

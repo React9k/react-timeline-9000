@@ -6,7 +6,7 @@ all: clean install
 	yarn build &&\
 	yarn build_lib
 
-demo: install docs
+demo: clean install docs
 	yarn build_demo && \
 	mv docs/ dist/
 
