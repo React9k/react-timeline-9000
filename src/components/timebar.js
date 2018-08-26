@@ -108,9 +108,9 @@ export default class Timebar extends React.Component {
         let offset = 0;
         // if this is the first 'block' it may be cut off at the start
         if (pixelsLeft === width) {
-          offset = currentDate.month() + 1; // month - 0 indexed
+          offset = currentDate.month(); // month
         }
-        let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type, offset - 1);
+        let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type, offset);
         const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
         let label = currentDate.format(resolution.format[labelSize]);
         let isSelected = _.some(selectedRanges, s => {
@@ -120,7 +120,7 @@ export default class Timebar extends React.Component {
           );
         });
         timeIncrements.push({label, isSelected, size: pixelIncrements, key: currentDate.unix()});
-        currentDate.add(1, 'year');
+        currentDate.add(1, 'year').add(-1 * offset, 'months');
         pixelsLeft -= pixelIncrements;
       }
     }
@@ -128,9 +128,9 @@ export default class Timebar extends React.Component {
       while (currentDate.isBefore(end) && pixelsLeft > 0) {
         let offset = 0;
         if (pixelsLeft === width) {
-          offset = currentDate.date(); // day of month - 1 indexed
+          offset = currentDate.date() - 1; // day of month [date is 1 indexed]
         }
-        let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type, offset - 1);
+        let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type, offset);
         const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
         let label = currentDate.format(resolution.format[labelSize]);
         let isSelected = _.some(selectedRanges, s => {
@@ -148,9 +148,9 @@ export default class Timebar extends React.Component {
       let offset = 0;
       // if this is the first 'block' it may be cut off at the start
       if (pixelsLeft === width) {
-        offset = currentDate.hour() + 1; // hour of day - 0 indexed
+        offset = currentDate.hour(); // hour of day
       }
-      let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type, offset - 1);
+      let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type, offset);
       const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
       while (currentDate.isBefore(end) && pixelsLeft > 0) {
         let label = currentDate.format(resolution.format[labelSize]);
@@ -168,9 +168,9 @@ export default class Timebar extends React.Component {
       let offset = 0;
       // if this is the first 'block' it may be cut off at the start
       if (pixelsLeft === width) {
-        offset = currentDate.minute(); // minute of hour - 0 indexed
+        offset = currentDate.minute(); // minute of hour
       }
-      let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type, offset - 1);
+      let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type, offset);
       const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
       while (currentDate.isBefore(end) && pixelsLeft > 0) {
         let label = currentDate.format(resolution.format[labelSize]);
