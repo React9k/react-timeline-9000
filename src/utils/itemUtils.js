@@ -6,7 +6,8 @@ import moment from 'moment';
 
 /**
  * Render all items in a row
- * @param  {object[]} items List of items to render for this row
+ * @external {moment} http://momentjs.com/
+ * @param  {Object[]} items List of items to render for this row
  * @param  {moment} vis_start The visible start of the timeline
  * @param  {moment} vis_end The visible end of the timeline
  * @param  {number} total_width pixel width of the timeline
@@ -81,8 +82,8 @@ export function getNearestRowHeight(x, y) {
 
 /**
  * Use to find the height of a row, given a set of items
- * @param  {} items list it items
- * @returns {number} max row height
+ * @param  {Object[]} items List of items
+ * @returns {number} Max row height
  */
 export function getMaxOverlappingItems(items) {
   let max = 0;

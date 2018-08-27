@@ -2,6 +2,9 @@
 dist/
 lib/
 
+# Docs
+docs/
+
 # Logs
 npm-debug.log*
 yarn-debug.log*

@@ -3,9 +3,10 @@
 import moment from 'moment';
 
 /**
- * @param  {} time The moment to snap
- * @param  {} snapSeconds The snap time in seconds
- * @returns {} Snapped time
+ * Snaps a moment object to the given resolution
+ * @param {moment} time The moment to snap
+ * @param {number} snapSeconds The snap time in seconds
+ * @returns {moment} Snapped moment
  */
 export function timeSnap(time, snapSeconds) {
   if (snapSeconds === 0) {
@@ -17,6 +18,13 @@ export function timeSnap(time, snapSeconds) {
   return moment(newUnix * 1000);
 }
 
+/**
+ * Get the pixels per minute
+ * @param {moment} vis_start The moment specifying the start of the visible timeline range
+ * @param {moment} vis_end The moment specifying the end of the visible timeline range
+ * @param {number} total_width The width of the timeline in pixels
+ * @returns {float} The pixels per minute
+ */
 export function pixelsPerMinute(vis_start, vis_end, total_width) {
   const start_end_min = vis_end.diff(vis_start, 'minutes');
   return total_width / start_end_min;
@@ -37,10 +45,11 @@ export function getSnapPixelFromDelta(delta, vis_start, vis_end, total_width, sn
 
 /**
  * Get the time at a pixel location
- * @param  {number} pixel_location the pixel location (generally from left css style)
- * @param  {moment} vis_start The visible start of the timeline
- * @param  {moment} vis_end The visible end of the timeline
- * @param  {number} total_width The pixel width of the timeline (row portion)
+ * @param {number} pixel_location the pixel location (generally from left css style)
+ * @param {moment} vis_start The visible start of the timeline
+ * @param {moment} vis_end The visible end of the timeline
+ * @param {number} total_width The pixel width of the timeline (row portion)
+ * @param {number} snapMinutes The snap resolution (in mins)
  * @returns {moment} Moment object
  */
 export function getTimeAtPixel(pixel_location, vis_start, vis_end, total_width, snapMinutes = 0) {
