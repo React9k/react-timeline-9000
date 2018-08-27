@@ -57,7 +57,7 @@ export default class Timeline extends Component {
     groupOffset: 150,
     itemHeight: 40,
     snapMinutes: 15,
-    cursorTimeFormat: '[Day] DDD - HH:mm',
+    cursorTimeFormat: 'D MMM YYYY HH:mm',
     showCursorTime: true,
     groupRenderer: DefaultGroupRenderer,
     itemRenderer: DefaultItemRenderer,
