@@ -1,13 +1,17 @@
 mocha := node_modules/.bin/mocha
 
-.PHONY: all clean install demo
+.PHONY: all clean install demo docs
 
 all: clean install
 	yarn build &&\
 	yarn build_lib
 
-demo: install
-	yarn build_demo
+demo: clean install docs
+	yarn build_demo && \
+	mv docs/ dist/
+
+docs:
+	yarn docs
 
 run: install
 	yarn start
