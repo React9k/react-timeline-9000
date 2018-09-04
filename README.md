@@ -20,6 +20,8 @@ A performance focused timeline component in react
 | Test           | `$ make test` or  `$ make test-watch` |
 | Run dev server | `$ make run`                          |
 
+* Add `import react-timeline-9000/style.css` (or use your own styles based on this file)
+
 ## Contributing
 Feel free to make a PR :)
 
