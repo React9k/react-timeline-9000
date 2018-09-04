@@ -276,12 +276,12 @@ export default class Timeline extends React.Component {
   };
 
   setUpDragging(canSelect, canDrag, canResize) {
-    const topDivId = `rct9k-id-${this.props.componentId}`;
+    const topDivClassId = `rct9k-id-${this.props.componentId}`;
     if (this._itemInteractable) this._itemInteractable.unset();
     if (this._selectRectangleInteractable) this._selectRectangleInteractable.unset();
 
-    this._itemInteractable = interact(`.${topDivId} .item_draggable`);
-    this._selectRectangleInteractable = interact(`.${topDivId} .parent-div`);
+    this._itemInteractable = interact(`.${topDivClassId} .item_draggable`);
+    this._selectRectangleInteractable = interact(`.${topDivClassId} .parent-div`);
 
     this._itemInteractable.on('tap', e => {
       this._handleItemRowEvent(e, this.props.onItemClick, this.props.onRowClick);
@@ -730,8 +730,10 @@ export default class Timeline extends React.Component {
    * Only calls back if a new snap time is reached
    */
   mouseMoveFunc(e) {
+    const {componentId} = this.props;
+    const leftOffset = document.querySelector(`.rct9k-id-${componentId} .parent-div`).getBoundingClientRect().left;
     const cursorSnappedTime = getTimeAtPixel(
-      e.clientX - this.props.groupOffset,
+      e.clientX - this.props.groupOffset - leftOffset,
       this.props.startDate,
       this.props.endDate,
       this.getTimelineWidth(),
