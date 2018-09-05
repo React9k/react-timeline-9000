@@ -9,6 +9,7 @@ import {customItemRenderer, customGroupRenderer} from 'demo/customRenderers';
 
 import {Layout, Form, InputNumber, Button, DatePicker, Checkbox, Switch} from 'antd';
 import 'antd/dist/antd.css';
+import './style.css';
 
 const {TIMELINE_MODES} = Timeline;
 
