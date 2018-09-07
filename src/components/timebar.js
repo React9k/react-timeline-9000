@@ -147,7 +147,7 @@ export default class Timebar extends React.Component {
             currentDate.isSameOrBefore(s.end.clone().startOf('year'))
           );
         });
-        timeIncrements.push({label, isSelected, size: pixelIncrements, key: currentDate.unix()});
+        timeIncrements.push({label, isSelected, size: pixelIncrements, key: pixelsLeft});
         currentDate.add(1, 'year').add(-1 * offset, 'months');
         pixelsLeft -= pixelIncrements;
       }
@@ -188,7 +188,7 @@ export default class Timebar extends React.Component {
             currentDate.isSameOrBefore(s.end.clone().startOf('day'))
           );
         });
-        timeIncrements.push({label, isSelected, size: pixelIncrements, key: currentDate.unix()});
+        timeIncrements.push({label, isSelected, size: pixelIncrements, key: pixelsLeft});
         currentDate.add(1, 'days').add(-1 * offset, 'hours');
         pixelsLeft -= pixelIncrements;
       }
@@ -208,7 +208,7 @@ export default class Timebar extends React.Component {
             currentDate.isSameOrBefore(s.end.clone().startOf('hour'))
           );
         });
-        timeIncrements.push({label, isSelected, size: pixelIncrements, key: currentDate.unix()});
+        timeIncrements.push({label, isSelected, size: pixelIncrements, key: pixelsLeft});
         currentDate.add(1, 'hours').add(-1 * offset, 'minutes');
         pixelsLeft -= pixelIncrements;
       }
@@ -227,7 +227,7 @@ export default class Timebar extends React.Component {
           label,
           isSelected,
           size: pixelIncrements,
-          key: currentDate.unix()
+          key: pixelsLeft
         });
         currentDate.add(1, 'minutes');
         pixelsLeft -= pixelIncrements;
