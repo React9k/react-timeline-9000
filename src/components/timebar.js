@@ -242,12 +242,22 @@ export default class Timebar extends React.Component {
    */
   render() {
     const {cursorTime} = this.props;
+    const topBarComponent = this.renderTopBar();
+    const bottomBarComponent = this.renderBottomBar();
+
+    // Only show the cursor on 1 of the top bar segments
+    // Pick the segment that has the biggest size
+    let topBarCursorKey = null;
+    if (topBarComponent.length > 1 && topBarComponent[1].size > topBarComponent[0].size)
+      topBarCursorKey = topBarComponent[1].key;
+    else if (topBarComponent.length > 0) topBarCursorKey = topBarComponent[0].key;
+
     return (
       <div className="rct9k-timebar-outer" style={{width: this.props.width, paddingLeft: this.props.leftOffset}}>
         <div className="rct9k-timebar-inner rct9k-timebar-inner-top">
-          {_.map(this.renderTopBar(), i => {
+          {_.map(topBarComponent, i => {
             let topLabel = i.label;
-            if (cursorTime) {
+            if (cursorTime && i.key === topBarCursorKey) {
               topLabel += ` [${cursorTime}]`;
             }
             let className = 'rct9k-timebar-item';
@@ -260,7 +270,7 @@ export default class Timebar extends React.Component {
           })}
         </div>
         <div className="rct9k-timebar-inner rct9k-timebar-inner-bottom">
-          {_.map(this.renderBottomBar(), i => {
+          {_.map(bottomBarComponent, i => {
             let className = 'rct9k-timebar-item';
             if (i.isSelected) className += ' rct9k-timebar-item-selected';
             return (
