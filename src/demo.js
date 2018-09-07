@@ -26,8 +26,9 @@ export default class DemoTimeline extends Component {
   constructor(props) {
     super(props);
 
-    const startDate = moment('2000-01-01');
-    const endDate = startDate.clone().add(4, 'days');
+    const startDate = moment('2018-08-31');
+    //const endDate = startDate.clone().add(4, 'days');
+    const endDate = moment('2018-09-30');
     this.state = {
       selectedItems: [],
       rows: 100,
