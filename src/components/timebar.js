@@ -168,7 +168,7 @@ export default class Timebar extends React.Component {
           );
         });
         timeIncrements.push({label, isSelected, size: pixelIncrements, key: pixelsLeft});
-        currentDate.add(1, 'month').add(-1 * offset, 'days');
+        currentDate.add(-1 * offset, 'days').add(1, 'month');
         pixelsLeft -= pixelIncrements;
       }
     }
