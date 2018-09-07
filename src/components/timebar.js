@@ -270,7 +270,7 @@ export default class Timebar extends React.Component {
           })}
         </div>
         <div className="rct9k-timebar-inner rct9k-timebar-inner-bottom">
-          {_.map(this.renderBottomBar(), i => {
+          {_.map(bottomBarComponent, i => {
             let className = 'rct9k-timebar-item';
             if (i.isSelected) className += ' rct9k-timebar-item-selected';
             return (
