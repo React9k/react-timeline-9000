@@ -138,7 +138,7 @@ export default class Timebar extends React.Component {
         if (pixelsLeft === width) {
           offset = currentDate.month(); // month
         }
-        let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type, offset);
+        let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type, offset), pixelsLeft);
         const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
         let label = currentDate.format(resolution.format[labelSize]);
         let isSelected = _.some(selectedRanges, s => {
@@ -158,7 +158,7 @@ export default class Timebar extends React.Component {
         if (pixelsLeft === width) {
           offset = currentDate.date() - 1; // day of month [date is 1 indexed]
         }
-        let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type, offset);
+        let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type, offset), pixelsLeft);
         const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
         let label = currentDate.format(resolution.format[labelSize]);
         let isSelected = _.some(selectedRanges, s => {
@@ -178,7 +178,7 @@ export default class Timebar extends React.Component {
       if (pixelsLeft === width) {
         offset = currentDate.hour(); // hour of day
       }
-      let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type, offset);
+      let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type, offset), pixelsLeft);
       const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
       while (currentDate.isBefore(end) && pixelsLeft > 0) {
         let label = currentDate.format(resolution.format[labelSize]);
@@ -198,7 +198,7 @@ export default class Timebar extends React.Component {
       if (pixelsLeft === width) {
         offset = currentDate.minute(); // minute of hour
       }
-      let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type, offset);
+      let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type, offset), pixelsLeft);
       const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
       while (currentDate.isBefore(end) && pixelsLeft > 0) {
         let label = currentDate.format(resolution.format[labelSize]);
@@ -213,7 +213,7 @@ export default class Timebar extends React.Component {
         pixelsLeft -= pixelIncrements;
       }
     } else if (resolution.type === 'minute') {
-      let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type);
+      let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type), pixelsLeft);
       const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
       while (currentDate.isBefore(end) && pixelsLeft > 0) {
         let label = currentDate.format(resolution.format[labelSize]);
