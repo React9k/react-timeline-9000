@@ -20,7 +20,7 @@ A performance focused timeline component in react
 | Test           | `$ make test` or  `$ make test-watch` |
 | Run dev server | `$ make run`                          |
 
-* Add `import react-timeline-9000/style.css` (or use your own styles based on this file)
+* Add `import react-timeline-9000/lib/style.css` (or use your own styles based on this file)
 
 ## Contributing
 Feel free to make a PR :)
@@ -84,7 +84,7 @@ See http://bhp-react-timeline-9k.s3-website-ap-southeast-2.amazonaws.com/docs fo
 
 # Styling
 * View `src/style.css` for styling examples.
-* For the default styles, import `react-timeline-9000/style.css`
+* For the default styles, import `react-timeline-9000/lib/style.css`
 
 ### Default Z-indexes
 | Item                                  | Index |
