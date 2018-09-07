@@ -138,7 +138,7 @@ export default class Timebar extends React.Component {
         if (pixelsLeft === width) {
           offset = currentDate.month(); // month
         }
-        let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type, offset);
+        let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type, offset), pixelsLeft);
         const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
         let label = currentDate.format(resolution.format[labelSize]);
         let isSelected = _.some(selectedRanges, s => {
@@ -147,7 +147,7 @@ export default class Timebar extends React.Component {
             currentDate.isSameOrBefore(s.end.clone().startOf('year'))
           );
         });
-        timeIncrements.push({label, isSelected, size: pixelIncrements, key: currentDate.unix()});
+        timeIncrements.push({label, isSelected, size: pixelIncrements, key: pixelsLeft});
         currentDate.add(1, 'year').add(-1 * offset, 'months');
         pixelsLeft -= pixelIncrements;
       }
@@ -158,7 +158,7 @@ export default class Timebar extends React.Component {
         if (pixelsLeft === width) {
           offset = currentDate.date() - 1; // day of month [date is 1 indexed]
         }
-        let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type, offset);
+        let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type, offset), pixelsLeft);
         const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
         let label = currentDate.format(resolution.format[labelSize]);
         let isSelected = _.some(selectedRanges, s => {
@@ -167,8 +167,8 @@ export default class Timebar extends React.Component {
             currentDate.isSameOrBefore(s.end.clone().startOf('month'))
           );
         });
-        timeIncrements.push({label, isSelected, size: pixelIncrements, key: currentDate.unix()});
-        currentDate.add(1, 'month').add(-1 * offset, 'days');
+        timeIncrements.push({label, isSelected, size: pixelIncrements, key: pixelsLeft});
+        currentDate.add(-1 * offset, 'days').add(1, 'month');
         pixelsLeft -= pixelIncrements;
       }
     }
@@ -178,7 +178,7 @@ export default class Timebar extends React.Component {
       if (pixelsLeft === width) {
         offset = currentDate.hour(); // hour of day
       }
-      let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type, offset);
+      let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type, offset), pixelsLeft);
       const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
       while (currentDate.isBefore(end) && pixelsLeft > 0) {
         let label = currentDate.format(resolution.format[labelSize]);
@@ -188,7 +188,7 @@ export default class Timebar extends React.Component {
             currentDate.isSameOrBefore(s.end.clone().startOf('day'))
           );
         });
-        timeIncrements.push({label, isSelected, size: pixelIncrements, key: currentDate.unix()});
+        timeIncrements.push({label, isSelected, size: pixelIncrements, key: pixelsLeft});
         currentDate.add(1, 'days').add(-1 * offset, 'hours');
         pixelsLeft -= pixelIncrements;
       }
@@ -198,7 +198,7 @@ export default class Timebar extends React.Component {
       if (pixelsLeft === width) {
         offset = currentDate.minute(); // minute of hour
       }
-      let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type, offset);
+      let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type, offset), pixelsLeft);
       const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
       while (currentDate.isBefore(end) && pixelsLeft > 0) {
         let label = currentDate.format(resolution.format[labelSize]);
@@ -208,12 +208,12 @@ export default class Timebar extends React.Component {
             currentDate.isSameOrBefore(s.end.clone().startOf('hour'))
           );
         });
-        timeIncrements.push({label, isSelected, size: pixelIncrements, key: currentDate.unix()});
+        timeIncrements.push({label, isSelected, size: pixelIncrements, key: pixelsLeft});
         currentDate.add(1, 'hours').add(-1 * offset, 'minutes');
         pixelsLeft -= pixelIncrements;
       }
     } else if (resolution.type === 'minute') {
-      let pixelIncrements = this.getPixelIncrement(currentDate, resolution.type);
+      let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type), pixelsLeft);
       const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
       while (currentDate.isBefore(end) && pixelsLeft > 0) {
         let label = currentDate.format(resolution.format[labelSize]);
@@ -227,7 +227,7 @@ export default class Timebar extends React.Component {
           label,
           isSelected,
           size: pixelIncrements,
-          key: currentDate.unix()
+          key: pixelsLeft
         });
         currentDate.add(1, 'minutes');
         pixelsLeft -= pixelIncrements;
@@ -242,12 +242,22 @@ export default class Timebar extends React.Component {
    */
   render() {
     const {cursorTime} = this.props;
+    const topBarComponent = this.renderTopBar();
+    const bottomBarComponent = this.renderBottomBar();
+
+    // Only show the cursor on 1 of the top bar segments
+    // Pick the segment that has the biggest size
+    let topBarCursorKey = null;
+    if (topBarComponent.length > 1 && topBarComponent[1].size > topBarComponent[0].size)
+      topBarCursorKey = topBarComponent[1].key;
+    else if (topBarComponent.length > 0) topBarCursorKey = topBarComponent[0].key;
+
     return (
       <div className="rct9k-timebar-outer" style={{width: this.props.width, paddingLeft: this.props.leftOffset}}>
         <div className="rct9k-timebar-inner rct9k-timebar-inner-top">
-          {_.map(this.renderTopBar(), i => {
+          {_.map(topBarComponent, i => {
             let topLabel = i.label;
-            if (cursorTime) {
+            if (cursorTime && i.key === topBarCursorKey) {
               topLabel += ` [${cursorTime}]`;
             }
             let className = 'rct9k-timebar-item';
@@ -260,7 +270,7 @@ export default class Timebar extends React.Component {
           })}
         </div>
         <div className="rct9k-timebar-inner rct9k-timebar-inner-bottom">
-          {_.map(this.renderBottomBar(), i => {
+          {_.map(bottomBarComponent, i => {
             let className = 'rct9k-timebar-item';
             if (i.isSelected) className += ' rct9k-timebar-item-selected';
             return (

@@ -70,12 +70,14 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHei
  * Gets the row number for a given x and y pixel location
  * @param  {number} x The x coordinate of the pixel location
  * @param  {number} y The y coordinate of the pixel location
+ * @param  {Object} topDiv Div to search under
  * @returns {number} The row number
  */
-export function getNearestRowHeight(x, y) {
+export function getNearestRowHeight(x, y, topDiv = document) {
   let elementsAtPixel = document.elementsFromPoint(x, y);
   let targetRow = _.find(elementsAtPixel, e => {
-    return e.hasAttribute('data-row-index');
+    const inDiv = topDiv.contains(e);
+    return inDiv && e.hasAttribute('data-row-index');
   });
   return targetRow ? targetRow.getAttribute('data-row-index') : 0;
 }

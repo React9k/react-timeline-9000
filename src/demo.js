@@ -9,6 +9,7 @@ import {customItemRenderer, customGroupRenderer} from 'demo/customRenderers';
 
 import {Layout, Form, InputNumber, Button, DatePicker, Checkbox, Switch} from 'antd';
 import 'antd/dist/antd.css';
+import './style.css';
 
 const {TIMELINE_MODES} = Timeline;
 
@@ -25,8 +26,9 @@ export default class DemoTimeline extends Component {
   constructor(props) {
     super(props);
 
-    const startDate = moment('2000-01-01');
-    const endDate = startDate.clone().add(4, 'days');
+    const startDate = moment('2018-08-31');
+    //const endDate = startDate.clone().add(4, 'days');
+    const endDate = moment('2018-09-30');
     this.state = {
       selectedItems: [],
       rows: 100,

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import ReactDOM from 'react-dom';
 import {Grid, AutoSizer, defaultCellRangeRenderer} from 'react-virtualized';
 
 import moment from 'moment';
@@ -17,8 +18,6 @@ import {DefaultGroupRenderer, DefaultItemRenderer} from './components/renderers'
 
 // startsWith polyfill for IE11 support
 import 'core-js/fn/string/starts-with';
-
-import './style.css';
 
 /**
  * Timeline class
@@ -45,6 +44,7 @@ export default class Timeline extends React.Component {
     snapMinutes: PropTypes.number,
     showCursorTime: PropTypes.bool,
     cursorTimeFormat: PropTypes.string,
+    componentId: PropTypes.string, // A unique key to identify the component. Only needed when 2 grids are mounted
     itemHeight: PropTypes.number,
     timelineMode: PropTypes.number,
     timebarFormat: PropTypes.object,
@@ -66,6 +66,7 @@ export default class Timeline extends React.Component {
     itemHeight: 40,
     snapMinutes: 15,
     cursorTimeFormat: 'D MMM YYYY HH:mm',
+    componentId: 'r9k1',
     showCursorTime: true,
     groupRenderer: DefaultGroupRenderer,
     itemRenderer: DefaultItemRenderer,
@@ -273,11 +274,12 @@ export default class Timeline extends React.Component {
   };
 
   setUpDragging(canSelect, canDrag, canResize) {
+    const topDivClassId = `rct9k-id-${this.props.componentId}`;
     if (this._itemInteractable) this._itemInteractable.unset();
     if (this._selectRectangleInteractable) this._selectRectangleInteractable.unset();
 
-    this._itemInteractable = interact('.item_draggable');
-    this._selectRectangleInteractable = interact('.parent-div');
+    this._itemInteractable = interact(`.${topDivClassId} .item_draggable`);
+    this._selectRectangleInteractable = interact(`.${topDivClassId} .parent-div`);
 
     this._itemInteractable.on('tap', e => {
       this._handleItemRowEvent(e, this.props.onItemClick, this.props.onRowClick);
@@ -297,7 +299,7 @@ export default class Timeline extends React.Component {
           );
 
           _.forEach(animatedItems, id => {
-            let domItem = document.querySelector("span[data-item-index='" + id + "'");
+            let domItem = this._gridDomNode.querySelector("span[data-item-index='" + id + "'");
             if (domItem) {
               selections.push([this.getItem(id).start, this.getItem(id).end]);
               domItem.setAttribute('isDragging', 'True');
@@ -310,7 +312,7 @@ export default class Timeline extends React.Component {
         })
         .on('dragmove', e => {
           const target = e.target;
-          let animatedItems = document.querySelectorAll("span[isDragging='True'") || [];
+          let animatedItems = this._gridDomNode.querySelectorAll("span[isDragging='True'") || [];
 
           let dx = (parseFloat(target.getAttribute('drag-x')) || 0) + e.dx;
           let dy = (parseFloat(target.getAttribute('drag-y')) || 0) + e.dy;
@@ -351,7 +353,7 @@ export default class Timeline extends React.Component {
         })
         .on('dragend', e => {
           const {item, rowNo} = this.itemFromElement(e.target);
-          let animatedItems = document.querySelectorAll("span[isDragging='True'") || [];
+          let animatedItems = this._gridDomNode.querySelectorAll("span[isDragging='True'") || [];
 
           this.setSelection([[item.start, item.end]]);
           this.clearSelection();
@@ -419,7 +421,7 @@ export default class Timeline extends React.Component {
         .on('resizestart', e => {
           const selected = this.props.onInteraction(Timeline.changeTypes.resizeStart, null, this.props.selectedItems);
           _.forEach(selected, id => {
-            let domItem = document.querySelector("span[data-item-index='" + id + "'");
+            let domItem = this._gridDomNode.querySelector("span[data-item-index='" + id + "'");
             if (domItem) {
               domItem.setAttribute('isResizing', 'True');
               domItem.setAttribute('initialWidth', pixToInt(domItem.style.width));
@@ -428,7 +430,7 @@ export default class Timeline extends React.Component {
           });
         })
         .on('resizemove', e => {
-          let animatedItems = document.querySelectorAll("span[isResizing='True'") || [];
+          let animatedItems = this._gridDomNode.querySelectorAll("span[isResizing='True'") || [];
 
           let dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
           dx += e.deltaRect.left;
@@ -461,7 +463,7 @@ export default class Timeline extends React.Component {
           e.target.setAttribute('delta-x', dx);
         })
         .on('resizeend', e => {
-          let animatedItems = document.querySelectorAll("span[isResizing='True'") || [];
+          let animatedItems = this._gridDomNode.querySelectorAll("span[isResizing='True'") || [];
           // Update time
           const dx = parseFloat(e.target.getAttribute('delta-x')) || 0;
           const isStartTimeChange = dx != 0;
@@ -706,18 +708,19 @@ export default class Timeline extends React.Component {
 
   /**
    * Set the grid ref.
-   * @param {Object} domElement Grid react element
+   * @param {Object} reactComponent Grid react element
    */
-  grid_ref_callback(domElement) {
-    this._grid = domElement;
+  grid_ref_callback(reactComponent) {
+    this._grid = reactComponent;
+    this._gridDomNode = ReactDOM.findDOMNode(this._grid);
   }
 
   /**
    * Set the select box ref.
-   * @param {Object} domElement Selectbox react element
+   * @param {Object} reactComponent Selectbox react element
    */
-  select_ref_callback(domElement) {
-    this._selectBox = domElement;
+  select_ref_callback(reactComponent) {
+    this._selectBox = reactComponent;
   }
 
   /**
@@ -725,8 +728,10 @@ export default class Timeline extends React.Component {
    * Only calls back if a new snap time is reached
    */
   mouseMoveFunc(e) {
+    const {componentId} = this.props;
+    const leftOffset = document.querySelector(`.rct9k-id-${componentId} .parent-div`).getBoundingClientRect().left;
     const cursorSnappedTime = getTimeAtPixel(
-      e.clientX - this.props.groupOffset,
+      e.clientX - this.props.groupOffset - leftOffset,
       this.props.startDate,
       this.props.endDate,
       this.getTimelineWidth(),
@@ -747,8 +752,9 @@ export default class Timeline extends React.Component {
   }
 
   render() {
-    const {onInteraction, groupOffset, timebarFormat} = this.props;
+    const {onInteraction, groupOffset, timebarFormat, componentId} = this.props;
 
+    const divCssClass = `rct9k-timeline-div rct9k-id-${componentId}`;
     let varTimebarProps = {};
     if (timebarFormat) varTimebarProps['timeFormats'] = timebarFormat;
 
@@ -760,7 +766,7 @@ export default class Timeline extends React.Component {
     }
 
     return (
-      <div className="rct9k-timeline-div">
+      <div className={divCssClass}>
         <AutoSizer onResize={this.refreshGrid}>
           {({height, width}) => (
             <div className="parent-div" onMouseMove={this.mouseMoveFunc}>
