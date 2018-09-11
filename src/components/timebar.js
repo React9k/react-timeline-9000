@@ -244,6 +244,7 @@ export default class Timebar extends React.Component {
     const {cursorTime} = this.props;
     const topBarComponent = this.renderTopBar();
     const bottomBarComponent = this.renderBottomBar();
+    const GroupTitleRenderer = this.props.groupTitleRenderer;
 
     // Only show the cursor on 1 of the top bar segments
     // Pick the segment that has the biggest size
@@ -253,32 +254,37 @@ export default class Timebar extends React.Component {
     else if (topBarComponent.length > 0) topBarCursorKey = topBarComponent[0].key;
 
     return (
-      <div className="rct9k-timebar-outer" style={{width: this.props.width, paddingLeft: this.props.leftOffset}}>
-        <div className="rct9k-timebar-inner rct9k-timebar-inner-top">
-          {_.map(topBarComponent, i => {
-            let topLabel = i.label;
-            if (cursorTime && i.key === topBarCursorKey) {
-              topLabel += ` [${cursorTime}]`;
-            }
-            let className = 'rct9k-timebar-item';
-            if (i.isSelected) className += ' rct9k-timebar-item-selected';
-            return (
-              <span className={className} key={i.key} style={{width: intToPix(i.size)}}>
-                {topLabel}
-              </span>
-            );
-          })}
+      <div>
+        <div className="rct9k-timebar-group-title" style={{width: this.props.leftOffset}}>
+          <GroupTitleRenderer />
         </div>
-        <div className="rct9k-timebar-inner rct9k-timebar-inner-bottom">
-          {_.map(bottomBarComponent, i => {
-            let className = 'rct9k-timebar-item';
-            if (i.isSelected) className += ' rct9k-timebar-item-selected';
-            return (
-              <span className={className} key={i.key} style={{width: intToPix(i.size)}}>
-                {i.label}
-              </span>
-            );
-          })}
+        <div className="rct9k-timebar-outer" style={{width: this.props.width, paddingLeft: this.props.leftOffset}}>
+          <div className="rct9k-timebar-inner rct9k-timebar-inner-top">
+            {_.map(topBarComponent, i => {
+              let topLabel = i.label;
+              if (cursorTime && i.key === topBarCursorKey) {
+                topLabel += ` [${cursorTime}]`;
+              }
+              let className = 'rct9k-timebar-item';
+              if (i.isSelected) className += ' rct9k-timebar-item-selected';
+              return (
+                <span className={className} key={i.key} style={{width: intToPix(i.size)}}>
+                  {topLabel}
+                </span>
+              );
+            })}
+          </div>
+          <div className="rct9k-timebar-inner rct9k-timebar-inner-bottom">
+            {_.map(bottomBarComponent, i => {
+              let className = 'rct9k-timebar-item';
+              if (i.isSelected) className += ' rct9k-timebar-item-selected';
+              return (
+                <span className={className} key={i.key} style={{width: intToPix(i.size)}}>
+                  {i.label}
+                </span>
+              );
+            })}
+          </div>
         </div>
       </div>
     );
@@ -287,6 +293,7 @@ export default class Timebar extends React.Component {
 
 Timebar.propTypes = {
   cursorTime: PropTypes.any,
+  groupTitleRenderer: PropTypes.func,
   start: PropTypes.object.isRequired, //moment
   end: PropTypes.object.isRequired, //moment
   width: PropTypes.number.isRequired,
@@ -298,6 +305,7 @@ Timebar.propTypes = {
 };
 Timebar.defaultProps = {
   selectedRanges: [],
+  groupTitleRenderer: () => <div />,
   leftOffset: 0,
   timeFormats: defaultTimebarFormat
 };
