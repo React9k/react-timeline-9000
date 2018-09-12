@@ -28,7 +28,7 @@
   position: absolute;
   width: 2px;
   background: red;
-  pointer-events: none
+  pointer-events: none;
 }
 .rct9k-row {
   /* white-space: nowrap; */
@@ -83,6 +83,11 @@
 }
 .rct9k-timebar-item-selected {
   background-color: lightblue;
+}
+
+.rct9k-timebar-group-title {
+  float: left;
+  height: 4em;
 }
 
 /* Multi-select box */

@@ -57,6 +57,7 @@ export default class Timeline extends React.Component {
     onRowDoubleClick: PropTypes.func,
     itemRenderer: PropTypes.func,
     groupRenderer: PropTypes.func,
+    groupTitleRenderer: PropTypes.func,
     onItemHover: PropTypes.func,
     onItemLeave: PropTypes.func
   };
@@ -70,6 +71,7 @@ export default class Timeline extends React.Component {
     showCursorTime: true,
     groupRenderer: DefaultGroupRenderer,
     itemRenderer: DefaultItemRenderer,
+    groupTitleRenderer: () => <div />,
     timelineMode: Timeline.TIMELINE_MODES.SELECT | Timeline.TIMELINE_MODES.DRAG | Timeline.TIMELINE_MODES.RESIZE,
     onItemHover() {},
     onItemLeave() {}
@@ -752,7 +754,7 @@ export default class Timeline extends React.Component {
   }
 
   render() {
-    const {onInteraction, groupOffset, timebarFormat, componentId} = this.props;
+    const {onInteraction, groupOffset, timebarFormat, componentId, groupTitleRenderer} = this.props;
 
     const divCssClass = `rct9k-timeline-div rct9k-id-${componentId}`;
     let varTimebarProps = {};
@@ -778,6 +780,7 @@ export default class Timeline extends React.Component {
                 width={width}
                 leftOffset={groupOffset}
                 selectedRanges={this.state.selection}
+                groupTitleRenderer={groupTitleRenderer}
                 {...varTimebarProps}
               />
               <Grid
