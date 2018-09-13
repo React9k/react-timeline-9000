@@ -329,6 +329,7 @@ export default class DemoTimeline extends Component {
             onRowDoubleClick={this.handleRowDoubleClick}
             itemRenderer={useCustomRenderers ? customItemRenderer : undefined}
             groupRenderer={useCustomRenderers ? customGroupRenderer : undefined}
+            groupTitleRenderer={useCustomRenderers ? () => <div>Group title</div> : undefined}
           />
         </Layout.Content>
       </Layout>

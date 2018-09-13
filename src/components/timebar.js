@@ -131,107 +131,50 @@ export default class Timebar extends React.Component {
     let timeIncrements = [];
     let pixelsLeft = width;
     let labelSizeLimit = 60;
-    if (resolution.type === 'year') {
+
+    function _addTimeIncrement(initialOffset, offsetType, stepFunc) {
+      let offset = null;
       while (currentDate.isBefore(end) && pixelsLeft > 0) {
-        let offset = 0;
         // if this is the first 'block' it may be cut off at the start
         if (pixelsLeft === width) {
-          offset = currentDate.month(); // month
+          offset = initialOffset;
+        } else {
+          offset = moment.duration(0);
         }
-        let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type, offset), pixelsLeft);
+        let pixelIncrements = Math.min(
+          this.getPixelIncrement(currentDate, resolution.type, offset.as(offsetType)),
+          pixelsLeft
+        );
         const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
         let label = currentDate.format(resolution.format[labelSize]);
         let isSelected = _.some(selectedRanges, s => {
           return (
-            currentDate.isSameOrAfter(s.start.clone().startOf('year')) &&
-            currentDate.isSameOrBefore(s.end.clone().startOf('year'))
+            currentDate.isSameOrAfter(s.start.clone().startOf(resolution.type)) &&
+            currentDate.isSameOrBefore(s.end.clone().startOf(resolution.type))
           );
         });
         timeIncrements.push({label, isSelected, size: pixelIncrements, key: pixelsLeft});
-        currentDate.add(1, 'year').add(-1 * offset, 'months');
+        stepFunc(currentDate, offset);
         pixelsLeft -= pixelIncrements;
       }
     }
-    if (resolution.type === 'month') {
-      while (currentDate.isBefore(end) && pixelsLeft > 0) {
-        let offset = 0;
-        if (pixelsLeft === width) {
-          offset = currentDate.date() - 1; // day of month [date is 1 indexed]
-        }
-        let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type, offset), pixelsLeft);
-        const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
-        let label = currentDate.format(resolution.format[labelSize]);
-        let isSelected = _.some(selectedRanges, s => {
-          return (
-            currentDate.isSameOrAfter(s.start.clone().startOf('month')) &&
-            currentDate.isSameOrBefore(s.end.clone().startOf('month'))
-          );
-        });
-        timeIncrements.push({label, isSelected, size: pixelIncrements, key: pixelsLeft});
-        currentDate.add(-1 * offset, 'days').add(1, 'month');
-        pixelsLeft -= pixelIncrements;
-      }
-    }
-    if (resolution.type === 'day') {
-      let offset = 0;
-      // if this is the first 'block' it may be cut off at the start
-      if (pixelsLeft === width) {
-        offset = currentDate.hour(); // hour of day
-      }
-      let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type, offset), pixelsLeft);
-      const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
-      while (currentDate.isBefore(end) && pixelsLeft > 0) {
-        let label = currentDate.format(resolution.format[labelSize]);
-        let isSelected = _.some(selectedRanges, s => {
-          return (
-            currentDate.isSameOrAfter(s.start.clone().startOf('day')) &&
-            currentDate.isSameOrBefore(s.end.clone().startOf('day'))
-          );
-        });
-        timeIncrements.push({label, isSelected, size: pixelIncrements, key: pixelsLeft});
-        currentDate.add(1, 'days').add(-1 * offset, 'hours');
-        pixelsLeft -= pixelIncrements;
-      }
+
+    const addTimeIncrement = _addTimeIncrement.bind(this);
+
+    if (resolution.type === 'year') {
+      const offset = moment.duration(currentDate.diff(currentDate.clone().startOf('year')));
+      addTimeIncrement(offset, 'months', (currentDt, offst) => currentDt.subtract(offst).add(1, 'year'));
+    } else if (resolution.type === 'month') {
+      const offset = moment.duration(currentDate.diff(currentDate.clone().startOf('month')));
+      addTimeIncrement(offset, 'days', (currentDt, offst) => currentDt.subtract(offst).add(1, 'month'));
+    } else if (resolution.type === 'day') {
+      const offset = moment.duration(currentDate.diff(currentDate.clone().startOf('day')));
+      addTimeIncrement(offset, 'hours', (currentDt, offst) => currentDt.subtract(offst).add(1, 'days'));
     } else if (resolution.type === 'hour') {
-      let offset = 0;
-      // if this is the first 'block' it may be cut off at the start
-      if (pixelsLeft === width) {
-        offset = currentDate.minute(); // minute of hour
-      }
-      let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type, offset), pixelsLeft);
-      const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
-      while (currentDate.isBefore(end) && pixelsLeft > 0) {
-        let label = currentDate.format(resolution.format[labelSize]);
-        let isSelected = _.some(selectedRanges, s => {
-          return (
-            currentDate.isSameOrAfter(s.start.clone().startOf('hour')) &&
-            currentDate.isSameOrBefore(s.end.clone().startOf('hour'))
-          );
-        });
-        timeIncrements.push({label, isSelected, size: pixelIncrements, key: pixelsLeft});
-        currentDate.add(1, 'hours').add(-1 * offset, 'minutes');
-        pixelsLeft -= pixelIncrements;
-      }
+      const offset = moment.duration(currentDate.diff(currentDate.clone().startOf('hour')));
+      addTimeIncrement(offset, 'minutes', (currentDt, offst) => currentDt.subtract(offst).add(1, 'hours'));
     } else if (resolution.type === 'minute') {
-      let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type), pixelsLeft);
-      const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
-      while (currentDate.isBefore(end) && pixelsLeft > 0) {
-        let label = currentDate.format(resolution.format[labelSize]);
-        let isSelected = _.some(selectedRanges, s => {
-          return (
-            currentDate.isSameOrAfter(s.start.clone().startOf('minute')) &&
-            currentDate.isSameOrBefore(s.end.clone().startOf('minute'))
-          );
-        });
-        timeIncrements.push({
-          label,
-          isSelected,
-          size: pixelIncrements,
-          key: pixelsLeft
-        });
-        currentDate.add(1, 'minutes');
-        pixelsLeft -= pixelIncrements;
-      }
+      addTimeIncrement(moment.duration(0), 'minutes', (currentDt, offst) => currentDt.add(1, 'minutes'));
     }
     return timeIncrements;
   }
@@ -244,6 +187,7 @@ export default class Timebar extends React.Component {
     const {cursorTime} = this.props;
     const topBarComponent = this.renderTopBar();
     const bottomBarComponent = this.renderBottomBar();
+    const GroupTitleRenderer = this.props.groupTitleRenderer;
 
     // Only show the cursor on 1 of the top bar segments
     // Pick the segment that has the biggest size
@@ -253,32 +197,37 @@ export default class Timebar extends React.Component {
     else if (topBarComponent.length > 0) topBarCursorKey = topBarComponent[0].key;
 
     return (
-      <div className="rct9k-timebar-outer" style={{width: this.props.width, paddingLeft: this.props.leftOffset}}>
-        <div className="rct9k-timebar-inner rct9k-timebar-inner-top">
-          {_.map(topBarComponent, i => {
-            let topLabel = i.label;
-            if (cursorTime && i.key === topBarCursorKey) {
-              topLabel += ` [${cursorTime}]`;
-            }
-            let className = 'rct9k-timebar-item';
-            if (i.isSelected) className += ' rct9k-timebar-item-selected';
-            return (
-              <span className={className} key={i.key} style={{width: intToPix(i.size)}}>
-                {topLabel}
-              </span>
-            );
-          })}
+      <div>
+        <div className="rct9k-timebar-group-title" style={{width: this.props.leftOffset}}>
+          <GroupTitleRenderer />
         </div>
-        <div className="rct9k-timebar-inner rct9k-timebar-inner-bottom">
-          {_.map(bottomBarComponent, i => {
-            let className = 'rct9k-timebar-item';
-            if (i.isSelected) className += ' rct9k-timebar-item-selected';
-            return (
-              <span className={className} key={i.key} style={{width: intToPix(i.size)}}>
-                {i.label}
-              </span>
-            );
-          })}
+        <div className="rct9k-timebar-outer" style={{width: this.props.width, paddingLeft: this.props.leftOffset}}>
+          <div className="rct9k-timebar-inner rct9k-timebar-inner-top">
+            {_.map(topBarComponent, i => {
+              let topLabel = i.label;
+              if (cursorTime && i.key === topBarCursorKey) {
+                topLabel += ` [${cursorTime}]`;
+              }
+              let className = 'rct9k-timebar-item';
+              if (i.isSelected) className += ' rct9k-timebar-item-selected';
+              return (
+                <span className={className} key={i.key} style={{width: intToPix(i.size)}}>
+                  {topLabel}
+                </span>
+              );
+            })}
+          </div>
+          <div className="rct9k-timebar-inner rct9k-timebar-inner-bottom">
+            {_.map(bottomBarComponent, i => {
+              let className = 'rct9k-timebar-item';
+              if (i.isSelected) className += ' rct9k-timebar-item-selected';
+              return (
+                <span className={className} key={i.key} style={{width: intToPix(i.size)}}>
+                  {i.label}
+                </span>
+              );
+            })}
+          </div>
         </div>
       </div>
     );
@@ -287,6 +236,7 @@ export default class Timebar extends React.Component {
 
 Timebar.propTypes = {
   cursorTime: PropTypes.any,
+  groupTitleRenderer: PropTypes.func,
   start: PropTypes.object.isRequired, //moment
   end: PropTypes.object.isRequired, //moment
   width: PropTypes.number.isRequired,
@@ -298,6 +248,7 @@ Timebar.propTypes = {
 };
 Timebar.defaultProps = {
   selectedRanges: [],
+  groupTitleRenderer: () => <div />,
   leftOffset: 0,
   timeFormats: defaultTimebarFormat
 };
