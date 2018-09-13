@@ -86,12 +86,14 @@
 }
 
 .rct9k-timebar-group-title {
-  float: left;
+  display: inline-block;
+  position: absolute;
   height: 4em;
 }
 
 /* Multi-select box */
 .rct9k-selector-outer {
+  display: inline-block;
   background-color: #5bb3ff80;
   width: 1px;
   height: 1px;
