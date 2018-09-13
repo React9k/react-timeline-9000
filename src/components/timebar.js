@@ -131,107 +131,50 @@ export default class Timebar extends React.Component {
     let timeIncrements = [];
     let pixelsLeft = width;
     let labelSizeLimit = 60;
-    if (resolution.type === 'year') {
+
+    function _addTimeIncrement(initialOffset, offsetType, stepFunc) {
+      let offset = null;
       while (currentDate.isBefore(end) && pixelsLeft > 0) {
-        let offset = 0;
         // if this is the first 'block' it may be cut off at the start
         if (pixelsLeft === width) {
-          offset = currentDate.month(); // month
+          offset = initialOffset;
+        } else {
+          offset = moment.duration(0);
         }
-        let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type, offset), pixelsLeft);
+        let pixelIncrements = Math.min(
+          this.getPixelIncrement(currentDate, resolution.type, offset.as(offsetType)),
+          pixelsLeft
+        );
         const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
         let label = currentDate.format(resolution.format[labelSize]);
         let isSelected = _.some(selectedRanges, s => {
           return (
-            currentDate.isSameOrAfter(s.start.clone().startOf('year')) &&
-            currentDate.isSameOrBefore(s.end.clone().startOf('year'))
+            currentDate.isSameOrAfter(s.start.clone().startOf(resolution.type)) &&
+            currentDate.isSameOrBefore(s.end.clone().startOf(resolution.type))
           );
         });
         timeIncrements.push({label, isSelected, size: pixelIncrements, key: pixelsLeft});
-        currentDate.add(1, 'year').add(-1 * offset, 'months');
+        stepFunc(currentDate, offset);
         pixelsLeft -= pixelIncrements;
       }
     }
-    if (resolution.type === 'month') {
-      while (currentDate.isBefore(end) && pixelsLeft > 0) {
-        let offset = 0;
-        if (pixelsLeft === width) {
-          offset = currentDate.date() - 1; // day of month [date is 1 indexed]
-        }
-        let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type, offset), pixelsLeft);
-        const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
-        let label = currentDate.format(resolution.format[labelSize]);
-        let isSelected = _.some(selectedRanges, s => {
-          return (
-            currentDate.isSameOrAfter(s.start.clone().startOf('month')) &&
-            currentDate.isSameOrBefore(s.end.clone().startOf('month'))
-          );
-        });
-        timeIncrements.push({label, isSelected, size: pixelIncrements, key: pixelsLeft});
-        currentDate.add(-1 * offset, 'days').add(1, 'month');
-        pixelsLeft -= pixelIncrements;
-      }
-    }
-    if (resolution.type === 'day') {
-      let offset = 0;
-      // if this is the first 'block' it may be cut off at the start
-      if (pixelsLeft === width) {
-        offset = currentDate.hour(); // hour of day
-      }
-      let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type, offset), pixelsLeft);
-      const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
-      while (currentDate.isBefore(end) && pixelsLeft > 0) {
-        let label = currentDate.format(resolution.format[labelSize]);
-        let isSelected = _.some(selectedRanges, s => {
-          return (
-            currentDate.isSameOrAfter(s.start.clone().startOf('day')) &&
-            currentDate.isSameOrBefore(s.end.clone().startOf('day'))
-          );
-        });
-        timeIncrements.push({label, isSelected, size: pixelIncrements, key: pixelsLeft});
-        currentDate.add(1, 'days').add(-1 * offset, 'hours');
-        pixelsLeft -= pixelIncrements;
-      }
+
+    const addTimeIncrement = _addTimeIncrement.bind(this);
+
+    if (resolution.type === 'year') {
+      const offset = moment.duration(currentDate.diff(currentDate.clone().startOf('year')));
+      addTimeIncrement(offset, 'months', (currentDt, offst) => currentDt.subtract(offst).add(1, 'year'));
+    } else if (resolution.type === 'month') {
+      const offset = moment.duration(currentDate.diff(currentDate.clone().startOf('month')));
+      addTimeIncrement(offset, 'days', (currentDt, offst) => currentDt.subtract(offst).add(1, 'month'));
+    } else if (resolution.type === 'day') {
+      const offset = moment.duration(currentDate.diff(currentDate.clone().startOf('day')));
+      addTimeIncrement(offset, 'hours', (currentDt, offst) => currentDt.subtract(offst).add(1, 'days'));
     } else if (resolution.type === 'hour') {
-      let offset = 0;
-      // if this is the first 'block' it may be cut off at the start
-      if (pixelsLeft === width) {
-        offset = currentDate.minute(); // minute of hour
-      }
-      let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type, offset), pixelsLeft);
-      const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
-      while (currentDate.isBefore(end) && pixelsLeft > 0) {
-        let label = currentDate.format(resolution.format[labelSize]);
-        let isSelected = _.some(selectedRanges, s => {
-          return (
-            currentDate.isSameOrAfter(s.start.clone().startOf('hour')) &&
-            currentDate.isSameOrBefore(s.end.clone().startOf('hour'))
-          );
-        });
-        timeIncrements.push({label, isSelected, size: pixelIncrements, key: pixelsLeft});
-        currentDate.add(1, 'hours').add(-1 * offset, 'minutes');
-        pixelsLeft -= pixelIncrements;
-      }
+      const offset = moment.duration(currentDate.diff(currentDate.clone().startOf('hour')));
+      addTimeIncrement(offset, 'minutes', (currentDt, offst) => currentDt.subtract(offst).add(1, 'hours'));
     } else if (resolution.type === 'minute') {
-      let pixelIncrements = Math.min(this.getPixelIncrement(currentDate, resolution.type), pixelsLeft);
-      const labelSize = pixelIncrements < labelSizeLimit ? 'short' : 'long';
-      while (currentDate.isBefore(end) && pixelsLeft > 0) {
-        let label = currentDate.format(resolution.format[labelSize]);
-        let isSelected = _.some(selectedRanges, s => {
-          return (
-            currentDate.isSameOrAfter(s.start.clone().startOf('minute')) &&
-            currentDate.isSameOrBefore(s.end.clone().startOf('minute'))
-          );
-        });
-        timeIncrements.push({
-          label,
-          isSelected,
-          size: pixelIncrements,
-          key: pixelsLeft
-        });
-        currentDate.add(1, 'minutes');
-        pixelsLeft -= pixelIncrements;
-      }
+      addTimeIncrement(moment.duration(0), 'minutes', (currentDt, offst) => currentDt.add(1, 'minutes'));
     }
     return timeIncrements;
   }
