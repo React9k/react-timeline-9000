@@ -290,7 +290,11 @@ export default class Timeline extends React.Component {
     if (canDrag) {
       this._itemInteractable
         .draggable({
-          enabled: true
+          enabled: true,
+          restrict: {
+            restriction: `.${topDivClassId}`,
+            elementRect: {left: 0, right: 1, top: 0, bottom: 1}
+          }
         })
         .on('dragstart', e => {
           let selections = [];
