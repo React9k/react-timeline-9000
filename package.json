@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack --config webpack.prod.js",
     "build_lib": "babel src --out-dir lib --ignore demo*,setupTests.js,*.test.js --copy-files --source-maps inline",
-    "build_demo": "webpack --config webpack.dev.js",
+    "build_demo": "webpack --config webpack.demo.prod.js",
     "start": "webpack-dev-server --open --config webpack.dev.js",
     "docs": "esdoc",
     "pretty": "prettier --write --tab-width 4 \"src/**/*.js\"",
