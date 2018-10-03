@@ -123,6 +123,7 @@ export default class Timeline extends React.Component {
     this.updateDimensions = this.updateDimensions.bind(this);
     this.grid_ref_callback = this.grid_ref_callback.bind(this);
     this.select_ref_callback = this.select_ref_callback.bind(this);
+    this.throttledMouseMoveFunc = _.throttle(this.throttledMouseMoveFunc.bind(this), 20);
     this.mouseMoveFunc = this.mouseMoveFunc.bind(this);
     this.getCursor = this.getCursor.bind(this);
 
@@ -135,6 +136,7 @@ export default class Timeline extends React.Component {
   componentDidMount() {
     window.addEventListener('resize', this.updateDimensions);
   }
+
   componentWillReceiveProps(nextProps) {
     this.setTimeMap(nextProps.items, nextProps.startDate, nextProps.endDate);
     // @TODO
@@ -729,7 +731,7 @@ export default class Timeline extends React.Component {
    * Event handler for onMouseMove.
    * Only calls back if a new snap time is reached
    */
-  mouseMoveFunc(e) {
+  throttledMouseMoveFunc(e) {
     const {componentId} = this.props;
     const leftOffset = document.querySelector(`.rct9k-id-${componentId} .parent-div`).getBoundingClientRect().left;
     const cursorSnappedTime = getTimeAtPixel(
@@ -751,6 +753,11 @@ export default class Timeline extends React.Component {
         this._grid.forceUpdate();
       }
     }
+  }
+
+  mouseMoveFunc(e) {
+    e.persist();
+    this.throttledMouseMoveFunc(e);
   }
 
   render() {
