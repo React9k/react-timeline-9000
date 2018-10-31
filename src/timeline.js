@@ -143,18 +143,26 @@ export default class Timeline extends React.Component {
     // investigate if we need this, only added to refresh the grid
     // when double click -> add an item
     this.refreshGrid();
-    if (this.props.timelineMode !== nextProps.timelineMode) {
-      const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, nextProps.timelineMode);
-      const canDrag = Timeline.isBitSet(Timeline.TIMELINE_MODES.DRAG, nextProps.timelineMode);
-      const canResize = Timeline.isBitSet(Timeline.TIMELINE_MODES.RESIZE, nextProps.timelineMode);
-      this.setUpDragging(canSelect, canDrag, canResize);
-    }
   }
+
   componentWillUnmount() {
     if (this._itemInteractable) this._itemInteractable.unset();
     if (this._selectRectangleInteractable) this._selectRectangleInteractable.unset();
 
     window.removeEventListener('resize', this.updateDimensions);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const {timelineMode, selectedItems} = this.props;
+    const selectionChange = !_.isEqual(prevProps.selectedItems, selectedItems);
+    const timelineModeChange = !_.isEqual(prevProps.timelineMode, timelineMode);
+
+    if (timelineModeChange || selectionChange) {
+      const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, timelineMode);
+      const canDrag = Timeline.isBitSet(Timeline.TIMELINE_MODES.DRAG, timelineMode);
+      const canResize = Timeline.isBitSet(Timeline.TIMELINE_MODES.RESIZE, timelineMode);
+      this.setUpDragging(canSelect, canDrag, canResize);
+    }
   }
 
   /**
@@ -282,7 +290,7 @@ export default class Timeline extends React.Component {
     if (this._itemInteractable) this._itemInteractable.unset();
     if (this._selectRectangleInteractable) this._selectRectangleInteractable.unset();
 
-    this._itemInteractable = interact(`.${topDivClassId} .item_draggable`);
+    this._itemInteractable = interact(`.${topDivClassId} .item_draggable.rct9k-items-outer-selected`);
     this._selectRectangleInteractable = interact(`.${topDivClassId} .parent-div`);
 
     this._itemInteractable.on('tap', e => {

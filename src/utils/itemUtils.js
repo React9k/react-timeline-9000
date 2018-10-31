@@ -46,12 +46,14 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHei
     let item_duration_mins = i.end.diff(i.start, 'minutes');
     let left = Math.round(item_offset_mins * pixels_per_min);
     let width = Math.round(item_duration_mins * pixels_per_min);
-    let classnames = 'rct9k-items-inner';
+    let compClassnames = 'rct9k-items-inner';
+    let outerClassnames = 'rct9k-items-outer item_draggable';
     let style = {backgroundColor: color};
     let isSelected = selectedItems.indexOf(Number(i.key)) > -1;
 
     if (isSelected) {
-      classnames += ' rct9k-items-selected';
+      compClassnames += ' rct9k-items-selected';
+      outerClassnames += ' rct9k-items-outer-selected';
       style = {};
     }
 
@@ -59,9 +61,9 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHei
       <span
         key={i.key}
         data-item-index={i.key}
-        className="rct9k-items-outer item_draggable"
+        className={outerClassnames}
         style={{left, width, top, backgroundColor: 'transparent'}}>
-        <Comp key={i.key} item={i} className={classnames} style={style} />
+        <Comp key={i.key} item={i} className={compClassnames} style={style} />
       </span>
     );
   });
