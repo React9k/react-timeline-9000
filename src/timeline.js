@@ -287,10 +287,11 @@ export default class Timeline extends React.Component {
 
   setUpDragging(canSelect, canDrag, canResize) {
     const topDivClassId = `rct9k-id-${this.props.componentId}`;
+    const selectedItemSelector = '.rct9k-items-outer-selected';
     if (this._itemInteractable) this._itemInteractable.unset();
     if (this._selectRectangleInteractable) this._selectRectangleInteractable.unset();
 
-    this._itemInteractable = interact(`.${topDivClassId} .item_draggable.rct9k-items-outer-selected`);
+    this._itemInteractable = interact(`.${topDivClassId} .item_draggable`);
     this._selectRectangleInteractable = interact(`.${topDivClassId} .parent-div`);
 
     this._itemInteractable.on('tap', e => {
@@ -301,6 +302,7 @@ export default class Timeline extends React.Component {
       this._itemInteractable
         .draggable({
           enabled: true,
+          allowFrom: selectedItemSelector,
           restrict: {
             restriction: `.${topDivClassId}`,
             elementRect: {left: 0, right: 1, top: 0, bottom: 1}
@@ -432,6 +434,7 @@ export default class Timeline extends React.Component {
     if (canResize) {
       this._itemInteractable
         .resizable({
+          allowFrom: selectedItemSelector,
           edges: {left: true, right: true, bottom: false, top: false}
         })
         .on('resizestart', e => {
