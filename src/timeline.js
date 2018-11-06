@@ -791,7 +791,7 @@ export default class Timeline extends React.Component {
 
     return (
       <div className={divCssClass}>
-        <AutoSizer onResize={this.refreshGrid}>
+        <AutoSizer className="rct9k-autosizer" onResize={this.refreshGrid}>
           {({height, width}) => (
             <div className="parent-div" onMouseMove={this.mouseMoveFunc}>
               <SelectBox ref={this.select_ref_callback} />
