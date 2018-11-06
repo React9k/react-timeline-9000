@@ -561,7 +561,7 @@ export default class Timeline extends React.Component {
           this._selectBox.start(e.clientX, e.clientY);
         })
         .on('dragmove', e => {
-          this._selectBox.move(e.dx, e.dy);
+          this._selectBox.move(e.clientX, e.clientY);
         })
         .on('dragend', e => {
           let {top, left, width, height} = this._selectBox.end();
