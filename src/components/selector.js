@@ -9,8 +9,8 @@ export default class SelectBox extends React.Component {
    * @ignore
    */
   componentDidMount() {
-    this.dx = 0;
-    this.dy = 0;
+    this.curX = 0;
+    this.curY = 0;
     this.startX = 0;
     this.startY = 0;
   }
@@ -23,18 +23,18 @@ export default class SelectBox extends React.Component {
   start(x, y) {
     this.startX = x;
     this.startY = y;
-    this.dx = 0;
-    this.dy = 0;
+    this.curX = 0;
+    this.curY = 0;
   }
 
   /**
    * Update the selection box as the mouse moves
-   * @param {number} dx The change in the x coordinate
-   * @param {number} dy The change in the y coordinate
+   * @param {number} x The current X coordinate of the mouse
+   * @param {number} y The current Y coordinate of the mouse
    */
-  move(dx, dy) {
-    this.dx += dx;
-    this.dy += dy;
+  move(x, y) {
+    this.curX = x;
+    this.curY = y;
     this.forceUpdate();
   }
 
@@ -48,21 +48,31 @@ export default class SelectBox extends React.Component {
    * @property {number} height The height of the box
    */
   end() {
-    let toReturn = {top: this.startY, left: this.startX, width: this.dx, height: this.dy};
+    const {startX, startY, curX, curY} = this;
+    const left = Math.min(startX, curX);
+    const top = Math.min(startY, curY);
+    const width = Math.abs(startX - curX);
+    const height = Math.abs(startY - curY);
+    let toReturn = {left, top, width, height};
+
     this.startX = 0;
     this.startY = 0;
-    this.dx = 0;
-    this.dy = 0;
+    this.curX = 0;
+    this.curY = 0;
     this.forceUpdate();
     return toReturn;
   }
+
   /**
    * @ignore
    */
   render() {
-    const {startX, startY, dx, dy} = this;
-    let style = {left: startX || 0, top: startY || 0};
-    style['transform'] = style['WebkitTransform'] = `matrix(${dx}, 0, 0, ${dy}, ${dx / 2}, ${dy / 2})`;
+    const {startX, startY, curX, curY} = this;
+    const left = Math.min(startX, curX);
+    const top = Math.min(startY, curY);
+    const width = Math.abs(startX - curX);
+    const height = Math.abs(startY - curY);
+    let style = {left, top, width, height};
     return <div className="rct9k-selector-outer" style={style} />;
   }
 }
