@@ -6,7 +6,7 @@ import {expect} from 'chai';
 import setup from 'setupTests';
 import SelectBox from './selector';
 
-describe.only('Selector', () => {
+describe('Selector', () => {
   it('should initialize to 0,0', () => {
     const component = mount(<SelectBox />);
     const instance = component.instance();
