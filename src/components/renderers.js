@@ -12,7 +12,7 @@ export const DefaultItemRenderer = props => {
 
   return (
     <span {...rest}>
-      <span>{item.title}</span>
+      <span style={{pointerEvents: 'none'}}>{item.title}</span>
     </span>
   );
 };
