@@ -30,6 +30,9 @@
   background: red;
   pointer-events: none;
 }
+.rct9k-item-renderer-inner {
+  pointer-events: none;
+}
 .rct9k-row {
   /* white-space: nowrap; */
   box-sizing: border-box;
@@ -101,6 +104,7 @@
   z-index: 5;
 }
 
+/* Row layer */
 .rct9k-row-layer {
   pointer-events: none;
   position: absolute;

@@ -12,7 +12,7 @@ export const DefaultItemRenderer = props => {
 
   return (
     <span {...rest}>
-      <span style={{pointerEvents: 'none'}}>{item.title}</span>
+      <span className="rct9k-item-renderer-inner">{item.title}</span>
     </span>
   );
 };
