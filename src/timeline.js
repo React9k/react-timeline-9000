@@ -10,7 +10,7 @@ import interact from 'interactjs';
 import _ from 'lodash';
 
 import {pixToInt, intToPix, sumStyle} from './utils/commonUtils';
-import {rowItemsRenderer, getNearestRowHeight, getMaxOverlappingItems} from './utils/itemUtils';
+import {rowItemsRenderer, rowLayerRenderer, getNearestRowHeight, getMaxOverlappingItems} from './utils/itemUtils';
 import {timeSnap, getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta, pixelsPerMinute} from './utils/timeUtils';
 import Timebar from './components/timebar';
 import SelectBox from './components/selector';
@@ -38,6 +38,14 @@ export default class Timeline extends React.Component {
     items: PropTypes.arrayOf(PropTypes.object).isRequired,
     groups: PropTypes.arrayOf(PropTypes.object).isRequired,
     groupOffset: PropTypes.number.isRequired,
+    rowLayers: PropTypes.arrayOf(
+      PropTypes.shape({
+        start: PropTypes.object.isRequired,
+        end: PropTypes.object.isRequired,
+        rowNumber: PropTypes.number.isRequired,
+        style: PropTypes.object.isRequired
+      })
+    ),
     selectedItems: PropTypes.arrayOf(PropTypes.number),
     startDate: PropTypes.object.isRequired,
     endDate: PropTypes.object.isRequired,
@@ -55,14 +63,15 @@ export default class Timeline extends React.Component {
     onRowClick: PropTypes.func,
     onRowContext: PropTypes.func,
     onRowDoubleClick: PropTypes.func,
+    onItemHover: PropTypes.func,
+    onItemLeave: PropTypes.func,
     itemRenderer: PropTypes.func,
     groupRenderer: PropTypes.func,
-    groupTitleRenderer: PropTypes.func,
-    onItemHover: PropTypes.func,
-    onItemLeave: PropTypes.func
+    groupTitleRenderer: PropTypes.func
   };
 
   static defaultProps = {
+    rowLayers: [],
     groupOffset: 150,
     itemHeight: 40,
     snapMinutes: 15,
@@ -323,7 +332,7 @@ export default class Timeline extends React.Component {
               domItem.setAttribute('isDragging', 'True');
               domItem.setAttribute('drag-x', 0);
               domItem.setAttribute('drag-y', 0);
-              domItem.style['z-index'] = 3;
+              domItem.style['z-index'] = 4;
             }
           });
           this.setSelection(selections);
@@ -421,7 +430,7 @@ export default class Timeline extends React.Component {
             domItem.style.webkitTransform = domItem.style.transform = 'translate(0px, 0px)';
             domItem.setAttribute('drag-x', 0);
             domItem.setAttribute('drag-y', 0);
-            domItem.style['z-index'] = 2;
+            domItem.style['z-index'] = 3;
             domItem.style['top'] = intToPix(
               this.props.itemHeight * Math.round(pixToInt(domItem.style['top']) / this.props.itemHeight)
             );
@@ -444,7 +453,7 @@ export default class Timeline extends React.Component {
             if (domItem) {
               domItem.setAttribute('isResizing', 'True');
               domItem.setAttribute('initialWidth', pixToInt(domItem.style.width));
-              domItem.style['z-index'] = 3;
+              domItem.style['z-index'] = 4;
             }
           });
         })
@@ -535,7 +544,7 @@ export default class Timeline extends React.Component {
             //Reset styles
             domItem.removeAttribute('isResizing');
             domItem.removeAttribute('initialWidth');
-            domItem.style['z-index'] = 2;
+            domItem.style['z-index'] = 3;
             domItem.style.webkitTransform = domItem.style.transform = 'translate(0px, 0px)';
 
             items.push(item);
@@ -637,12 +646,13 @@ export default class Timeline extends React.Component {
      * @param  {} rowIndex Vertical (row) index of cell
      * @param  {} style Style object to be applied to cell (to position it);
      */
-    const {timelineMode, onItemHover, onItemLeave} = this.props;
+    const {timelineMode, onItemHover, onItemLeave, rowLayers} = this.props;
     const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, timelineMode);
     return ({columnIndex, key, parent, rowIndex, style}) => {
       let itemCol = 1;
       if (itemCol == columnIndex) {
         let itemsInRow = this.rowItemMap[rowIndex];
+        const layersInRow = rowLayers.filter(r => r.rowNumber === rowIndex);
         return (
           <div
             key={key}
@@ -672,6 +682,13 @@ export default class Timeline extends React.Component {
               this.props.itemHeight,
               this.props.itemRenderer,
               canSelect ? this.props.selectedItems : []
+            )}
+            {rowLayerRenderer(
+              layersInRow,
+              this.props.startDate,
+              this.props.endDate,
+              width,
+              this.props.itemHeight * this.rowHeightCache[rowIndex]
             )}
           </div>
         );

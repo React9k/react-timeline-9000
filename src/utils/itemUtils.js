@@ -37,7 +37,6 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHei
     }
     rowOffset++;
   }
-  //console.groupEnd('New row');
   return _.map(displayItems, i => {
     const {color} = i;
     const Comp = itemRenderer;
@@ -65,6 +64,59 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHei
         style={{left, width, top, backgroundColor: 'transparent'}}>
         <Comp key={i.key} item={i} className={compClassnames} style={style} />
       </span>
+    );
+  });
+}
+
+/**
+ * Render row layers
+ * @param  {Object[]} layers List of layers to render for this row
+ * @param  {moment} vis_start The visible start of the timeline
+ * @param  {moment} vis_end The visible end of the timeline
+ * @param  {number} total_width pixel width of the timeline
+ * @param  {number} itemHeight The layer height in px
+ */
+export function rowLayerRenderer(layers, vis_start, vis_end, total_width, itemHeight) {
+  const start_end_min = vis_end.diff(vis_start, 'minutes');
+  const pixels_per_min = total_width / start_end_min;
+  let filtered_items = _.sortBy(
+    _.filter(layers, i => {
+      return !i.end.isBefore(vis_start) && !i.start.isAfter(vis_end);
+    }),
+    i => -i.start.unix()
+  ); // sorted in reverse order as we iterate over the array backwards
+  let displayItems = [];
+  let rowOffset = 0;
+  while (filtered_items.length > 0) {
+    let lastEnd = null;
+    for (let i = filtered_items.length - 1; i >= 0; i--) {
+      if (lastEnd === null || filtered_items[i].start >= lastEnd) {
+        let item = _.clone(filtered_items[i]);
+        item.rowOffset = rowOffset;
+        displayItems.push(item);
+        filtered_items.splice(i, 1);
+        lastEnd = item.end;
+      }
+    }
+    rowOffset++;
+  }
+  return _.map(displayItems, i => {
+    const {style, rowNumber} = i;
+    let top = itemHeight * i['rowOffset'];
+    let item_offset_mins = i.start.diff(vis_start, 'minutes');
+    let item_duration_mins = i.end.diff(i.start, 'minutes');
+    let left = Math.round(item_offset_mins * pixels_per_min);
+    let width = Math.round(item_duration_mins * pixels_per_min);
+    let height = itemHeight - (rowNumber === 0 ? 2 : 1); // for border
+    let outerClassnames = 'rct9k-row-layer';
+
+    return (
+      <div
+        key={`r-${rowNumber}-${i.start.unix()}`}
+        data-item-index={i.key}
+        className={outerClassnames}
+        style={{...style, left, width, top, height}}
+      />
     );
   });
 }

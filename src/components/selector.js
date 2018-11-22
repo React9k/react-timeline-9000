@@ -67,9 +67,7 @@ export default class SelectBox extends React.Component {
    * @ignore
    */
   render() {
-    const p = n => {
-      Number.isNaN(n) ? 0 : n;
-    };
+    const p = n => (Number.isNaN(n) ? 0 : n);
     const {startX, startY, curX, curY} = this;
     const left = p(Math.min(startX, curX));
     const top = p(Math.min(startY, curY));

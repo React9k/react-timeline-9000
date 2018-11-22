@@ -14,7 +14,7 @@
   position: absolute;
   display: inline-block;
   overflow: hidden;
-  z-index: 2;
+  z-index: 3;
 }
 .rct9k-items-inner {
   display: inline-block;
@@ -23,7 +23,7 @@
   width: 100%;
 }
 .rct9k-marker-overlay {
-  z-index: 1;
+  z-index: 2;
   height: 475px;
   position: absolute;
   width: 2px;
@@ -55,7 +55,7 @@
   border: 1px solid black;
   border-top: 0;
   background-color: white;
-  z-index: 5;
+  z-index: 6;
 }
 
 .rct9k-group:first-child {
@@ -98,5 +98,11 @@
   width: 1px;
   height: 1px;
   position: fixed;
-  z-index: 4;
+  z-index: 5;
+}
+
+.rct9k-row-layer {
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
 }
