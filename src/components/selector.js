@@ -67,14 +67,11 @@ export default class SelectBox extends React.Component {
    * @ignore
    */
   render() {
-    const p = n => {
-      Number.isNaN(n) ? 0 : n;
-    };
     const {startX, startY, curX, curY} = this;
-    const left = p(Math.min(startX, curX));
-    const top = p(Math.min(startY, curY));
-    const width = p(Math.abs(startX - curX));
-    const height = p(Math.abs(startY - curY));
+    const left = Math.min(startX, curX);
+    const top = Math.min(startY, curY);
+    const width = Math.abs(startX - curX);
+    const height = Math.abs(startY - curY);
     let style = {left, top, width, height};
     return <div className="rct9k-selector-outer" style={style} />;
   }

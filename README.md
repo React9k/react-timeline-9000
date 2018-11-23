@@ -89,8 +89,10 @@ See http://bhp-react-timeline-9k.s3-website-ap-southeast-2.amazonaws.com/docs fo
 ### Default Z-indexes
 | Item                                  | Index |
 | ------------------------------------- | ----- |
-| Vertical markers                      | 1     |
-| Timeline items                        | 2     |
-| Timeline items when dragging/resizing | 3     |
-| Selection box (for multi-select)      | 4     |
-| Group column                          | 5     |
+| Row Layers                            | 1     |
+| Vertical markers                      | 2     |
+| Timeline items                        | 3     |
+| Timeline items when dragging/resizing | 4     |
+| Selection box (for multi-select)      | 5     |
+| Group column                          | 6     |
+
