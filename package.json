@@ -1,6 +1,6 @@
 {
   "name": "react-timeline-9000",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Performance focused timeline for react",
   "private": false,
   "scripts": {
