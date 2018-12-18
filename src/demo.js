@@ -33,7 +33,7 @@ export default class DemoTimeline extends Component {
       selectedItems: [],
       rows: 100,
       items_per_row: 30,
-      snap: 15,
+      snap: 60,
       startDate,
       endDate,
       message: '',
@@ -253,6 +253,35 @@ export default class DemoTimeline extends Component {
     const selectable = (TIMELINE_MODES.SELECT & timelineMode) === TIMELINE_MODES.SELECT;
     const draggable = (TIMELINE_MODES.DRAG & timelineMode) === TIMELINE_MODES.DRAG;
     const resizeable = (TIMELINE_MODES.RESIZE & timelineMode) === TIMELINE_MODES.RESIZE;
+
+    const rowLayers = [];
+    for (let i = 0; i < rows; i += 1) {
+      if (i % 5 === 0 && i !== 0) {
+        continue;
+      }
+      let curDate = startDate.clone();
+      while (curDate.isSameOrBefore(endDate)) {
+        const dayOfWeek = Number(curDate.format('d')); // 0 -> 6: Sun -> Sat
+        let bandDuration = 0; // days
+        let color = '';
+        if (dayOfWeek % 6 === 0) {
+          color = 'blue';
+          bandDuration = dayOfWeek === 6 ? 2 : 1; // 2 if sat, 1 if sun
+        } else {
+          color = 'green';
+          bandDuration = 6 - dayOfWeek;
+        }
+
+        rowLayers.push({
+          start: curDate.clone(),
+          end: curDate.clone().add(bandDuration, 'days'),
+          style: {backgroundColor: color, opacity: '0.3'},
+          rowNumber: i
+        });
+        curDate.add(bandDuration, 'days');
+      }
+    }
+
     return (
       <Layout className="layout">
         <Layout.Content>
@@ -317,6 +346,7 @@ export default class DemoTimeline extends Component {
             groups={groups}
             startDate={startDate}
             endDate={endDate}
+            rowLayers={rowLayers}
             selectedItems={selectedItems}
             timelineMode={timelineMode}
             snapMinutes={snap}

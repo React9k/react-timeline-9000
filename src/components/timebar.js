@@ -197,7 +197,7 @@ export default class Timebar extends React.Component {
     else if (topBarComponent.length > 0) topBarCursorKey = topBarComponent[0].key;
 
     return (
-      <div>
+      <div className="rct9k-timebar">
         <div className="rct9k-timebar-group-title" style={{width: this.props.leftOffset}}>
           <GroupTitleRenderer />
         </div>
