@@ -5,10 +5,8 @@ import React from 'react';
  * Component to show a selection box (like on windows desktop)
  */
 export default class SelectBox extends React.Component {
-  /**
-   * @ignore
-   */
-  componentDidMount() {
+  constructor(props) {
+    super(props);
     this.curX = 0;
     this.curY = 0;
     this.startX = 0;
