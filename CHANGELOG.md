@@ -3,6 +3,12 @@
 ## Unreleased
 
 
+## v1.0.12
+### Fixed
+- Console error when loading page [#144]
+- Row layers only worked with min 1 item in row [#145]
+
+
 ## v1.0.11
 ### Added
 - Row layers
