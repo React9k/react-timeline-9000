@@ -653,6 +653,10 @@ export default class Timeline extends React.Component {
       if (itemCol == columnIndex) {
         let itemsInRow = this.rowItemMap[rowIndex];
         const layersInRow = rowLayers.filter(r => r.rowNumber === rowIndex);
+        let rowHeight = this.props.itemHeight;
+        if (this.rowHeightCache[rowIndex]) {
+          rowHeight = rowHeight * this.rowHeightCache[rowIndex];
+        }
         return (
           <div
             key={key}
@@ -683,13 +687,7 @@ export default class Timeline extends React.Component {
               this.props.itemRenderer,
               canSelect ? this.props.selectedItems : []
             )}
-            {rowLayerRenderer(
-              layersInRow,
-              this.props.startDate,
-              this.props.endDate,
-              width,
-              this.props.itemHeight * this.rowHeightCache[rowIndex]
-            )}
+            {rowLayerRenderer(layersInRow, this.props.startDate, this.props.endDate, width, rowHeight)}
           </div>
         );
       } else {
