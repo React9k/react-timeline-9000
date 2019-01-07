@@ -8,9 +8,12 @@ import PropTypes from 'prop-types';
 import {Grid} from 'react-virtualized';
 
 class TimelineBody extends Component {
+  componentDidMount() {
+    this.forceUpdate();
+  }
   shouldComponentUpdate(nextProps) {
-    const {props, shallowUpdateCheck} = this;
-    if (!shallowUpdateCheck) {
+    const {props} = this;
+    if (!props.shallowUpdateCheck) {
       return true;
     }
     // prettier-ignore
