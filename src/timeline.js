@@ -15,6 +15,7 @@ import {timeSnap, getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta, pixelsP
 import Timebar from './components/timebar';
 import SelectBox from './components/selector';
 import {DefaultGroupRenderer, DefaultItemRenderer} from './components/renderers';
+import TimelineBody from './components/body';
 
 // startsWith polyfill for IE11 support
 import 'core-js/fn/string/starts-with';
@@ -820,17 +821,15 @@ export default class Timeline extends React.Component {
                 groupTitleRenderer={groupTitleRenderer}
                 {...varTimebarProps}
               />
-              <Grid
-                ref={this.grid_ref_callback}
-                autoContainerWidth
-                cellRenderer={this.cellRenderer(this.getTimelineWidth(width))}
-                cellRangeRenderer={this.cellRangeRenderer}
-                columnCount={2}
+              <TimelineBody
+                width={width}
                 columnWidth={columnWidth(width)}
                 height={height}
-                rowCount={this.props.groups.length}
                 rowHeight={this.rowHeight}
-                width={width}
+                rowCount={this.props.groups.length}
+                cellRenderer={this.cellRenderer(this.getTimelineWidth(width))}
+                cellRangeRenderer={this.cellRangeRenderer}
+                grid_ref_callback={this.grid_ref_callback}
               />
             </div>
           )}
