@@ -48,19 +48,20 @@ TBA
 See http://bhp-react-timeline-9k.s3-website-ap-southeast-2.amazonaws.com/docs for detailed docs
 
 ## Settings
-| Name             | 
-| ---------------- | 
-| groupOffset      |
-| startDate        |
-| endDate          |
-| snapMinutes      |
-| showCursorTime   |
-| cursorTimeFormat |
-| itemHeight       |
-| timelineMode     |
-| timebarFormat    |
-| itemRenderer     |
-| groupRenderer    |
+| Name               | 
+| ----------------   | 
+| groupOffset        |
+| startDate          |
+| endDate            |
+| snapMinutes        |
+| showCursorTime     |
+| cursorTimeFormat   |
+| itemHeight         |
+| timelineMode       |
+| timebarFormat      |
+| itemRenderer       |
+| groupRenderer      |
+| shallowUpdateCheck |
 
 ## Data
 | Name |

@@ -16,6 +16,7 @@ import Timebar from './components/timebar';
 import SelectBox from './components/selector';
 import {DefaultGroupRenderer, DefaultItemRenderer} from './components/renderers';
 import TimelineBody from './components/body';
+import Marker from './components/marker';
 
 // startsWith polyfill for IE11 support
 import 'core-js/fn/string/starts-with';
@@ -68,7 +69,8 @@ export default class Timeline extends React.Component {
     onItemLeave: PropTypes.func,
     itemRenderer: PropTypes.func,
     groupRenderer: PropTypes.func,
-    groupTitleRenderer: PropTypes.func
+    groupTitleRenderer: PropTypes.func,
+    shallowUpdateCheck: PropTypes.bool
   };
 
   static defaultProps = {
@@ -83,6 +85,7 @@ export default class Timeline extends React.Component {
     itemRenderer: DefaultItemRenderer,
     groupTitleRenderer: () => <div />,
     timelineMode: Timeline.TIMELINE_MODES.SELECT | Timeline.TIMELINE_MODES.DRAG | Timeline.TIMELINE_MODES.RESIZE,
+    shallowUpdateCheck: false,
     onItemHover() {},
     onItemLeave() {}
   };
@@ -121,7 +124,6 @@ export default class Timeline extends React.Component {
     this.setTimeMap(this.props.items);
 
     this.cellRenderer = this.cellRenderer.bind(this);
-    this.cellRangeRenderer = this.cellRangeRenderer.bind(this);
     this.rowHeight = this.rowHeight.bind(this);
     this.setTimeMap = this.setTimeMap.bind(this);
     this.getItem = this.getItem.bind(this);
@@ -709,30 +711,6 @@ export default class Timeline extends React.Component {
     return showCursorTime && cursorTime ? cursorTime.clone().format(cursorTimeFormat) : null;
   }
 
-  cellRangeRenderer(props) {
-    const {showCursorTime} = this.props;
-    const children = defaultCellRangeRenderer(props);
-    const height = props.parent.props.height;
-    const top = props.scrollTop;
-    let markers = [];
-    if (showCursorTime && this.mouse_snapped_time) {
-      const cursorPix = getPixelAtTime(
-        this.mouse_snapped_time,
-        this.props.startDate,
-        this.props.endDate,
-        this.getTimelineWidth()
-      );
-      markers.push({
-        location: cursorPix + this.props.groupOffset,
-        key: 1
-      });
-    }
-    _.forEach(markers, m => {
-      children.push(<div key={m.key} className="rct9k-marker-overlay" style={{height, left: m.location, top}} />);
-    });
-    return children;
-  }
-
   /**
    * Helper for react virtuaized to get the row height given a row index
    */
@@ -780,8 +758,7 @@ export default class Timeline extends React.Component {
           Timeline.changeTypes.snappedMouseMove,
           {snappedTime: this.mouse_snapped_time.clone()},
           null
-        ); // TODO: Document
-        this._grid.forceUpdate();
+        );
       }
     }
   }
@@ -792,7 +769,17 @@ export default class Timeline extends React.Component {
   }
 
   render() {
-    const {onInteraction, groupOffset, timebarFormat, componentId, groupTitleRenderer} = this.props;
+    const {
+      onInteraction,
+      groupOffset,
+      showCursorTime,
+      timebarFormat,
+      componentId,
+      groupTitleRenderer,
+      shallowUpdateCheck,
+      startDate,
+      endDate
+    } = this.props;
 
     const divCssClass = `rct9k-timeline-div rct9k-id-${componentId}`;
     let varTimebarProps = {};
@@ -804,7 +791,15 @@ export default class Timeline extends React.Component {
         return width - groupOffset;
       };
     }
-
+    // Markers (only current time marker atm)
+    const markers = [];
+    if (showCursorTime && this.mouse_snapped_time) {
+      const cursorPix = getPixelAtTime(this.mouse_snapped_time, startDate, endDate, this.getTimelineWidth());
+      markers.push({
+        left: cursorPix + this.props.groupOffset,
+        key: 1
+      });
+    }
     return (
       <div className={divCssClass}>
         <AutoSizer className="rct9k-autosizer" onResize={this.refreshGrid}>
@@ -821,6 +816,7 @@ export default class Timeline extends React.Component {
                 groupTitleRenderer={groupTitleRenderer}
                 {...varTimebarProps}
               />
+              {markers.map(m => <Marker key={m.key} height={height} top={0} left={m.left} />)}
               <TimelineBody
                 width={width}
                 columnWidth={columnWidth(width)}
@@ -828,8 +824,8 @@ export default class Timeline extends React.Component {
                 rowHeight={this.rowHeight}
                 rowCount={this.props.groups.length}
                 cellRenderer={this.cellRenderer(this.getTimelineWidth(width))}
-                cellRangeRenderer={this.cellRangeRenderer}
                 grid_ref_callback={this.grid_ref_callback}
+                shallowUpdateCheck={shallowUpdateCheck}
               />
             </div>
           )}
