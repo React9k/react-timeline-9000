@@ -1,7 +1,7 @@
 # React Timeline 9000
 A performance focused timeline component in react
 
-![React Timeline 9000 Demo](https://s3-ap-southeast-2.amazonaws.com/bhp-react-timeline-9k/static/react-timeline-9000.gif)
+![React Timeline 9000 Demo](http://bhp-react-timeline-9k.s3-website-ap-southeast-2.amazonaws.com/static/react-timeline-9000.gif)
 
 
 ## Build Status
