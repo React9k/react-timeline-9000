@@ -1,5 +1,9 @@
 # React Timeline 9000
 A performance focused timeline component in react
+
+![React Timeline 9000 Demo](https://s3-ap-southeast-2.amazonaws.com/bhp-react-timeline-9k/static/react-timeline-9000.gif)
+
+
 ## Build Status
 [![Build Status](https://travis-ci.org/BHP-DevHub/react-timeline-9000.svg?branch=master)](https://travis-ci.org/BHP-DevHub/react-timeline-9000)
 [![CodeFactor](https://www.codefactor.io/repository/github/bhp-devhub/react-timeline-9000/badge)](https://www.codefactor.io/repository/github/bhp-devhub/react-timeline-9000)

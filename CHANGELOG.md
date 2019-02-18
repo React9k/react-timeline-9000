@@ -1,7 +1,7 @@
 # Change Log
 
 ## Unreleased
-
+- Added demo GIF to readme
 
 ## v1.0.12
 ### Fixed
