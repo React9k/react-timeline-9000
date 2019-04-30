@@ -17,9 +17,10 @@ class TimelineBody extends Component {
       return true;
     }
     // prettier-ignore
-    return props.height !== nextProps.height
-      && props.width !== nextProps.width
-      && props.rowCount !== nextProps.rowCount;
+    const shallowChange = props.height !== nextProps.height
+      || props.width !== nextProps.width
+      || props.rowCount !== nextProps.rowCount;
+    return shallowChange;
   }
   render() {
     const {width, columnWidth, height, rowHeight, rowCount} = this.props;
