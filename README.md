@@ -47,41 +47,41 @@ TBA
 
 See http://bhp-react-timeline-9k.s3-website-ap-southeast-2.amazonaws.com/docs for detailed docs
 
-## Settings
-| Name               | 
-| ----------------   | 
-| groupOffset        |
-| startDate          |
-| endDate            |
-| snapMinutes        |
-| showCursorTime     |
-| cursorTimeFormat   |
-| itemHeight         |
-| timelineMode       |
-| timebarFormat      |
-| itemRenderer       |
-| groupRenderer      |
-| shallowUpdateCheck |
+## Props
+| Name               | Default | Description                                                                                                  |
+| ----------------   | ------- | ------------------------------------------------------------------------------------------------------------ |
+| groupOffset        |         |                                                                                                              |
+| startDate          |         |                                                                                                              |
+| endDate            |         |                                                                                                              |
+| snapMinutes        |         |                                                                                                              |
+| showCursorTime     |         |                                                                                                              |
+| cursorTimeFormat   |         |                                                                                                              |
+| itemHeight         |         |                                                                                                              |
+| timelineMode       |         |                                                                                                              |
+| timebarFormat      |         |                                                                                                              |
+| itemRenderer       |         |                                                                                                              |
+| groupRenderer      |         |                                                                                                              |
+| shallowUpdateCheck | False   | If true timeline will try to minimize re-renders . Set to false if items don't show up/update on prop change |
 
 ## Data
-| Name |
+| Name             |
 | ---------------- |
-| items
-| groups
-| selectedItems
+| items            |
+| groups           |
+| selectedItems    |
 
 ## Callbacks
-| Name | 
-| ---------------- | 
-| onItemClick
-| onItemDoubleClick
-| onItemContext
-| onInteraction
-| onRowClick
-| onRowContext
-| onRowDoubleClick
-| onItemHover
-| onItemLeave
+| Name              |
+| ----------------  |
+| onItemClick       |
+| onItemDoubleClick |
+| onItemContext     |
+| onInteraction     |
+| onRowClick        |
+| onRowContext      |
+| onRowDoubleClick  |
+| onItemHover       |
+| onItemLeave       |
 
 # Styling
 * View `src/style.css` for styling examples.
