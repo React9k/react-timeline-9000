@@ -342,6 +342,7 @@ export default class DemoTimeline extends Component {
             </div>
           </div>
           <Timeline
+            shallowUpdateCheck
             items={items}
             groups={groups}
             startDate={startDate}
