@@ -3,6 +3,14 @@
 ## Unreleased
 
 
+## v1.0.14
+## Added
+- Prop to customize shallow render logic
+
+## v1.0.13
+## Added
+- Option for shallow re-render check
+
 ## v1.0.12
 ### Fixed
 - Console error when loading page [#144]
