@@ -22,8 +22,8 @@ class TimelineBody extends Component {
       || props.width !== nextProps.width
       || props.rowCount !== nextProps.rowCount;
 
-    if (props.shallowUpdateFunc) {
-      return shallowChange || props.shallowUpdateFunc(props, nextProps);
+    if (props.forceRedrawFunc) {
+      return shallowChange || props.forceRedrawFunc(props, nextProps);
     }
 
     return shallowChange;
@@ -57,11 +57,11 @@ TimelineBody.propTypes = {
   grid_ref_callback: PropTypes.func.isRequired,
   cellRenderer: PropTypes.func.isRequired,
   shallowUpdateCheck: PropTypes.bool,
-  shallowUpdateFunc: PropTypes.func
+  forceRedrawFunc: PropTypes.func
 };
 
 TimelineBody.defaultProps = {
   shallowUpdateCheck: false,
-  shallowUpdateFunc: null
+  forceRedrawFunc: null
 };
 export default TimelineBody;

@@ -71,7 +71,7 @@ export default class Timeline extends React.Component {
     groupRenderer: PropTypes.func,
     groupTitleRenderer: PropTypes.func,
     shallowUpdateCheck: PropTypes.bool,
-    shallowUpdateFunc: PropTypes.func
+    forceRedrawFunc: PropTypes.func
   };
 
   static defaultProps = {
@@ -87,7 +87,7 @@ export default class Timeline extends React.Component {
     groupTitleRenderer: () => <div />,
     timelineMode: Timeline.TIMELINE_MODES.SELECT | Timeline.TIMELINE_MODES.DRAG | Timeline.TIMELINE_MODES.RESIZE,
     shallowUpdateCheck: false,
-    shallowUpdateFunc: null,
+    forceRedrawFunc: null,
     onItemHover() {},
     onItemLeave() {}
   };
@@ -779,7 +779,7 @@ export default class Timeline extends React.Component {
       componentId,
       groupTitleRenderer,
       shallowUpdateCheck,
-      shallowUpdateFunc,
+      forceRedrawFunc,
       startDate,
       endDate
     } = this.props;
@@ -829,7 +829,7 @@ export default class Timeline extends React.Component {
                 cellRenderer={this.cellRenderer(this.getTimelineWidth(width))}
                 grid_ref_callback={this.grid_ref_callback}
                 shallowUpdateCheck={shallowUpdateCheck}
-                shallowUpdateFunc={shallowUpdateFunc}
+                forceRedrawFunc={forceRedrawFunc}
               />
             </div>
           )}
