@@ -16,10 +16,16 @@ class TimelineBody extends Component {
     if (!props.shallowUpdateCheck) {
       return true;
     }
+
     // prettier-ignore
     const shallowChange = props.height !== nextProps.height
       || props.width !== nextProps.width
       || props.rowCount !== nextProps.rowCount;
+
+    if (props.shallowUpdateFunc) {
+      return shallowChange || props.shallowUpdateFunc(props, nextProps);
+    }
+
     return shallowChange;
   }
   render() {
@@ -50,10 +56,12 @@ TimelineBody.propTypes = {
   rowCount: PropTypes.number.isRequired,
   grid_ref_callback: PropTypes.func.isRequired,
   cellRenderer: PropTypes.func.isRequired,
-  shallowUpdateCheck: PropTypes.bool
+  shallowUpdateCheck: PropTypes.bool,
+  shallowUpdateFunc: PropTypes.func
 };
 
 TimelineBody.defaultProps = {
-  shallowUpdateCheck: false
+  shallowUpdateCheck: false,
+  shallowUpdateFunc: null
 };
 export default TimelineBody;

@@ -48,20 +48,21 @@ TBA
 See http://bhp-react-timeline-9k.s3-website-ap-southeast-2.amazonaws.com/docs for detailed docs
 
 ## Props
-| Name               | Default | Description                                                                                                  |
-| ----------------   | ------- | ------------------------------------------------------------------------------------------------------------ |
-| groupOffset        |         |                                                                                                              |
-| startDate          |         |                                                                                                              |
-| endDate            |         |                                                                                                              |
-| snapMinutes        |         |                                                                                                              |
-| showCursorTime     |         |                                                                                                              |
-| cursorTimeFormat   |         |                                                                                                              |
-| itemHeight         |         |                                                                                                              |
-| timelineMode       |         |                                                                                                              |
-| timebarFormat      |         |                                                                                                              |
-| itemRenderer       |         |                                                                                                              |
-| groupRenderer      |         |                                                                                                              |
-| shallowUpdateCheck | False   | If true timeline will try to minimize re-renders . Set to false if items don't show up/update on prop change |
+| Name               | Default     | Description                                                                                                                                              |
+| ----------------   | -------     | ------------------------------------------------------------------------------------------------------------                                             |
+| groupOffset        |             |                                                                                                                                                          |
+| startDate          |             |                                                                                                                                                          |
+| endDate            |             |                                                                                                                                                          |
+| snapMinutes        |             |                                                                                                                                                          |
+| showCursorTime     |             |                                                                                                                                                          |
+| cursorTimeFormat   |             |                                                                                                                                                          |
+| itemHeight         |             |                                                                                                                                                          |
+| timelineMode       |             |                                                                                                                                                          |
+| timebarFormat      |             |                                                                                                                                                          |
+| itemRenderer       |             |                                                                                                                                                          |
+| groupRenderer      |             |                                                                                                                                                          |
+| shallowUpdateCheck | False       | If true timeline will try to minimize re-renders . Set to false if items don't show up/update on prop change                                             |
+| shallowUpdateFunc  | () => False | Function called when `shallowUpdateCheck`==true. If returns true the timeline will be redrawn. If false the library will decide if redrawing is required |
 
 ## Data
 | Name             |
