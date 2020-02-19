@@ -10,7 +10,13 @@ import interact from 'interactjs';
 import _ from 'lodash';
 
 import {pixToInt, intToPix, sumStyle} from './utils/commonUtils';
-import {rowItemsRenderer, rowLayerRenderer, getNearestRowHeight, getMaxOverlappingItems} from './utils/itemUtils';
+import {
+  rowItemsRenderer,
+  rowLayerRenderer,
+  getNearestRowHeight,
+  getNearestRowObject,
+  getMaxOverlappingItems
+} from './utils/itemUtils';
 import {timeSnap, getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta, pixelsPerMinute} from './utils/timeUtils';
 import Timebar from './components/timebar';
 import SelectBox from './components/selector';
@@ -391,9 +397,7 @@ export default class Timeline extends React.Component {
           this.clearSelection();
 
           // Change row
-          // console.log('From row', rowNo);
           let newRow = getNearestRowHeight(e.clientX, e.clientY);
-          // console.log('To row', newRow);
 
           let rowChangeDelta = newRow - rowNo;
           // Update time
@@ -572,17 +576,26 @@ export default class Timeline extends React.Component {
         })
         .styleCursor(false)
         .on('dragstart', e => {
-          this._selectBox.start(e.clientX, e.clientY);
+          const topRowObj = getNearestRowObject(e.clientX, e.clientY);
+
+          // this._selectBox.start(e.clientX, e.clientY);
+          // this._selectBox.start(e.clientX, topRowObj.style.top);
+          this._selectBox.start(e.clientX, topRowObj.getBoundingClientRect().y);
+          // const bottomRow = Number(getNearestRowHeight(left + width, top + height));
         })
         .on('dragmove', e => {
-          this._selectBox.move(e.clientX, e.clientY);
+          const topRowObj = getNearestRowObject(e.clientX, e.clientY);
+          // this._selectBox.move(e.clientX, e.clientY);
+          const topRowLoc = topRowObj.getBoundingClientRect();
+          this._selectBox.move(e.clientX, Math.floor(topRowLoc.bottom) - 1);
         })
         .on('dragend', e => {
           let {top, left, width, height} = this._selectBox.end();
           //Get the start and end row of the selection rectangle
           const topRow = Number(getNearestRowHeight(left, top));
-          const bottomRow = Number(getNearestRowHeight(left + width, top + height));
-          // console.log('top', topRow, 'bottom', bottomRow);
+          const topRowObj = getNearestRowObject(left, top);
+          const topRowLoc = topRowObj.getBoundingClientRect();
+          const bottomRow = Number(getNearestRowHeight(left + width, Math.floor(topRowLoc.top) + height));
           //Get the start and end time of the selection rectangle
           left = left - this.props.groupOffset;
           let startOffset = width > 0 ? left : left + width;
@@ -601,7 +614,6 @@ export default class Timeline extends React.Component {
             this.getTimelineWidth(),
             this.props.snapMinutes
           );
-          // console.log('Start', startTime.format(), 'End', endTime.format());
           //Get items in these ranges
           let selectedItems = [];
           for (let r = Math.min(topRow, bottomRow); r <= Math.max(topRow, bottomRow); r++) {
@@ -819,7 +831,9 @@ export default class Timeline extends React.Component {
                 groupTitleRenderer={groupTitleRenderer}
                 {...varTimebarProps}
               />
-              {markers.map(m => <Marker key={m.key} height={height} top={0} left={m.left} />)}
+              {markers.map(m => (
+                <Marker key={m.key} height={height} top={0} left={m.left} />
+              ))}
               <TimelineBody
                 width={width}
                 columnWidth={columnWidth(width)}

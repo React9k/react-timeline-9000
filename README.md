@@ -37,7 +37,7 @@ All items will move by the same horizontal delta and row changes will be calcula
 
 All items will gain the resize delta from the leading item.
 
- ### Overriding the default behaviour
+### Overriding the default behaviour
 
 TBA
 
