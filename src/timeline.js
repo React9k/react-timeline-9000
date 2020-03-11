@@ -595,13 +595,18 @@ export default class Timeline extends React.Component {
           const topRowObj = getNearestRowObject(e.clientX, e.clientY);
           // this._selectBox.move(e.clientX, e.clientY);
           const topRowLoc = topRowObj.getBoundingClientRect();
-          this._selectBox.move(e.clientX, Math.floor(topRowLoc.bottom));
+          this._selectBox.move(e.clientX, Math.floor(topRowLoc.bottom) - 1);
         })
         .on('dragend', e => {
           let {top, left, width, height} = this._selectBox.end();
+          // console.log('{top, left, width, height}:',{top, left, width, height});
           //Get the start and end row of the selection rectangle
           const topRow = Number(getNearestRowHeight(left, top));
-          const bottomRow = Number(getNearestRowHeight(left + width, top + height));
+          const topRowObj = getNearestRowObject(left, top);
+          // console.log('topRowObj', topRowObj);
+          const topRowLoc = topRowObj.getBoundingClientRect();
+          // console.log('topRowLoc', topRowLoc);
+          const bottomRow = Number(getNearestRowHeight(left + width, Math.floor(topRowLoc.top) + height));
           // console.log('top', topRow, 'bottom', bottomRow);
           //Get the start and end time of the selection rectangle
           left = left - this.props.groupOffset;
