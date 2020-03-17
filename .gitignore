@@ -21,3 +21,4 @@ node_modules/
 .dir-locals.el
 .lvimrc
 .DS_Store
+/.idea
