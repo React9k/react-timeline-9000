@@ -578,12 +578,12 @@ export default class Timeline extends React.Component {
         })
         .styleCursor(false)
         .on('dragstart', e => {
-          console.log('e', e);
-          console.log('x,y', e.clientX, e.clientY);
+          // console.log('e', e);
+          // console.log('x,y', e.clientX, e.clientY);
           const topRowObj = getNearestRowObject(e.clientX, e.clientY);
-          console.log('topRowObj', topRowObj);
-          console.log('topRowObj.style', topRowObj.style.top);
-          console.log('.getBoundingClientRect()', topRowObj.getBoundingClientRect());
+          // console.log('topRowObj', topRowObj);
+          // console.log('topRowObj.style', topRowObj.style.top);
+          // console.log('.getBoundingClientRect()', topRowObj.getBoundingClientRect());
 
           // this._selectBox.start(e.clientX, e.clientY);
           // this._selectBox.start(e.clientX, topRowObj.style.top);
