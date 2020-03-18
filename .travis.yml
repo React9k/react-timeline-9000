@@ -35,6 +35,19 @@ jobs:
       on:
         branch: release/npm
         repo: BHP-DevHub/react-timeline-9000
+  - stage: deploy npm beta
+    if: ((tag IS present) AND (tag =~ /^v\d+\.\d+\.\d+-beta\.\d+/))
+    script: make
+    deploy:
+      skip_cleanup: true
+      provider: npm
+      tag: beta
+      email: lrlilford+npm@gmail.com
+      api_key:
+        secure: OVvjYeOVe1qLdUfnhcM22UgGSrDxwwdRFfp8aXD/cHKFlxGMHwpPZzQe/Iob8nvxbsSmmjZp3jIoVj6Uf9BUeLtOSQ7W7dUoMHaEx9NfLy6SWQOKE1xEBzh57HZTL1VoZD6L9bivO6n1k65uvfTTf40/zhuN5SL8QBYoXUU8gWmCbe64Wi1DsETJz20WE0PA2X/etb39V/PQRUVMS3WDpnTB+93Vygwj7I3UCzHfv0YD17jZD9nb3mfBEUoBYJYrrXvOZRpPwvw+88Jm5xCdtQEqRV+OOxL/+1br6/4dWyzFzPXPGuPGvuIujLJxfkEP95z72CM7Z8rIIda2AVTpj7MTYYTfoESdM/lqvaGKL2RQREBjf0IHyTM2kKnUgdVnZa40cWDhgZpwmNGPluymPTobyKUUhqsfus5FbjxVs4u6Tvc6Qvdc32a56iZ87c7VmuTqLu2/xXIoXkb2y5mBxYgzZi00POH57vUQrDEg8uYKl5SkH2XGRd94W6Aa7Dnx3b7Wynq+mMHd6KkFpaszP/zTCpWVGUi8ochVgU0HKl/DZwKFHlogHeJVipaGxtDhotj/4Nnl4HuIfHRi0CPh0PTechKzaZBfIApAprqx0XxanAELsGkEvC2xVnArDz9X26zwAy6HrQkqMMoufGFj4IpBJbgH/go5UE4cZUTsL7Q=
+      on:
+        tags: true
+        repo: BHP-DevHub/react-timeline-9000
 cache:
   yarn: true
   directories:
