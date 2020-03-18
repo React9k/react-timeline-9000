@@ -47,7 +47,7 @@ jobs:
       on:
         tags: true
         repo: BHP-DevHub/react-timeline-9000
-        condition: tag =~ /^v\d.\d.\d-beta.\d$/
+        condition: (tag =~ /^v\d\.\d\.\d-beta\.\d$/)
 cache:
   yarn: true
   directories:
