@@ -36,7 +36,7 @@ jobs:
         branch: release/npm
         repo: BHP-DevHub/react-timeline-9000
   - stage: deploy npm beta
-    if: ((tag IS present) AND (tag =~ /^v\d+\.\d+\.\d+-beta\.\d+$/))
+    if: ((tag IS present) AND (tag =~ /^v\d+\.\d+\.\d+-beta\.\d+/))
     script: make
     deploy:
       skip_cleanup: true
@@ -48,7 +48,7 @@ jobs:
       on:
         tags: true
         repo: BHP-DevHub/react-timeline-9000
-        condition: (tag =~ /^v\d+\.\d+\.\d+-beta\.\d+$/)
+        condition: (tag =~ /^v\d+\.\d+\.\d+-beta\.\d+/)
 cache:
   yarn: true
   directories:
