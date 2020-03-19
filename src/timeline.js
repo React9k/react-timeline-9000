@@ -585,9 +585,17 @@ export default class Timeline extends React.Component {
         })
         .on('dragmove', e => {
           const topRowObj = getNearestRowObject(e.clientX, e.clientY);
-          // this._selectBox.move(e.clientX, e.clientY);
           const topRowLoc = topRowObj.getBoundingClientRect();
-          this._selectBox.move(e.clientX, Math.floor(topRowLoc.bottom) - 1);
+          const {startX, startY} = this._selectBox;
+          if (startY <= topRowObj.getBoundingClientRect().y) {
+            // select box for selection going down
+            this._selectBox.move(e.clientX, Math.floor(topRowLoc.bottom) - 1);
+          } else {
+            // select box for selection going up
+            const startRowLoc = getNearestRowObject(startX, startY).getBoundingClientRect();
+            this._selectBox.start(startX, Math.floor(startRowLoc.bottom) - 1);
+            this._selectBox.move(e.clientX, Math.floor(topRowLoc.top) + 1);
+          }
         })
         .on('dragend', e => {
           let {top, left, width, height} = this._selectBox.end();
