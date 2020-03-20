@@ -120,6 +120,23 @@ export function rowLayerRenderer(layers, vis_start, vis_end, total_width, itemHe
     );
   });
 }
+
+/**
+ * Gets the row object for a given x and y pixel location
+ * @param  {number} x The x coordinate of the pixel location
+ * @param  {number} y The y coordinate of the pixel location
+ * @param  {Object} topDiv Div to search under
+ * @returns {number} The row number
+ */
+export function getNearestRowObject(x, y, topDiv = document) {
+  let elementsAtPixel = document.elementsFromPoint(x, y);
+  let targetRow = _.find(elementsAtPixel, e => {
+    const inDiv = topDiv.contains(e);
+    return inDiv && e.hasAttribute('data-row-index');
+  });
+  return targetRow;
+}
+
 /**
  * Gets the row number for a given x and y pixel location
  * @param  {number} x The x coordinate of the pixel location
