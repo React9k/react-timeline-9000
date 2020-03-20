@@ -584,54 +584,61 @@ export default class Timeline extends React.Component {
           // const bottomRow = Number(getNearestRowHeight(left + width, top + height));
         })
         .on('dragmove', e => {
-          const topRowObj = getNearestRowObject(e.clientX, e.clientY);
-          const topRowLoc = topRowObj.getBoundingClientRect();
           const {startX, startY} = this._selectBox;
-          if (startY <= topRowObj.getBoundingClientRect().y) {
-            // select box for selection going down
-            this._selectBox.move(e.clientX, Math.floor(topRowLoc.bottom) - 1);
-          } else {
-            // select box for selection going up
-            const startRowLoc = getNearestRowObject(startX, startY).getBoundingClientRect();
-            this._selectBox.start(startX, Math.floor(startRowLoc.bottom) - 1);
-            this._selectBox.move(e.clientX, Math.floor(topRowLoc.top) + 1);
+          const {clientX, clientY} = e;
+          const topRowObj = getNearestRowObject(clientX, clientY);
+          if (topRowObj !== undefined) {
+            // only run if you can detect the top row
+            const topRowLoc = topRowObj.getBoundingClientRect();
+            if (startY <= topRowObj.getBoundingClientRect().y) {
+              // select box for selection going down
+              this._selectBox.move(clientX, Math.floor(topRowLoc.bottom) - 1);
+            } else {
+              // select box for selection going up
+              const startRowLoc = getNearestRowObject(startX, startY).getBoundingClientRect();
+              this._selectBox.start(startX, Math.floor(startRowLoc.bottom) - 1);
+              this._selectBox.move(clientX, Math.floor(topRowLoc.top) + 1);
+            }
           }
         })
         .on('dragend', e => {
           let {top, left, width, height} = this._selectBox.end();
           //Get the start and end row of the selection rectangle
-          const topRow = Number(getNearestRowHeight(left, top));
           const topRowObj = getNearestRowObject(left, top);
-          const topRowLoc = topRowObj.getBoundingClientRect();
-          const bottomRow = Number(getNearestRowHeight(left + width, Math.floor(topRowLoc.top) + height));
-          //Get the start and end time of the selection rectangle
-          left = left - this.props.groupOffset;
-          let startOffset = width > 0 ? left : left + width;
-          let endOffset = width > 0 ? left + width : left;
-          const startTime = getTimeAtPixel(
-            startOffset,
-            this.props.startDate,
-            this.props.endDate,
-            this.getTimelineWidth(),
-            this.props.snapMinutes
-          );
-          const endTime = getTimeAtPixel(
-            endOffset,
-            this.props.startDate,
-            this.props.endDate,
-            this.getTimelineWidth(),
-            this.props.snapMinutes
-          );
-          //Get items in these ranges
-          let selectedItems = [];
-          for (let r = Math.min(topRow, bottomRow); r <= Math.max(topRow, bottomRow); r++) {
-            selectedItems.push(
-              ..._.filter(this.rowItemMap[r], i => {
-                return i.start.isBefore(endTime) && i.end.isAfter(startTime);
-              })
+          if (topRowObj !== undefined) {
+            // only confirm the end of a drag if the selection box is valid
+            const topRow = Number(getNearestRowHeight(left, top));
+            const topRowLoc = topRowObj.getBoundingClientRect();
+            const bottomRow = Number(getNearestRowHeight(left + width, Math.floor(topRowLoc.top) + height));
+            //Get the start and end time of the selection rectangle
+            left = left - this.props.groupOffset;
+            let startOffset = width > 0 ? left : left + width;
+            let endOffset = width > 0 ? left + width : left;
+            const startTime = getTimeAtPixel(
+              startOffset,
+              this.props.startDate,
+              this.props.endDate,
+              this.getTimelineWidth(),
+              this.props.snapMinutes
             );
+            const endTime = getTimeAtPixel(
+              endOffset,
+              this.props.startDate,
+              this.props.endDate,
+              this.getTimelineWidth(),
+              this.props.snapMinutes
+            );
+            //Get items in these ranges
+            let selectedItems = [];
+            for (let r = Math.min(topRow, bottomRow); r <= Math.max(topRow, bottomRow); r++) {
+              selectedItems.push(
+                ..._.filter(this.rowItemMap[r], i => {
+                  return i.start.isBefore(endTime) && i.end.isAfter(startTime);
+                })
+              );
+            }
+            this.props.onInteraction(Timeline.changeTypes.itemsSelected, selectedItems);
           }
-          this.props.onInteraction(Timeline.changeTypes.itemsSelected, selectedItems);
         });
     }
   }
