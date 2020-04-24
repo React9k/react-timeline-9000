@@ -126,15 +126,58 @@ export function rowLayerRenderer(layers, vis_start, vis_end, total_width, itemHe
  * @param  {number} x The x coordinate of the pixel location
  * @param  {number} y The y coordinate of the pixel location
  * @param  {Object} topDiv Div to search under
- * @returns {number} The row number
+ * @returns {Object} The row object at that coordinate
  */
 export function getNearestRowObject(x, y, topDiv = document) {
   let elementsAtPixel = document.elementsFromPoint(x, y);
-  let targetRow = _.find(elementsAtPixel, e => {
+  return _.find(elementsAtPixel, e => {
     const inDiv = topDiv.contains(e);
     return inDiv && e.hasAttribute('data-row-index');
   });
-  return targetRow;
+}
+
+/**
+ * Gets the row number for a given row object
+ * @param  {Object} elem The row object
+ * @returns {number} The row number
+ */
+export function getRowObjectRowNumber(elem) {
+  return Number(elem ? elem.getAttribute('data-row-index') : 0);
+}
+
+/**
+ * Gets the vertical margins and borders given an object
+ * @param  {Object} elem The row object
+ * @returns {number} the pixel position of the bottom of the element
+ */
+export function getVerticalMarginBorder(elem) {
+  const computedStyles = window.getComputedStyle(elem);
+  // top margin plus bottom margin halved
+  const rowMargins =
+    (Math.ceil(parseFloat(computedStyles['marginTop']) + parseFloat(computedStyles['marginBottom'])) || 1) / 2;
+  // half the size of the border seems important
+  const rowBorders =
+    (Math.ceil(parseFloat(computedStyles['borderTopWidth']) + parseFloat(computedStyles['borderBottomWidth'])) || 1) /
+    2;
+  return Number(rowMargins + rowBorders);
+}
+
+/**
+ * Gets the true bottom location given an object
+ * @param  {Object} elem an element
+ * @returns {number} the pixel position of the bottom of the element
+ */
+export function getTrueBottom(elem) {
+  /*
+  @bendog: leaving this here as a helper, if there's ever a bug around inner items size
+  // get object shape
+  const rects = elem.getClientRects();
+  const bottom = Math.max(Object.values(rects).map(o => o.bottom), 0);
+   */
+  // calculate the true bottom
+  const bound = elem.getBoundingClientRect();
+  const bottom = Math.floor(bound.top + bound.height);
+  return Number(bottom);
 }
 
 /**
@@ -144,7 +187,7 @@ export function getNearestRowObject(x, y, topDiv = document) {
  * @param  {Object} topDiv Div to search under
  * @returns {number} The row number
  */
-export function getNearestRowHeight(x, y, topDiv = document) {
+export function getNearestRowNumber(x, y, topDiv = document) {
   let elementsAtPixel = document.elementsFromPoint(x, y);
   let targetRow = _.find(elementsAtPixel, e => {
     const inDiv = topDiv.contains(e);
