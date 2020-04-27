@@ -2,13 +2,21 @@
 
 ## Unreleased
 
+## v1.1.1
+### Fixed
+- Selection UI would bleed when working on very dense timeline rows
+with borders and/or margins
+
+## v1.1.0
+### Changed
+- Selection UI now matches functionality
 
 ## v1.0.14
-## Added
+### Added
 - Prop to customize shallow render logic
 
 ## v1.0.13
-## Added
+### Added
 - Option for shallow re-render check
 
 ## v1.0.12

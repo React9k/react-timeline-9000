@@ -13,9 +13,12 @@ import {pixToInt, intToPix, sumStyle} from './utils/commonUtils';
 import {
   rowItemsRenderer,
   rowLayerRenderer,
-  getNearestRowHeight,
+  getNearestRowNumber,
   getNearestRowObject,
-  getMaxOverlappingItems
+  getMaxOverlappingItems,
+  getTrueBottom,
+  getVerticalMarginBorder,
+  getRowObjectRowNumber
 } from './utils/itemUtils';
 import {timeSnap, getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta, pixelsPerMinute} from './utils/timeUtils';
 import Timebar from './components/timebar';
@@ -397,7 +400,7 @@ export default class Timeline extends React.Component {
           this.clearSelection();
 
           // Change row
-          let newRow = getNearestRowHeight(e.clientX, e.clientY);
+          let newRow = getNearestRowNumber(e.clientX, e.clientY);
 
           let rowChangeDelta = newRow - rowNo;
           // Update time
@@ -576,40 +579,62 @@ export default class Timeline extends React.Component {
         })
         .styleCursor(false)
         .on('dragstart', e => {
-          const topRowObj = getNearestRowObject(e.clientX, e.clientY);
+          const nearestRowObject = getNearestRowObject(e.clientX, e.clientY);
 
           // this._selectBox.start(e.clientX, e.clientY);
           // this._selectBox.start(e.clientX, topRowObj.style.top);
-          this._selectBox.start(e.clientX, topRowObj.getBoundingClientRect().y);
-          // const bottomRow = Number(getNearestRowHeight(left + width, top + height));
+          this._selectBox.start(e.clientX, nearestRowObject.getBoundingClientRect().y);
+          // const bottomRow = Number(getNearestRowNumber(left + width, top + height));
         })
         .on('dragmove', e => {
+          const magicalConstant = 2;
+          // @bendog: I added this magical constant to solve the issue of selection bleed,
+          // I don't understand why it works, but if frequentist statisticians can use imaginary numbers, so can i.
           const {startX, startY} = this._selectBox;
+          const startRowObject = getNearestRowObject(startX, startY);
           const {clientX, clientY} = e;
-          const topRowObj = getNearestRowObject(clientX, clientY);
-          if (topRowObj !== undefined) {
+          const currentRowObject = getNearestRowObject(clientX, clientY);
+          if (currentRowObject !== undefined && startRowObject !== undefined) {
             // only run if you can detect the top row
-            const topRowLoc = topRowObj.getBoundingClientRect();
-            if (startY <= topRowObj.getBoundingClientRect().y) {
+            const startRowNumber = getRowObjectRowNumber(startRowObject);
+            const currentRowNumber = getRowObjectRowNumber(currentRowObject);
+            // const numRows = 1 + Math.abs(startRowNumber - currentRowNumber);
+            const rowMarginBorder = getVerticalMarginBorder(currentRowObject);
+            if (startRowNumber <= currentRowNumber) {
               // select box for selection going down
-              this._selectBox.move(clientX, Math.floor(topRowLoc.bottom) - 1);
+              // get the first selected rows top
+              const startTop = Math.ceil(startRowObject.getBoundingClientRect().top + rowMarginBorder);
+              // get the currently selected rows bottom
+              const currentBottom = Math.floor(getTrueBottom(currentRowObject) - magicalConstant - rowMarginBorder);
+              this._selectBox.start(startX, startTop);
+              this._selectBox.move(clientX, currentBottom);
             } else {
               // select box for selection going up
-              const startRowLoc = getNearestRowObject(startX, startY).getBoundingClientRect();
-              this._selectBox.start(startX, Math.floor(startRowLoc.bottom) - 1);
-              this._selectBox.move(clientX, Math.floor(topRowLoc.top) + 1);
+              // get the currently selected rows top
+              const currentTop = Math.ceil(currentRowObject.getBoundingClientRect().top + rowMarginBorder);
+              // get the first selected rows bottom
+              const startBottom = Math.floor(getTrueBottom(startRowObject) - magicalConstant - rowMarginBorder * 2);
+              // the bottom will bleed south unless you counter the margins and boreders from the above rows
+              this._selectBox.start(startX, startBottom);
+              this._selectBox.move(clientX, currentTop);
             }
           }
         })
         .on('dragend', e => {
           let {top, left, width, height} = this._selectBox.end();
           //Get the start and end row of the selection rectangle
-          const topRowObj = getNearestRowObject(left, top);
-          if (topRowObj !== undefined) {
+          const topRowObject = getNearestRowObject(left, top);
+          if (topRowObject !== undefined) {
             // only confirm the end of a drag if the selection box is valid
-            const topRow = Number(getNearestRowHeight(left, top));
-            const topRowLoc = topRowObj.getBoundingClientRect();
-            const bottomRow = Number(getNearestRowHeight(left + width, Math.floor(topRowLoc.top) + height));
+            const topRowNumber = Number(getNearestRowNumber(left, top));
+            const topRowLoc = topRowObject.getBoundingClientRect();
+            const rowMarginBorder = getVerticalMarginBorder(topRowObject);
+            const bottomRow = Number(
+              getNearestRowNumber(
+                left + width,
+                Math.floor(topRowLoc.top - rowMarginBorder) + Math.floor(height - rowMarginBorder)
+              )
+            );
             //Get the start and end time of the selection rectangle
             left = left - this.props.groupOffset;
             let startOffset = width > 0 ? left : left + width;
@@ -630,7 +655,7 @@ export default class Timeline extends React.Component {
             );
             //Get items in these ranges
             let selectedItems = [];
-            for (let r = Math.min(topRow, bottomRow); r <= Math.max(topRow, bottomRow); r++) {
+            for (let r = Math.min(topRowNumber, bottomRow); r <= Math.max(topRowNumber, bottomRow); r++) {
               selectedItems.push(
                 ..._.filter(this.rowItemMap[r], i => {
                   return i.start.isBefore(endTime) && i.end.isAfter(startTime);
