@@ -80,7 +80,9 @@ export default class Timeline extends React.Component {
     groupRenderer: PropTypes.func,
     groupTitleRenderer: PropTypes.func,
     shallowUpdateCheck: PropTypes.bool,
-    forceRedrawFunc: PropTypes.func
+    forceRedrawFunc: PropTypes.func,
+    bottomResolution: PropTypes.string,
+    topResolution: PropTypes.string
   };
 
   static defaultProps = {
@@ -833,12 +835,16 @@ export default class Timeline extends React.Component {
       shallowUpdateCheck,
       forceRedrawFunc,
       startDate,
-      endDate
+      endDate,
+      bottomResolution,
+      topResolution
     } = this.props;
 
     const divCssClass = `rct9k-timeline-div rct9k-id-${componentId}`;
     let varTimebarProps = {};
     if (timebarFormat) varTimebarProps['timeFormats'] = timebarFormat;
+    if (bottomResolution) varTimebarProps['bottom_resolution'] = bottomResolution;
+    if (topResolution) varTimebarProps['top_resolution'] = topResolution;
 
     function columnWidth(width) {
       return ({index}) => {
