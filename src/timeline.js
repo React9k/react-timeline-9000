@@ -624,6 +624,7 @@ export default class Timeline extends React.Component {
         })
         .on('dragend', e => {
           let {top, left, width, height} = this._selectBox.end();
+          const {componentId} = this.props;
           //Get the start and end row of the selection rectangle
           const topRowObject = getNearestRowObject(left, top);
           if (topRowObject !== undefined) {
@@ -639,8 +640,10 @@ export default class Timeline extends React.Component {
             );
             //Get the start and end time of the selection rectangle
             left = left - this.props.groupOffset;
-            let startOffset = width > 0 ? left : left + width;
-            let endOffset = width > 0 ? left + width : left;
+            const leftOffset = document.querySelector(`.rct9k-id-${componentId} .parent-div`).getBoundingClientRect()
+              .left;
+            const startOffset = left - leftOffset;
+            const endOffset = e.clientX - this.props.groupOffset - leftOffset;
             const startTime = getTimeAtPixel(
               startOffset,
               this.props.startDate,
@@ -664,7 +667,13 @@ export default class Timeline extends React.Component {
                 })
               );
             }
-            this.props.onInteraction(Timeline.changeTypes.itemsSelected, selectedItems);
+
+            this.props.onInteraction(Timeline.changeTypes.itemsSelected, selectedItems, {
+              startTime,
+              endTime,
+              rowTopIndex: topRowNumber,
+              rowBottomIndex: bottomRow
+            });
           }
         });
     }
