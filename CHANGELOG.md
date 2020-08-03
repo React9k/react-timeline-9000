@@ -1,6 +1,9 @@
 # Change Log
 
 ## Unreleased
+## v1.1.2
+### Added
+- Pass resolution props to timeline
 
 ## v1.1.1
 ### Fixed
