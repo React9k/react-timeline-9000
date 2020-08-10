@@ -110,3 +110,12 @@
   position: absolute;
   z-index: 1;
 }
+
+.demo-layout {
+  height: 100%;
+}
+
+.demo-layout-content {
+  display: flex;
+  flex-direction: column;
+}

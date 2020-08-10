@@ -852,6 +852,14 @@ export default class Timeline extends React.Component {
         return width - groupOffset;
       };
     }
+
+    function calculateHeight(height) {
+      if (height === 0) return height;
+      // substract timebar height from total height
+      const timebarHeight = document.querySelector(`.rct9k-id-${componentId} .rct9k-timebar`).getBoundingClientRect().height;
+      return height - timebarHeight;
+    }
+
     // Markers (only current time marker atm)
     const markers = [];
     if (showCursorTime && this.mouse_snapped_time) {
@@ -883,7 +891,7 @@ export default class Timeline extends React.Component {
               <TimelineBody
                 width={width}
                 columnWidth={columnWidth(width)}
-                height={height}
+                height={calculateHeight(height)}
                 rowHeight={this.rowHeight}
                 rowCount={this.props.groups.length}
                 cellRenderer={this.cellRenderer(this.getTimelineWidth(width))}
