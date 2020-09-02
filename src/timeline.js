@@ -854,10 +854,9 @@ export default class Timeline extends React.Component {
     }
 
     function calculateHeight(height) {
-      if (height === 0) return height;
       // substract timebar height from total height
       const timebarHeight = document.querySelector(`.rct9k-id-${componentId} .rct9k-timebar`).getBoundingClientRect().height;
-      return height - timebarHeight;
+      return Math.max(height - timebarHeight, 0);
     }
 
     // Markers (only current time marker atm)
