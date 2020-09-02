@@ -854,8 +854,13 @@ export default class Timeline extends React.Component {
     }
 
     function calculateHeight(height) {
+      // when this function is called for the first time, the timebar is not yet rendered
+      var timebar = document.querySelector(`.rct9k-id-${componentId} .rct9k-timebar`);
+      if (!timebar) {
+        return 0;
+      }
       // substract timebar height from total height
-      const timebarHeight = document.querySelector(`.rct9k-id-${componentId} .rct9k-timebar`).getBoundingClientRect().height;
+      const timebarHeight = timebar.getBoundingClientRect().height;
       return Math.max(height - timebarHeight, 0);
     }
 
