@@ -51,7 +51,7 @@ class TimelineBody extends Component {
 TimelineBody.propTypes = {
   width: PropTypes.number.isRequired,
   columnWidth: PropTypes.func.isRequired,
-  height: PropTypes.oneOfType([PropTypes.number, PropTypes.func]).isRequired,
+  height: PropTypes.number.isRequired,
   rowHeight: PropTypes.func.isRequired,
   rowCount: PropTypes.number.isRequired,
   grid_ref_callback: PropTypes.func.isRequired,
