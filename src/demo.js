@@ -283,8 +283,8 @@ export default class DemoTimeline extends Component {
     }
 
     return (
-      <Layout className="layout">
-        <Layout.Content>
+      <Layout className="layout demo-layout">
+        <Layout.Content className="demo-layout-content">
           <div style={{margin: 24}}>
             <Form layout="inline">
               <Form.Item label="No rows">
