@@ -47,15 +47,19 @@ export default class Timebar extends React.Component {
       start = this.props.start;
       end = this.props.end;
     }
-    const durationSecs = end.diff(start, 'seconds');
+    const durationMilliSecs = end.diff(start);
+    //    -> 1s
+    if (durationMilliSecs <= 1000) this.setState({resolution: {top: 'second', bottom: 'millisecond'}});
+    //    -> 1m
+    else if (durationMilliSecs <= 60 * 1000) this.setState({resolution: {top: 'minute', bottom: 'second'}});
     //    -> 1h
-    if (durationSecs <= 60 * 60) this.setState({resolution: {top: 'hour', bottom: 'minute'}});
+    else if (durationMilliSecs <= 60 * 60 * 1000) this.setState({resolution: {top: 'hour', bottom: 'minute'}});
     // 1h -> 3d
-    else if (durationSecs <= 24 * 60 * 60 * 3) this.setState({resolution: {top: 'day', bottom: 'hour'}});
+    else if (durationMilliSecs <= 24 * 60 * 60 * 3 * 1000) this.setState({resolution: {top: 'day', bottom: 'hour'}});
     // 1d -> 30d
-    else if (durationSecs <= 30 * 24 * 60 * 60) this.setState({resolution: {top: 'month', bottom: 'day'}});
+    else if (durationMilliSecs <= 30 * 24 * 60 * 60 * 1000) this.setState({resolution: {top: 'month', bottom: 'day'}});
     //30d -> 1y
-    else if (durationSecs <= 365 * 24 * 60 * 60) this.setState({resolution: {top: 'year', bottom: 'month'}});
+    else if (durationMilliSecs <= 365 * 24 * 60 * 60 * 1000) this.setState({resolution: {top: 'year', bottom: 'month'}});
     // 1y ->
     else this.setState({resolution: {top: 'year', bottom: 'year'}});
   }
@@ -86,8 +90,8 @@ export default class Timebar extends React.Component {
     const {start, end} = this.props;
     const width = this.props.width - this.props.leftOffset;
 
-    const start_end_min = end.diff(start, 'minutes');
-    const pixels_per_min = width / start_end_min;
+    const start_end_ms = end.diff(start, 'milliseconds');
+    const pixels_per_ms = width / start_end_ms;
     function isLeapYear(year) {
       return year % 400 === 0 || (year % 100 !== 0 && year % 4 === 0);
     }
@@ -95,19 +99,25 @@ export default class Timebar extends React.Component {
     let inc = width;
     switch (resolutionType) {
       case 'year':
-        inc = pixels_per_min * 60 * 24 * (daysInYear - offset);
+        inc = pixels_per_ms * 1000 * 60 * 60 * 24 * (daysInYear - offset);
         break;
       case 'month':
-        inc = pixels_per_min * 60 * 24 * (date.daysInMonth() - offset);
+        inc = pixels_per_ms * 1000 * 60 * 60 * 24 * (date.daysInMonth() - offset);
         break;
       case 'day':
-        inc = pixels_per_min * 60 * (24 - offset);
+        inc = pixels_per_ms * 1000 * 60 * 60 * (24 - offset);
         break;
       case 'hour':
-        inc = pixels_per_min * (60 - offset);
+        inc = pixels_per_ms * 1000 * 60 * (60 - offset);
         break;
       case 'minute':
-        inc = pixels_per_min - offset;
+        inc = pixels_per_ms * 1000 * 60 - offset;
+        break;
+      case 'second':
+        inc = pixels_per_ms * 1000 - offset;
+        break;
+      case 'millisecond':
+        inc = pixels_per_ms - offset;
         break;
       default:
         break;
@@ -174,7 +184,13 @@ export default class Timebar extends React.Component {
       const offset = moment.duration(currentDate.diff(currentDate.clone().startOf('hour')));
       addTimeIncrement(offset, 'minutes', (currentDt, offst) => currentDt.subtract(offst).add(1, 'hours'));
     } else if (resolution.type === 'minute') {
-      addTimeIncrement(moment.duration(0), 'minutes', (currentDt, offst) => currentDt.add(1, 'minutes'));
+      const offset = moment.duration(currentDate.diff(currentDate.clone().startOf('minute')));
+      addTimeIncrement(offset, 'minutes', (currentDt, offst) => currentDt.subtract(offst).add(1, 'minutes'));
+    } else if (resolution.type === 'second') {
+      const offset = moment.duration(currentDate.diff(currentDate.clone().startOf('second')));
+      addTimeIncrement(offset, 'second', (currentDt, offst) => currentDt.subtract(offst).add(1, 'seconds'));
+    } else if (resolution.type === 'millisecond') {
+      addTimeIncrement(moment.duration(0), 'millisecond', (currentDt, offst) => currentDt.add(1, 'milliseconds'));
     }
     return timeIncrements;
   }
