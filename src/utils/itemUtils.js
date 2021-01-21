@@ -12,7 +12,7 @@ import moment from 'moment';
  * @param  {moment} vis_end The visible end of the timeline
  * @param  {number} total_width pixel width of the timeline
  */
-export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHeight, itemRenderer, selectedItems = []) {
+export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHeight, itemRenderer, onMouseOver, onMouseLeave, onItemLeaveselectedItems = []) {
   const start_end_min = vis_end.diff(vis_start, 'minutes');
   const pixels_per_min = total_width / start_end_min;
   let filtered_items = _.sortBy(
@@ -61,7 +61,10 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHei
         key={i.key}
         data-item-index={i.key}
         className={outerClassnames}
-        style={{left, width, top, backgroundColor: 'transparent'}}>
+        style={{left, width, top, backgroundColor: 'transparent'}}
+        onMouseOver={onMouseOver}
+        onMouseOver={onMouseLeave}
+      >
         <Comp key={i.key} item={i} className={compClassnames} style={style} />
       </span>
     );
