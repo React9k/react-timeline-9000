@@ -81,6 +81,8 @@ See http://bhp-react-timeline-9k.s3-website-ap-southeast-2.amazonaws.com/docs fo
 | onRowClick        |
 | onRowContext      |
 | onRowDoubleClick  |
+| onRowHover        |
+| onRowLeave        |
 | onItemHover       |
 | onItemLeave       |
 
