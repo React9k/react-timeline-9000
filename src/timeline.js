@@ -329,8 +329,12 @@ export default class Timeline extends React.Component {
           enabled: true,
           allowFrom: selectedItemSelector,
           restrict: {
-            restriction: `.${topDivClassId}`,
-            elementRect: {left: 0, right: 1, top: 0, bottom: 1}
+            restriction: `.${topDivClassId}  .ReactVirtualized__Grid`,
+            elementRect: {left: 0, right: 1, top: 0, bottom: 1},
+            offset: {
+              left: this.props.groupOffset,
+              bottom: this._grid ? this._grid.props.height - Math.min(this.props.itemHeight * this.props.groups.length, this._grid.props.height) : 0
+            },
           }
         })
         .on('dragstart', e => {
