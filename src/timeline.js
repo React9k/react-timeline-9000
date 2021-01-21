@@ -74,6 +74,8 @@ export default class Timeline extends React.Component {
     onRowClick: PropTypes.func,
     onRowContext: PropTypes.func,
     onRowDoubleClick: PropTypes.func,
+    onRowHover: PropTypes.func,
+    onRowLeave: PropTypes.func,
     onItemHover: PropTypes.func,
     onItemLeave: PropTypes.func,
     itemRenderer: PropTypes.func,
@@ -676,8 +678,8 @@ export default class Timeline extends React.Component {
     if (this.selecting) {
       return;
     }
-    if (e.target.hasAttribute('data-item-index') || e.target.parentElement.hasAttribute('data-item-index')) {
-      let itemKey = e.target.getAttribute('data-item-index') || e.target.parentElement.getAttribute('data-item-index');
+    if (e.currentTarget.hasAttribute('data-item-index') || e.target.currentTarget.hasAttribute('data-item-index')) {
+      let itemKey = e.currentTarget.getAttribute('data-item-index') || e.currentTarget.parentElement.getAttribute('data-item-index');
       itemCallback && itemCallback(e, Number(itemKey));
     } else {
       let row = e.target.getAttribute('data-row-index');
@@ -705,7 +707,7 @@ export default class Timeline extends React.Component {
      * @param  {} rowIndex Vertical (row) index of cell
      * @param  {} style Style object to be applied to cell (to position it);
      */
-    const {timelineMode, onItemHover, onItemLeave, rowLayers} = this.props;
+    const {timelineMode, onItemHover, onItemLeave, onRowHover, onRowLeave, rowLayers} = this.props;
     const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, timelineMode);
     return ({columnIndex, key, parent, rowIndex, style}) => {
       let itemCol = 1;
@@ -727,11 +729,11 @@ export default class Timeline extends React.Component {
             onMouseMove={e => (this.selecting = true)}
             onMouseOver={e => {
               this.selecting = false;
-              return this._handleItemRowEvent(e, onItemHover, null);
+              return this._handleItemRowEvent(e, onRowHover, null);
             }}
             onMouseLeave={e => {
               this.selecting = false;
-              return this._handleItemRowEvent(e, onItemLeave, null);
+              return this._handleItemRowEvent(e, onRowLeave, null);
             }}
             onContextMenu={e =>
               this._handleItemRowEvent(e, this.props.onItemContextClick, this.props.onRowContextClick)
@@ -744,6 +746,16 @@ export default class Timeline extends React.Component {
               width,
               this.props.itemHeight,
               this.props.itemRenderer,
+              function onMouseOver(e) {
+                e.preventDefault();
+                this.selecting = false;
+                return this._handleItemRowEvent(e, onItemHover, null);
+              },
+              function onMouseLeave(e) {
+                e.preventDefault()
+                this.selecting = false;
+                return this._handleItemRowEvent(e, onItemLeave, null);
+              },
               canSelect ? this.props.selectedItems : []
             )}
             {rowLayerRenderer(layersInRow, this.props.startDate, this.props.endDate, width, rowHeight)}
