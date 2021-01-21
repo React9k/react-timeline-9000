@@ -581,6 +581,7 @@ export default class Timeline extends React.Component {
         })
         .styleCursor(false)
         .on('dragstart', e => {
+          this.selecting = true;
           const nearestRowObject = getNearestRowObject(e.clientX, e.clientY);
 
           // this._selectBox.start(e.clientX, e.clientY);
@@ -623,6 +624,7 @@ export default class Timeline extends React.Component {
           }
         })
         .on('dragend', e => {
+          this.selecting = false;
           let {top, left, width, height} = this._selectBox.end();
           //Get the start and end row of the selection rectangle
           const topRowObject = getNearestRowObject(left, top);
@@ -723,14 +725,10 @@ export default class Timeline extends React.Component {
             data-row-index={rowIndex}
             className="rct9k-row"
             onClick={e => this._handleItemRowEvent(e, Timeline.no_op, this.props.onRowClick)}
-            onMouseDown={e => (this.selecting = false)}
-            onMouseMove={e => (this.selecting = true)}
             onMouseOver={e => {
-              this.selecting = false;
               return this._handleItemRowEvent(e, onItemHover, null);
             }}
             onMouseLeave={e => {
-              this.selecting = false;
               return this._handleItemRowEvent(e, onItemLeave, null);
             }}
             onContextMenu={e =>
