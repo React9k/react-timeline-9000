@@ -311,6 +311,11 @@ export default class Timeline extends React.Component {
   };
 
   setUpDragging(canSelect, canDrag, canResize) {
+    // No need to setUpDragging during SSR
+    if (typeof window === 'undefined') {
+      return; 
+    }
+    
     const topDivClassId = `rct9k-id-${this.props.componentId}`;
     const selectedItemSelector = '.rct9k-items-outer-selected';
     if (this._itemInteractable) this._itemInteractable.unset();
@@ -854,6 +859,9 @@ export default class Timeline extends React.Component {
     }
 
     function calculateHeight(height) {
+      if (typeof window === 'undefined') {
+        return 0;
+      }
       // when this function is called for the first time, the timebar is not yet rendered
       var timebar = document.querySelector(`.rct9k-id-${componentId} .rct9k-timebar`);
       if (!timebar) {
