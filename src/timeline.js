@@ -638,7 +638,7 @@ export default class Timeline extends React.Component {
               )
             );
             //Get the start and end time of the selection rectangle
-            left = left - this.props.groupOffset;
+            left = left - topRowLoc.left;
             let startOffset = width > 0 ? left : left + width;
             let endOffset = width > 0 ? left + width : left;
             const startTime = getTimeAtPixel(
