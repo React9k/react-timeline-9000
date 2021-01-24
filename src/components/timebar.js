@@ -16,14 +16,12 @@ export default class Timebar extends React.Component {
     this.state = {};
 
     this.guessResolution = this.guessResolution.bind(this);
+    this.guessResolution();
     this.renderBar = this.renderBar.bind(this);
     this.renderTopBar = this.renderTopBar.bind(this);
     this.renderBottomBar = this.renderBottomBar.bind(this);
   }
 
-  componentWillMount() {
-    this.guessResolution();
-  }
   /**
    * On new props we check if a resolution is given, and if not we guess one
    * @param {Object} nextProps Props coming in
