@@ -83,6 +83,7 @@ export default class Timeline extends React.Component {
     forceRedrawFunc: PropTypes.func,
     bottomResolution: PropTypes.string,
     topResolution: PropTypes.string,
+    interact.Props.object,
   };
 
   static defaultProps = {
@@ -101,6 +102,7 @@ export default class Timeline extends React.Component {
     forceRedrawFunc: null,
     onItemHover() {},
     onItemLeave() {},
+    interact: {},
   };
 
   /**
@@ -324,9 +326,11 @@ export default class Timeline extends React.Component {
     this._itemInteractable = interact(`.${topDivClassId} .item_draggable`);
     this._selectRectangleInteractable = interact(`.${topDivClassId} .parent-div`);
 
-    this._itemInteractable.on('tap', e => {
-      this._handleItemRowEvent(e, this.props.onItemClick, this.props.onRowClick);
-    });
+    this._itemInteractable
+      .pointerEvents(this.props.interactOptions.pointerEvents)
+      .on('tap', e => {
+        this._handleItemRowEvent(e, this.props.onItemClick, this.props.onRowClick);
+      });
 
     if (canDrag) {
       this._itemInteractable
@@ -337,6 +341,7 @@ export default class Timeline extends React.Component {
             restriction: `.${topDivClassId}`,
             elementRect: {left: 0, right: 1, top: 0, bottom: 1},
           },
+          ...this.props.interactOptions.draggable,
         })
         .on('dragstart', e => {
           let selections = [];
@@ -464,6 +469,7 @@ export default class Timeline extends React.Component {
         .resizable({
           allowFrom: selectedItemSelector,
           edges: {left: true, right: true, bottom: false, top: false},
+          ...this.props.interactOptions.draggable,
         })
         .on('resizestart', e => {
           const selected = this.props.onInteraction(Timeline.changeTypes.resizeStart, null, this.props.selectedItems);
