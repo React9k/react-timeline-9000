@@ -83,7 +83,7 @@ export default class Timeline extends React.Component {
     forceRedrawFunc: PropTypes.func,
     bottomResolution: PropTypes.string,
     topResolution: PropTypes.string,
-    interact: Props.object,
+    interact: PropTypes.object,
   };
 
   static defaultProps = {
