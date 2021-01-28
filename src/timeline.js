@@ -83,7 +83,11 @@ export default class Timeline extends React.Component {
     forceRedrawFunc: PropTypes.func,
     bottomResolution: PropTypes.string,
     topResolution: PropTypes.string,
-    interact: PropTypes.object,
+    interactOptions: PropTypes.shape({
+      draggable: PropTypes.object,
+      pointerEvents: PropTypes.object,
+      resizable: PropTypes.object.isRequired,
+    }),
   };
 
   static defaultProps = {
@@ -102,7 +106,7 @@ export default class Timeline extends React.Component {
     forceRedrawFunc: null,
     onItemHover() {},
     onItemLeave() {},
-    interact: {},
+    interactOptions: {},
   };
 
   /**
