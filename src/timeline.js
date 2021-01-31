@@ -330,11 +330,9 @@ export default class Timeline extends React.Component {
     this._itemInteractable = interact(`.${topDivClassId} .item_draggable`);
     this._selectRectangleInteractable = interact(`.${topDivClassId} .parent-div`);
 
-    this._itemInteractable
-      .pointerEvents(this.props.interactOptions.pointerEvents)
-      .on('tap', e => {
-        this._handleItemRowEvent(e, this.props.onItemClick, this.props.onRowClick);
-      });
+    this._itemInteractable.pointerEvents(this.props.interactOptions.pointerEvents).on('tap', e => {
+      this._handleItemRowEvent(e, this.props.onItemClick, this.props.onRowClick);
+    });
 
     if (canDrag) {
       this._itemInteractable
