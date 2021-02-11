@@ -85,8 +85,10 @@
     "interactjs": "^1.6.2",
     "lodash": "^4.17.19",
     "moment": "^2.22.2",
-    "react": "^16.4.1",
-    "react-dom": "^16.4.1",
     "react-virtualized": "^9.19.1"
+  },
+  "peerDependencies": {
+    "react": "^16.4.1 || ^17.0.0",
+    "react-dom": "^16.4.1 || ^17.0.0"
   }
 }
