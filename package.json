@@ -73,6 +73,8 @@
     "lint-staged": "8.2.1",
     "mocha": "^5.2.0",
     "prettier": "^1.13.5",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
     "style-loader": "^0.21.0",
     "tern": "^0.21.0",
     "uglifyjs-webpack-plugin": "^2.2.0",
@@ -85,8 +87,10 @@
     "interactjs": "^1.6.2",
     "lodash": "^4.17.19",
     "moment": "^2.22.2",
-    "react": "^16.4.1",
-    "react-dom": "^16.4.1",
     "react-virtualized": "^9.19.1"
+  },
+  "peerDependencies": {
+    "react": "^16.4.1 || ^17.0.0",
+    "react-dom": "^16.4.1 || ^17.0.0"
   }
 }
