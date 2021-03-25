@@ -6,10 +6,10 @@ A performance focused timeline component in react
 [![npm (scoped)](https://img.shields.io/npm/v/react-timeline-9000.svg)](https://www.npmjs.com/package/react-timeline-9000)
 
 ## Demo
-* http://bhp-react-timeline-9k.s3-website-ap-southeast-2.amazonaws.com/
+* http://react-timeline-9000.s3-website-ap-southeast-2.amazonaws.com/
 
 ## Documentation
-* http://bhp-react-timeline-9k.s3-website-ap-southeast-2.amazonaws.com/docs/
+* http://react-timeline-9000.s3-website-ap-southeast-2.amazonaws.com/docs/
 
 
 ## Getting Started
