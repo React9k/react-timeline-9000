@@ -72,10 +72,10 @@ export default class DemoTimeline extends Component {
         let end = start.clone().add(duration);
 
         // Round to the nearest snap distance
-        const roundedStartMinutes = Math.floor(start.second() / snap) * snap;
-        const roundedEndMinutes = Math.floor(end.second() / snap) * snap;
-        start.second(roundedStartMinutes);
-        end.second(roundedEndMinutes);
+        const roundedStartSeconds = Math.floor(start.second() / snap) * snap;
+        const roundedEndSeconds = Math.floor(end.second() / snap) * snap;
+        start.second(roundedStartSeconds);
+        end.second(roundedEndSeconds);
 
         list.push({
           key: this.key,
@@ -98,13 +98,13 @@ export default class DemoTimeline extends Component {
     this.setState({selectedItems: [], message});
   };
   zoomIn() {
-    let currentSec = this.state.endDate.diff(this.state.startDate, 'milliseconds');
-    let newSec = currentSec / 2;
+    let currentMilliseconds = this.state.endDate.diff(this.state.startDate, 'milliseconds');
+    let newSec = currentMilliseconds / 2;
     this.setState({endDate: this.state.startDate.clone().add(newSec, 'milliseconds')});
   }
   zoomOut() {
-    let currentSec = this.state.endDate.diff(this.state.startDate, 'milliseconds');
-    let newSec = currentSec * 2;
+    let currentMilliseconds = this.state.endDate.diff(this.state.startDate, 'milliseconds');
+    let newSec = currentMilliseconds * 2;
     this.setState({endDate: this.state.startDate.clone().add(newSec, 'milliseconds')});
   }
 
