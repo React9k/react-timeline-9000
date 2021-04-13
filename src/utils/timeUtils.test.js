@@ -5,14 +5,14 @@ import {timeSnap, getTimeAtPixel, getPixelAtTime, getDurationFromPixels, getSnap
 
 describe('Time Utils', function() {
   describe('timeSnap', function() {
-    it('should round up to the nearest sec', function() {
+    it('should round up to the last sec', function() {
       const testTime = moment('2000-01-01 10:00:00.872 Z', 'YYYY-MM-DD H:m:s.SSS Z');
       const expectedTime = moment('2000-01-01 10:00:00.000 Z', 'YYYY-MM-DD H:m:s.SSS Z');
       const snap = 1;
       const actualTime = timeSnap(testTime, snap * 1000);
       expect(actualTime.unix()).to.equal(expectedTime.unix());
     });
-    it('should round down to the nearest sec', function() {
+    it('should round down to the last sec', function() {
       const testTime = moment('2000-01-01 10:00:00.272 Z', 'YYYY-MM-DD H:m:s.SSS Z');
       const expectedTime = moment('2000-01-01 10:00:00.000 Z', 'YYYY-MM-DD H:m:s.SSS Z');
       const snap = 1;
