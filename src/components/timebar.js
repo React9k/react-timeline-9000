@@ -51,7 +51,7 @@ export default class Timebar extends React.Component {
     /// 1ms -> 1s
     if (durationMilliSecs <= 1000) this.setState({resolution: {top: 'second', bottom: 'millisecond'}});
     // 1s  -> 2m
-    else if (durationMilliSecs <= 60 * 2 * 1000) this.setState({resolution: {top: 'minute', bottom:  'second'}});
+    else if (durationMilliSecs <= 60 * 2 * 1000) this.setState({resolution: {top: 'minute', bottom: 'second'}});
     // 2m -> 2h
     else if (durationMilliSecs <= 60 * 60 * 2 * 1000) this.setState({resolution: {top: 'hour', bottom: 'minute'}});
     // 2h -> 3d
@@ -59,7 +59,8 @@ export default class Timebar extends React.Component {
     // 1d -> 30d
     else if (durationMilliSecs <= 30 * 24 * 60 * 60 * 1000) this.setState({resolution: {top: 'month', bottom: 'day'}});
     //30d -> 1y
-    else if (durationMilliSecs <= 365 * 24 * 60 * 60 * 1000) this.setState({resolution: {top: 'year', bottom: 'month'}});
+    else if (durationMilliSecs <= 365 * 24 * 60 * 60 * 1000)
+      this.setState({resolution: {top: 'year', bottom: 'month'}});
     // 1y ->
     else this.setState({resolution: {top: 'year', bottom: 'year'}});
   }
@@ -260,11 +261,11 @@ Timebar.propTypes = {
   top_resolution: PropTypes.string,
   bottom_resolution: PropTypes.string,
   selectedRanges: PropTypes.arrayOf(PropTypes.object), // [start: moment ,end: moment (end)]
-  timeFormats: PropTypes.object
+  timeFormats: PropTypes.object,
 };
 Timebar.defaultProps = {
   selectedRanges: [],
   groupTitleRenderer: () => <div />,
   leftOffset: 0,
-  timeFormats: defaultTimebarFormat
+  timeFormats: defaultTimebarFormat,
 };

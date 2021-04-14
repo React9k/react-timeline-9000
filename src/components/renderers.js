@@ -11,7 +11,7 @@ export const DefaultItemRenderer = props => {
   const {item, ...rest} = props;
 
   return (
-    <span {...rest} title={item.tooltip ? item.tooltip : ""}>
+    <span {...rest} title={item.tooltip ? item.tooltip : ''}>
       <span className="rct9k-item-renderer-inner">{item.title}</span>
     </span>
   );

@@ -37,7 +37,7 @@ export default class DemoTimeline extends Component {
       startDate,
       endDate,
       message: '',
-      timelineMode: TIMELINE_MODES.SELECT | TIMELINE_MODES.DRAG | TIMELINE_MODES.RESIZE
+      timelineMode: TIMELINE_MODES.SELECT | TIMELINE_MODES.DRAG | TIMELINE_MODES.RESIZE,
     };
     this.reRender = this.reRender.bind(this);
     this.zoomIn = this.zoomIn.bind(this);
@@ -65,10 +65,12 @@ export default class DemoTimeline extends Component {
         const color = COLORS[(i + j) % COLORS.length];
         const duration = ITEM_DURATIONS[Math.floor(Math.random() * ITEM_DURATIONS.length)];
         // let start = last_moment;
-        let start = moment(Math.floor(
-          Math.random() * (this.state.endDate.valueOf() - this.state.startDate.valueOf()) +
-            this.state.startDate.valueOf()
-        ));
+        let start = moment(
+          Math.floor(
+            Math.random() * (this.state.endDate.valueOf() - this.state.startDate.valueOf()) +
+              this.state.startDate.valueOf()
+          )
+        );
         let end = start.clone().add(duration);
 
         // Round to the nearest snap distance
@@ -83,7 +85,7 @@ export default class DemoTimeline extends Component {
           color,
           row: i,
           start,
-          end
+          end,
         });
       }
     }
@@ -170,7 +172,7 @@ export default class DemoTimeline extends Component {
       color: 'yellow',
       row: rowNumber,
       start: start,
-      end: end
+      end: end,
     };
 
     const newItems = _.clone(this.state.items);
@@ -246,7 +248,7 @@ export default class DemoTimeline extends Component {
       groups,
       message,
       useCustomRenderers,
-      timelineMode
+      timelineMode,
     } = this.state;
     const rangeValue = [startDate, endDate];
 
@@ -276,7 +278,7 @@ export default class DemoTimeline extends Component {
           start: curDate.clone(),
           end: curDate.clone().add(bandDuration, 'days'),
           style: {backgroundColor: color, opacity: '0.3'},
-          rowNumber: i
+          rowNumber: i,
         });
         curDate.add(bandDuration, 'days');
       }

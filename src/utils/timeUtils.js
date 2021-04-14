@@ -14,7 +14,7 @@ export function timeSnap(time, snapMilliseconds) {
     newTime.set('millisecond', 0);
     return newTime;
   }
-  const newUnix = Math.round(time.unix() * 1000 / snapMilliseconds) * snapMilliseconds;
+  const newUnix = Math.round((time.unix() * 1000) / snapMilliseconds) * snapMilliseconds;
   return moment(newUnix);
 }
 
