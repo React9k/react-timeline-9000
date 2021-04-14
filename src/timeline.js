@@ -20,7 +20,7 @@ import {
   getVerticalMarginBorder,
   getRowObjectRowNumber,
 } from './utils/itemUtils';
-import {timeSnap, getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta, pixelsPerMinute} from './utils/timeUtils';
+import {timeSnap, getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta, pixelsPerSecond} from './utils/timeUtils';
 import Timebar from './components/timebar';
 import SelectBox from './components/selector';
 import {DefaultGroupRenderer, DefaultItemRenderer} from './components/renderers';
@@ -60,6 +60,7 @@ export default class Timeline extends React.Component {
     selectedItems: PropTypes.arrayOf(PropTypes.number),
     startDate: PropTypes.object.isRequired,
     endDate: PropTypes.object.isRequired,
+    snap: PropTypes.number, //like snapMinutes, but for seconds; couldn't get it any lower because the pixels are not calculated correctly
     snapMinutes: PropTypes.number,
     showCursorTime: PropTypes.bool,
     cursorTimeFormat: PropTypes.string,
@@ -309,6 +310,18 @@ export default class Timeline extends React.Component {
   }
 
   /**
+   * Get the snap in milliseconds from snapMinutes or snap
+   */
+  getTimelineSnap() {
+    if(this.props.snap) {
+      return this.props.snap * 1000;
+    } else if (this.props.snapMinutes) {
+      return this.props.snapMinutes * 60 * 1000;
+    }
+    return 1;
+  }
+
+  /**
    * re-computes the grid's row sizes
    * @param {Object?} config Config to pass wo react-virtualized's compute func
    */
@@ -381,7 +394,7 @@ export default class Timeline extends React.Component {
             this.props.startDate,
             this.props.endDate,
             this.getTimelineWidth(),
-            this.props.snapMinutes
+            this.getTimelineSnap()
           );
 
           _.forEach(animatedItems, domItem => {
@@ -393,7 +406,7 @@ export default class Timeline extends React.Component {
               this.props.startDate,
               this.props.endDate,
               this.getTimelineWidth(),
-              this.props.snapMinutes
+              this.getTimelineSnap()
             );
 
             let newEnd = newStart.clone().add(itemDuration);
@@ -426,7 +439,7 @@ export default class Timeline extends React.Component {
             this.props.startDate,
             this.props.endDate,
             this.getTimelineWidth(),
-            this.props.snapMinutes
+            this.getTimelineSnap()
           );
 
           const timeDelta = newStart.clone().diff(item.start, 'minutes');
@@ -495,14 +508,14 @@ export default class Timeline extends React.Component {
           let dw = e.rect.width - Number(e.target.getAttribute('initialWidth'));
 
           const minimumWidth =
-            pixelsPerMinute(this.props.startDate, this.props.endDate, this.getTimelineWidth()) * this.props.snapMinutes;
+            pixelsPerSecond(this.props.startDate, this.props.endDate, this.getTimelineWidth()) * this.getTimelineSnap();
 
           const snappedDx = getSnapPixelFromDelta(
             dx,
             this.props.startDate,
             this.props.endDate,
             this.getTimelineWidth(),
-            this.props.snapMinutes
+            this.getTimelineSnap()
           );
 
           const snappedDw = getSnapPixelFromDelta(
@@ -510,7 +523,7 @@ export default class Timeline extends React.Component {
             this.props.startDate,
             this.props.endDate,
             this.getTimelineWidth(),
-            this.props.snapMinutes
+            this.getTimelineSnap()
           );
 
           _.forEach(animatedItems, item => {
@@ -542,7 +555,7 @@ export default class Timeline extends React.Component {
                 this.props.startDate,
                 this.props.endDate,
                 this.getTimelineWidth(),
-                this.props.snapMinutes
+                this.getTimelineSnap()
               );
               if (durationChange === null) durationChange = item.start.diff(newStart, 'minutes');
               item.start = newStart;
@@ -553,7 +566,7 @@ export default class Timeline extends React.Component {
                 this.props.startDate,
                 this.props.endDate,
                 this.getTimelineWidth(),
-                this.props.snapMinutes
+                this.getTimelineSnap()
               );
               if (durationChange === null) durationChange = item.end.diff(newEnd, 'minutes');
 
@@ -661,14 +674,14 @@ export default class Timeline extends React.Component {
               this.props.startDate,
               this.props.endDate,
               this.getTimelineWidth(),
-              this.props.snapMinutes
+              this.getTimelineSnap()
             );
             const endTime = getTimeAtPixel(
               endOffset,
               this.props.startDate,
               this.props.endDate,
               this.getTimelineWidth(),
-              this.props.snapMinutes
+              this.getTimelineSnap()
             );
             //Get items in these ranges
             let selectedItems = [];
@@ -703,8 +716,8 @@ export default class Timeline extends React.Component {
         this.getTimelineWidth()
       );
 
-      //const roundedStartMinutes = Math.round(clickedTime.minute() / this.props.snapMinutes) * this.props.snapMinutes; // I dont know what this does
-      let snappedClickedTime = timeSnap(clickedTime, this.props.snapMinutes * 60);
+      //const roundedStartMinutes = Math.round(clickedTime.minute() / this.props.snap) * this.props.snap; // I dont know what this does
+      let snappedClickedTime = timeSnap(clickedTime, this.getTimelineSnap() * 60);
       rowCallback && rowCallback(e, row, clickedTime, snappedClickedTime);
     }
   };
@@ -819,7 +832,7 @@ export default class Timeline extends React.Component {
       this.props.startDate,
       this.props.endDate,
       this.getTimelineWidth(),
-      this.props.snapMinutes
+      this.getTimelineSnap()
     );
     if (!this.mouse_snapped_time || this.mouse_snapped_time.unix() !== cursorSnappedTime.unix()) {
       if (cursorSnappedTime.isSameOrAfter(this.props.startDate)) {

@@ -13,8 +13,8 @@ import moment from 'moment';
  * @param  {number} total_width pixel width of the timeline
  */
 export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHeight, itemRenderer, selectedItems = []) {
-  const start_end_min = vis_end.diff(vis_start, 'minutes');
-  const pixels_per_min = total_width / start_end_min;
+  const start_end_ms = vis_end.diff(vis_start, 'milliseconds');
+  const pixels_per_ms = total_width / start_end_ms;
   let filtered_items = _.sortBy(
     _.filter(items, i => {
       // if end not before window && start not after window
@@ -41,10 +41,10 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHei
     const {color} = i;
     const Comp = itemRenderer;
     let top = itemHeight * i['rowOffset'];
-    let item_offset_mins = i.start.diff(vis_start, 'minutes');
-    let item_duration_mins = i.end.diff(i.start, 'minutes');
-    let left = Math.round(item_offset_mins * pixels_per_min);
-    let width = Math.round(item_duration_mins * pixels_per_min);
+    let item_offset_mins = i.start.diff(vis_start, 'milliseconds');
+    let item_duration_mins = i.end.diff(i.start, 'milliseconds');
+    let left = Math.round(item_offset_mins * pixels_per_ms);
+    let width = Math.round(item_duration_mins * pixels_per_ms);
     let compClassnames = 'rct9k-items-inner';
     let outerClassnames = 'rct9k-items-outer item_draggable';
     let style = {backgroundColor: color};
@@ -77,8 +77,8 @@ export function rowItemsRenderer(items, vis_start, vis_end, total_width, itemHei
  * @param  {number} itemHeight The layer height in px
  */
 export function rowLayerRenderer(layers, vis_start, vis_end, total_width, itemHeight) {
-  const start_end_min = vis_end.diff(vis_start, 'minutes');
-  const pixels_per_min = total_width / start_end_min;
+  const start_end_ms = vis_end.diff(vis_start, 'milliseconds');
+  const pixels_per_ms = total_width / start_end_ms;
   let filtered_items = _.sortBy(
     _.filter(layers, i => {
       return !i.end.isBefore(vis_start) && !i.start.isAfter(vis_end);
@@ -103,10 +103,10 @@ export function rowLayerRenderer(layers, vis_start, vis_end, total_width, itemHe
   return _.map(displayItems, i => {
     const {style, rowNumber} = i;
     let top = itemHeight * i['rowOffset'];
-    let item_offset_mins = i.start.diff(vis_start, 'minutes');
-    let item_duration_mins = i.end.diff(i.start, 'minutes');
-    let left = Math.round(item_offset_mins * pixels_per_min);
-    let width = Math.round(item_duration_mins * pixels_per_min);
+    let item_offset_mins = i.start.diff(vis_start, 'milliseconds');
+    let item_duration_mins = i.end.diff(i.start, 'milliseconds');
+    let left = Math.round(item_offset_mins * pixels_per_ms);
+    let width = Math.round(item_duration_mins * pixels_per_ms);
     let height = itemHeight - (rowNumber === 0 ? 2 : 1); // for border
     let outerClassnames = 'rct9k-row-layer';
 

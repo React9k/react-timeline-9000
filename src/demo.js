@@ -65,17 +65,17 @@ export default class DemoTimeline extends Component {
         const color = COLORS[(i + j) % COLORS.length];
         const duration = ITEM_DURATIONS[Math.floor(Math.random() * ITEM_DURATIONS.length)];
         // let start = last_moment;
-        let start = moment(
+        let start = moment(Math.floor(
           Math.random() * (this.state.endDate.valueOf() - this.state.startDate.valueOf()) +
             this.state.startDate.valueOf()
-        );
+        ));
         let end = start.clone().add(duration);
 
         // Round to the nearest snap distance
-        const roundedStartMinutes = Math.floor(start.minute() / snap) * snap;
-        const roundedEndMinutes = Math.floor(end.minute() / snap) * snap;
-        start.minute(roundedStartMinutes).second(0);
-        end.minute(roundedEndMinutes).second(0);
+        const roundedStartSeconds = Math.floor(start.second() / snap) * snap;
+        const roundedEndSeconds = Math.floor(end.second() / snap) * snap;
+        start.second(roundedStartSeconds);
+        end.second(roundedEndSeconds);
 
         list.push({
           key: this.key,
@@ -98,14 +98,14 @@ export default class DemoTimeline extends Component {
     this.setState({selectedItems: [], message});
   };
   zoomIn() {
-    let currentMins = this.state.endDate.diff(this.state.startDate, 'minutes');
-    let newMins = currentMins / 2;
-    this.setState({endDate: this.state.startDate.clone().add(newMins, 'minutes')});
+    let currentMilliseconds = this.state.endDate.diff(this.state.startDate, 'milliseconds');
+    let newSec = currentMilliseconds / 2;
+    this.setState({endDate: this.state.startDate.clone().add(newSec, 'milliseconds')});
   }
   zoomOut() {
-    let currentMins = this.state.endDate.diff(this.state.startDate, 'minutes');
-    let newMins = currentMins * 2;
-    this.setState({endDate: this.state.startDate.clone().add(newMins, 'minutes')});
+    let currentMilliseconds = this.state.endDate.diff(this.state.startDate, 'milliseconds');
+    let newSec = currentMilliseconds * 2;
+    this.setState({endDate: this.state.startDate.clone().add(newSec, 'milliseconds')});
   }
 
   toggleCustomRenderers(checked) {
@@ -293,7 +293,7 @@ export default class DemoTimeline extends Component {
               <Form.Item label="No items per row">
                 <InputNumber value={items_per_row} onChange={e => this.setState({items_per_row: e})} />
               </Form.Item>
-              <Form.Item label="Snap (mins)">
+              <Form.Item label="Snap (min)">
                 <InputNumber value={snap} onChange={e => this.setState({snap: e})} />
               </Form.Item>
               <Form.Item label="Date Range">
