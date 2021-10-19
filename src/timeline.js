@@ -20,7 +20,7 @@ import {
   getVerticalMarginBorder,
   getRowObjectRowNumber,
 } from './utils/itemUtils';
-import {timeSnap, getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta, pixelsPerSecond} from './utils/timeUtils';
+import {timeSnap, getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta, pixelsPerMillisecond} from './utils/timeUtils';
 import Timebar from './components/timebar';
 import SelectBox from './components/selector';
 import {DefaultGroupRenderer, DefaultItemRenderer} from './components/renderers';
@@ -508,7 +508,7 @@ export default class Timeline extends React.Component {
           let dw = e.rect.width - Number(e.target.getAttribute('initialWidth'));
 
           const minimumWidth =
-            pixelsPerSecond(this.props.startDate, this.props.endDate, this.getTimelineWidth()) * this.getTimelineSnap();
+            pixelsPerMillisecond(this.props.startDate, this.props.endDate, this.getTimelineWidth()) * this.getTimelineSnap();
 
           const snappedDx = getSnapPixelFromDelta(
             dx,
