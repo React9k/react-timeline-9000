@@ -1,6 +1,11 @@
 .rct9k-timeline-div {
   width: 100%;
-  height: 95vh;
+  /* if the timeline is in a flex layout, we want it to adapt to the parent */
+  flex-grow: 1;
+  /* if the user just added the timeline to his app, maybe he didn't provide a flex parent; w/o this, he would see segments at all; 
+    w/ this, he sees at least something, and then will think of improving the parent layout
+  */
+  min-height: 200px;
   background-color: #a5a5a5;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -111,11 +116,13 @@
   z-index: 1;
 }
 
-.demo-layout {
+#root {
+  width: 100%;
   height: 100%;
 }
 
-.demo-layout-content {
+.demo {
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
