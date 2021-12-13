@@ -15,3 +15,15 @@ export function customGroupRenderer(props) {
     </span>
   );
 }
+
+export class CustomCellRenderer extends React.Component {
+  render() {
+    return <span>{this.props.group.description}</span>;
+  }
+}
+
+export class CustomColumnHeaderRenderer extends React.Component {
+  render() {
+    return <span>Description</span>;
+  }
+}

@@ -17,6 +17,10 @@ class TimelineBody extends Component {
       return true;
     }
 
+    if (props.columnCount != nextProps.columnCount) {
+      return true;
+    }
+
     // prettier-ignore
     const shallowChange = props.height !== nextProps.height
       || props.width !== nextProps.width
@@ -29,7 +33,7 @@ class TimelineBody extends Component {
     return shallowChange;
   }
   render() {
-    const {width, columnWidth, height, rowHeight, rowCount} = this.props;
+    const {width, columnWidth, height, rowHeight, rowCount, columnCount} = this.props;
     const {grid_ref_callback, cellRenderer} = this.props;
 
     return (
@@ -37,7 +41,7 @@ class TimelineBody extends Component {
         ref={grid_ref_callback}
         autoContainerWidth
         cellRenderer={cellRenderer}
-        columnCount={2}
+        columnCount={columnCount}
         columnWidth={columnWidth}
         height={height}
         rowCount={rowCount}
@@ -51,6 +55,7 @@ class TimelineBody extends Component {
 TimelineBody.propTypes = {
   width: PropTypes.number.isRequired,
   columnWidth: PropTypes.func.isRequired,
+  columnCount: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
   rowHeight: PropTypes.func.isRequired,
   rowCount: PropTypes.number.isRequired,

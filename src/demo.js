@@ -5,9 +5,14 @@ import moment from 'moment';
 import _ from 'lodash';
 
 import Timeline from './timeline';
-import {customItemRenderer, customGroupRenderer} from 'demo/customRenderers';
+import {
+  customItemRenderer,
+  customGroupRenderer,
+  CustomCellRenderer,
+  CustomColumnHeaderRenderer
+} from 'demo/customRenderers';
 
-import {Layout, Form, InputNumber, Button, DatePicker, Checkbox, Switch} from 'antd';
+import {Layout, Form, InputNumber, Button, DatePicker, Checkbox, Switch, Icon} from 'antd';
 import 'antd/dist/antd.css';
 import './style.css';
 
@@ -37,7 +42,8 @@ export default class DemoTimeline extends Component {
       startDate,
       endDate,
       message: '',
-      timelineMode: TIMELINE_MODES.SELECT | TIMELINE_MODES.DRAG | TIMELINE_MODES.RESIZE
+      timelineMode: TIMELINE_MODES.SELECT | TIMELINE_MODES.DRAG | TIMELINE_MODES.RESIZE,
+      multipleColumnsMode: false
     };
     this.reRender = this.reRender.bind(this);
     this.zoomIn = this.zoomIn.bind(this);
@@ -46,6 +52,7 @@ export default class DemoTimeline extends Component {
     this.toggleSelectable = this.toggleSelectable.bind(this);
     this.toggleDraggable = this.toggleDraggable.bind(this);
     this.toggleResizable = this.toggleResizable.bind(this);
+    this.toggleMultipleColumnsMode = this.toggleMultipleColumnsMode.bind(this);
   }
 
   componentWillMount() {
@@ -59,16 +66,18 @@ export default class DemoTimeline extends Component {
 
     this.key = 0;
     for (let i = 0; i < this.state.rows; i++) {
-      groups.push({id: i, title: `Row ${i}`});
+      groups.push({id: i, title: `Row ${i}`, description: `Description for row ${i}`});
       for (let j = 0; j < this.state.items_per_row; j++) {
         this.key += 1;
         const color = COLORS[(i + j) % COLORS.length];
         const duration = ITEM_DURATIONS[Math.floor(Math.random() * ITEM_DURATIONS.length)];
         // let start = last_moment;
-        let start = moment(Math.floor(
-          Math.random() * (this.state.endDate.valueOf() - this.state.startDate.valueOf()) +
-            this.state.startDate.valueOf()
-        ));
+        let start = moment(
+          Math.floor(
+            Math.random() * (this.state.endDate.valueOf() - this.state.startDate.valueOf()) +
+              this.state.startDate.valueOf()
+          )
+        );
         let end = start.clone().add(duration);
 
         // Round to the nearest snap distance
@@ -88,9 +97,34 @@ export default class DemoTimeline extends Component {
       }
     }
 
+    const tableColumns = [
+      // default renderers
+      {
+        width: 100,
+        headerLabel: 'Title',
+        labelProperty: 'title'
+      },
+      // custom renderers: react elements
+      {
+        width: 250,
+        cellRenderer: <Checkbox>Checkbox</Checkbox>,
+        headerRenderer: (
+          <span>
+            <Icon type="check-circle" /> Custom check
+          </span>
+        )
+      },
+      // custom renderers: class component
+      {
+        width: 100,
+        headerRenderer: CustomColumnHeaderRenderer,
+        cellRenderer: CustomCellRenderer
+      }
+    ];
+
     // this.state = {selectedItems: [11, 12], groups, items: list};
     this.forceUpdate();
-    this.setState({items: list, groups});
+    this.setState({items: list, groups, tableColumns});
   }
 
   handleRowClick = (e, rowNumber, clickedTime, snappedClickedTime) => {
@@ -126,6 +160,10 @@ export default class DemoTimeline extends Component {
     const {timelineMode} = this.state;
     let newMode = timelineMode ^ TIMELINE_MODES.RESIZE;
     this.setState({timelineMode: newMode, message: 'Timeline mode change: ' + timelineMode + ' -> ' + newMode});
+  }
+  toggleMultipleColumnsMode() {
+    const {multipleColumnsMode} = this.state;
+    this.setState({multipleColumnsMode: !multipleColumnsMode});
   }
   handleItemClick = (e, key) => {
     const message = `Item Click ${key}`;
@@ -246,7 +284,9 @@ export default class DemoTimeline extends Component {
       groups,
       message,
       useCustomRenderers,
-      timelineMode
+      timelineMode,
+      multipleColumnsMode,
+      tableColumns
     } = this.state;
     const rangeValue = [startDate, endDate];
 
@@ -335,6 +375,11 @@ export default class DemoTimeline extends Component {
                   Enable resizing
                 </Checkbox>
               </Form.Item>
+              <Form.Item>
+                <Checkbox onChange={this.toggleMultipleColumnsMode} checked={multipleColumnsMode}>
+                  Multiple columns mode
+                </Checkbox>
+              </Form.Item>
             </Form>
             <div>
               <span>Debug: </span>
@@ -345,6 +390,7 @@ export default class DemoTimeline extends Component {
             shallowUpdateCheck
             items={items}
             groups={groups}
+            tableColumns={multipleColumnsMode ? tableColumns : []}
             startDate={startDate}
             endDate={endDate}
             rowLayers={rowLayers}

@@ -38,9 +38,7 @@
   box-sizing: border-box;
   border: 1px solid black;
   border-top: 0;
-}
-.rct9k-row:nth-child(2) {
-  border-top: 1px solid black;
+  border-left: 2px solid black;
 }
 
 .rct9k-items-selected {
@@ -51,26 +49,35 @@
   overflow-x: hidden;
 }
 
+.ReactVirtualized__Grid__innerScrollContainer:first-child {
+  border-top: 1px solid black;
+}
+
 /* Timeline groups */
 .rct9k-group {
   text-align: center;
   box-sizing: border-box;
   border: 1px solid black;
   border-top: 0;
+  border-right: 0;
   background-color: white;
   z-index: 6;
 }
 
-.rct9k-group:first-child {
-  border-top: 1px solid black;
+.rct9k-timebar {
+  display: flex;
 }
 
 /* Timeline top timebar */
-.rct9k-timebar-outer {
+.rct9k-timebar-outer,
+.rct9k-timebar-group-title {
   height: 60px;
   background-color: white;
   border: 1px solid black;
   box-sizing: border-box;
+}
+.rct9k-timebar-outer {
+  border-left: none;
 }
 .rct9k-timebar-inner {
   height: 30px;
@@ -89,9 +96,7 @@
 }
 
 .rct9k-timebar-group-title {
-  display: inline-block;
-  position: absolute;
-  height: 4em;
+  border-right: none;
 }
 
 /* Multi-select box */
