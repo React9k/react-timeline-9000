@@ -5,7 +5,7 @@ import moment from 'moment';
 import _ from 'lodash';
 
 import Timeline from './timeline';
-import {customItemRenderer, customGroupRenderer} from 'demo/customRenderers';
+import {customItemRenderer, customGroupRenderer} from './demo/customRenderers';
 
 import {Layout, Form, InputNumber, Button, DatePicker, Checkbox, Switch} from 'antd';
 import 'antd/dist/antd.css';
@@ -65,10 +65,12 @@ export default class DemoTimeline extends Component {
         const color = COLORS[(i + j) % COLORS.length];
         const duration = ITEM_DURATIONS[Math.floor(Math.random() * ITEM_DURATIONS.length)];
         // let start = last_moment;
-        let start = moment(Math.floor(
-          Math.random() * (this.state.endDate.valueOf() - this.state.startDate.valueOf()) +
-            this.state.startDate.valueOf()
-        ));
+        let start = moment(
+          Math.floor(
+            Math.random() * (this.state.endDate.valueOf() - this.state.startDate.valueOf()) +
+              this.state.startDate.valueOf()
+          )
+        );
         let end = start.clone().add(duration);
 
         // Round to the nearest snap distance
@@ -283,87 +285,85 @@ export default class DemoTimeline extends Component {
     }
 
     return (
-      <Layout className="layout demo-layout">
-        <Layout.Content className="demo-layout-content">
-          <div style={{margin: 24}}>
-            <Form layout="inline">
-              <Form.Item label="No rows">
-                <InputNumber value={rows} onChange={e => this.setState({rows: e})} />
-              </Form.Item>
-              <Form.Item label="No items per row">
-                <InputNumber value={items_per_row} onChange={e => this.setState({items_per_row: e})} />
-              </Form.Item>
-              <Form.Item label="Snap (min)">
-                <InputNumber value={snap} onChange={e => this.setState({snap: e})} />
-              </Form.Item>
-              <Form.Item label="Date Range">
-                <DatePicker.RangePicker
-                  allowClear={false}
-                  value={rangeValue}
-                  showTime
-                  onChange={e => {
-                    this.setState({startDate: e[0], endDate: e[1]}, () => this.reRender());
-                  }}
-                />
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" onClick={() => this.reRender()}>
-                  Regenerate
-                </Button>
-              </Form.Item>
-              <Form.Item>
-                <Button onClick={this.zoomIn}>Zoom in</Button>
-              </Form.Item>
-              <Form.Item>
-                <Button onClick={this.zoomOut}>Zoom out</Button>
-              </Form.Item>
-              <Form.Item label="Custom Renderers">
-                <Switch onChange={this.toggleCustomRenderers} />
-              </Form.Item>
-              <Form.Item>
-                <Checkbox onChange={this.toggleSelectable} checked={selectable}>
-                  Enable selecting
-                </Checkbox>
-              </Form.Item>
-              <Form.Item>
-                <Checkbox onChange={this.toggleDraggable} checked={draggable}>
-                  Enable dragging
-                </Checkbox>
-              </Form.Item>
-              <Form.Item>
-                <Checkbox onChange={this.toggleResizable} checked={resizeable}>
-                  Enable resizing
-                </Checkbox>
-              </Form.Item>
-            </Form>
-            <div>
-              <span>Debug: </span>
-              {message}
-            </div>
+      <div className="demo">
+        <div style={{margin: 24}}>
+          <Form layout="inline">
+            <Form.Item label="No rows">
+              <InputNumber value={rows} onChange={e => this.setState({rows: e})} />
+            </Form.Item>
+            <Form.Item label="No items per row">
+              <InputNumber value={items_per_row} onChange={e => this.setState({items_per_row: e})} />
+            </Form.Item>
+            <Form.Item label="Snap (min)">
+              <InputNumber value={snap} onChange={e => this.setState({snap: e})} />
+            </Form.Item>
+            <Form.Item label="Date Range">
+              <DatePicker.RangePicker
+                allowClear={false}
+                value={rangeValue}
+                showTime
+                onChange={e => {
+                  this.setState({startDate: e[0], endDate: e[1]}, () => this.reRender());
+                }}
+              />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" onClick={() => this.reRender()}>
+                Regenerate
+              </Button>
+            </Form.Item>
+            <Form.Item>
+              <Button onClick={this.zoomIn}>Zoom in</Button>
+            </Form.Item>
+            <Form.Item>
+              <Button onClick={this.zoomOut}>Zoom out</Button>
+            </Form.Item>
+            <Form.Item label="Custom Renderers">
+              <Switch onChange={this.toggleCustomRenderers} />
+            </Form.Item>
+            <Form.Item>
+              <Checkbox onChange={this.toggleSelectable} checked={selectable}>
+                Enable selecting
+              </Checkbox>
+            </Form.Item>
+            <Form.Item>
+              <Checkbox onChange={this.toggleDraggable} checked={draggable}>
+                Enable dragging
+              </Checkbox>
+            </Form.Item>
+            <Form.Item>
+              <Checkbox onChange={this.toggleResizable} checked={resizeable}>
+                Enable resizing
+              </Checkbox>
+            </Form.Item>
+          </Form>
+          <div>
+            <span>Debug: </span>
+            {message}
           </div>
-          <Timeline
-            shallowUpdateCheck
-            items={items}
-            groups={groups}
-            startDate={startDate}
-            endDate={endDate}
-            rowLayers={rowLayers}
-            selectedItems={selectedItems}
-            timelineMode={timelineMode}
-            snapMinutes={snap}
-            onItemClick={this.handleItemClick}
-            onItemDoubleClick={this.handleItemDoubleClick}
-            onItemContextClick={this.handleItemContextClick}
-            onInteraction={this.handleInteraction}
-            onRowClick={this.handleRowClick}
-            onRowContextClick={this.handleRowContextClick}
-            onRowDoubleClick={this.handleRowDoubleClick}
-            itemRenderer={useCustomRenderers ? customItemRenderer : undefined}
-            groupRenderer={useCustomRenderers ? customGroupRenderer : undefined}
-            groupTitleRenderer={useCustomRenderers ? () => <div>Group title</div> : undefined}
-          />
-        </Layout.Content>
-      </Layout>
+        </div>
+        <Timeline
+          shallowUpdateCheck
+          items={items}
+          groups={groups}
+          startDate={startDate}
+          endDate={endDate}
+          rowLayers={rowLayers}
+          selectedItems={selectedItems}
+          timelineMode={timelineMode}
+          snapMinutes={snap}
+          onItemClick={this.handleItemClick}
+          onItemDoubleClick={this.handleItemDoubleClick}
+          onItemContextClick={this.handleItemContextClick}
+          onInteraction={this.handleInteraction}
+          onRowClick={this.handleRowClick}
+          onRowContextClick={this.handleRowContextClick}
+          onRowDoubleClick={this.handleRowDoubleClick}
+          itemRenderer={useCustomRenderers ? customItemRenderer : undefined}
+          groupRenderer={useCustomRenderers ? customGroupRenderer : undefined}
+          groupTitleRenderer={useCustomRenderers ? () => <div>Group title</div> : undefined}
+        />
+      </div>
     );
   }
 }
