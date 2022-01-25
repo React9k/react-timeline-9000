@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/BHP-DevHub/react-timeline-9000.git"
+    "url": "git+https://github.com/React9k/react-timeline-9000.git"
   },
   "keywords": [
     "react",
@@ -31,17 +31,17 @@
   "engines": {
     "node": ">=4.2.4"
   },
-  "author": "BHP-ES-DevHub",
+  "author": "Leighton Lilford",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/BHP-DevHub/react-timeline-9000/issues"
+    "url": "https://github.com/React9k/react-timeline-9000/issues"
   },
   "files": [
     "dist",
     "lib"
   ],
   "main": "lib/index.js",
-  "homepage": "https://github.com/BHP-DevHub/react-timeline-9000#readme",
+  "homepage": "https://github.com/React9k/react-timeline-9000#readme",
   "devDependencies": {
     "@storybook/addon-actions": "^6.3.11",
     "@storybook/addon-essentials": "^6.3.11",
