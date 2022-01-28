@@ -14,9 +14,14 @@ describe('Item renderer', () => {
   });
 });
 describe('Group renderer', () => {
-  it('should render the group', () => {
+  it('should render the group w/o label property', () => {
     const group = {title: 'my_test'};
     const component = shallow(<DefaultGroupRenderer group={group} />);
-    expect(component.text()).to.contain('my_test');
+    expect(component.text()).to.equals('');
+  });
+  it('should render the group w/ label property', () => {
+    const group = {title: 'my_test'};
+    const component = shallow(<DefaultGroupRenderer group={group} labelProperty={'title'} />);
+    expect(component.text()).to.equals('my_test');
   });
 });
