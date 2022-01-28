@@ -45,7 +45,7 @@ TBA
 
 # Props Summary
 
-See http://bhp-react-timeline-9k.s3-website-ap-southeast-2.amazonaws.com/docs for detailed docs
+See http://react-timeline-9000.s3-website-ap-southeast-2.amazonaws.com/docs/ for detailed docs
 
 ## Props
 | Name               | Default     | Description                                                                                                                                              |
