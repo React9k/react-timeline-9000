@@ -3,13 +3,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
-import {Grid, AutoSizer, defaultCellRangeRenderer} from 'react-virtualized';
+import {AutoSizer} from 'react-virtualized';
 
 import moment from 'moment';
 import interact from 'interactjs';
 import _ from 'lodash';
 
-import {pixToInt, intToPix, sumStyle} from './utils/commonUtils';
+import {pixToInt, intToPix} from './utils/commonUtils';
 import {
   rowItemsRenderer,
   rowLayerRenderer,
@@ -18,9 +18,9 @@ import {
   getMaxOverlappingItems,
   getTrueBottom,
   getVerticalMarginBorder,
-  getRowObjectRowNumber,
+  getRowObjectRowNumber
 } from './utils/itemUtils';
-import {timeSnap, getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta, pixelsPerSecond} from './utils/timeUtils';
+import {timeSnap, getTimeAtPixel, getPixelAtTime, getSnapPixelFromDelta, pixelsPerMillisecond} from './utils/timeUtils';
 import Timebar from './components/timebar';
 import SelectBox from './components/selector';
 import {DefaultGroupRenderer, DefaultItemRenderer} from './components/renderers';
@@ -42,7 +42,7 @@ export default class Timeline extends React.Component {
   static TIMELINE_MODES = Object.freeze({
     SELECT: 1,
     DRAG: 2,
-    RESIZE: 4,
+    RESIZE: 4
   });
 
   static propTypes = {
@@ -54,7 +54,7 @@ export default class Timeline extends React.Component {
         start: PropTypes.object.isRequired,
         end: PropTypes.object.isRequired,
         rowNumber: PropTypes.number.isRequired,
-        style: PropTypes.object.isRequired,
+        style: PropTypes.object.isRequired
       })
     ),
     selectedItems: PropTypes.arrayOf(PropTypes.number),
@@ -87,8 +87,8 @@ export default class Timeline extends React.Component {
     interactOptions: PropTypes.shape({
       draggable: PropTypes.object,
       pointerEvents: PropTypes.object,
-      resizable: PropTypes.object.isRequired,
-    }),
+      resizable: PropTypes.object.isRequired
+    })
   };
 
   static defaultProps = {
@@ -107,7 +107,7 @@ export default class Timeline extends React.Component {
     forceRedrawFunc: null,
     onItemHover() {},
     onItemLeave() {},
-    interactOptions: {},
+    interactOptions: {}
   };
 
   /**
@@ -119,7 +119,7 @@ export default class Timeline extends React.Component {
     dragEnd: 'dragEnd',
     dragStart: 'dragStart',
     itemsSelected: 'itemsSelected',
-    snappedMouseMove: 'snappedMouseMove',
+    snappedMouseMove: 'snappedMouseMove'
   };
 
   /**
@@ -313,7 +313,7 @@ export default class Timeline extends React.Component {
    * Get the snap in milliseconds from snapMinutes or snap
    */
   getTimelineSnap() {
-    if(this.props.snap) {
+    if (this.props.snap) {
       return this.props.snap * 1000;
     } else if (this.props.snapMinutes) {
       return this.props.snapMinutes * 60 * 1000;
@@ -343,11 +343,9 @@ export default class Timeline extends React.Component {
     this._itemInteractable = interact(`.${topDivClassId} .item_draggable`);
     this._selectRectangleInteractable = interact(`.${topDivClassId} .parent-div`);
 
-    this._itemInteractable
-      .pointerEvents(this.props.interactOptions.pointerEvents)
-      .on('tap', e => {
-        this._handleItemRowEvent(e, this.props.onItemClick, this.props.onRowClick);
-      });
+    this._itemInteractable.pointerEvents(this.props.interactOptions.pointerEvents).on('tap', e => {
+      this._handleItemRowEvent(e, this.props.onItemClick, this.props.onRowClick);
+    });
 
     if (canDrag) {
       this._itemInteractable
@@ -356,9 +354,9 @@ export default class Timeline extends React.Component {
           allowFrom: selectedItemSelector,
           restrict: {
             restriction: `.${topDivClassId}`,
-            elementRect: {left: 0, right: 1, top: 0, bottom: 1},
+            elementRect: {left: 0, right: 1, top: 0, bottom: 1}
           },
-          ...this.props.interactOptions.draggable,
+          ...this.props.interactOptions.draggable
         })
         .on('dragstart', e => {
           let selections = [];
@@ -486,7 +484,7 @@ export default class Timeline extends React.Component {
         .resizable({
           allowFrom: selectedItemSelector,
           edges: {left: true, right: true, bottom: false, top: false},
-          ...this.props.interactOptions.draggable,
+          ...this.props.interactOptions.draggable
         })
         .on('resizestart', e => {
           const selected = this.props.onInteraction(Timeline.changeTypes.resizeStart, null, this.props.selectedItems);
@@ -508,7 +506,8 @@ export default class Timeline extends React.Component {
           let dw = e.rect.width - Number(e.target.getAttribute('initialWidth'));
 
           const minimumWidth =
-            pixelsPerSecond(this.props.startDate, this.props.endDate, this.getTimelineWidth()) * this.getTimelineSnap();
+            pixelsPerMillisecond(this.props.startDate, this.props.endDate, this.getTimelineWidth()) *
+            this.getTimelineSnap();
 
           const snappedDx = getSnapPixelFromDelta(
             dx,
@@ -605,7 +604,7 @@ export default class Timeline extends React.Component {
       this._selectRectangleInteractable
         .draggable({
           enabled: true,
-          ignoreFrom: '.item_draggable, .rct9k-group',
+          ignoreFrom: '.item_draggable, .rct9k-group'
         })
         .styleCursor(false)
         .on('dragstart', e => {
@@ -865,7 +864,7 @@ export default class Timeline extends React.Component {
       startDate,
       endDate,
       bottomResolution,
-      topResolution,
+      topResolution
     } = this.props;
 
     const divCssClass = `rct9k-timeline-div rct9k-id-${componentId}`;
@@ -901,7 +900,7 @@ export default class Timeline extends React.Component {
       const cursorPix = getPixelAtTime(this.mouse_snapped_time, startDate, endDate, this.getTimelineWidth());
       markers.push({
         left: cursorPix + this.props.groupOffset,
-        key: 1,
+        key: 1
       });
     }
     return (
