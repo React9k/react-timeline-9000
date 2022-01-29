@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import moment from 'moment';
 import {intToPix} from '../utils/commonUtils';
+import {DefaultColumnHeaderRenderer} from './renderers';
 import {timebarFormat as defaultTimebarFormat} from '../consts/timebarConsts';
 
 /**
@@ -51,7 +52,7 @@ export default class Timebar extends React.Component {
     /// 1ms -> 1s
     if (durationMilliSecs <= 1000) this.setState({resolution: {top: 'second', bottom: 'millisecond'}});
     // 1s  -> 2m
-    else if (durationMilliSecs <= 60 * 2 * 1000) this.setState({resolution: {top: 'minute', bottom:  'second'}});
+    else if (durationMilliSecs <= 60 * 2 * 1000) this.setState({resolution: {top: 'minute', bottom: 'second'}});
     // 2m -> 2h
     else if (durationMilliSecs <= 60 * 60 * 2 * 1000) this.setState({resolution: {top: 'hour', bottom: 'minute'}});
     // 2h -> 3d
@@ -59,7 +60,8 @@ export default class Timebar extends React.Component {
     // 1d -> 30d
     else if (durationMilliSecs <= 30 * 24 * 60 * 60 * 1000) this.setState({resolution: {top: 'month', bottom: 'day'}});
     //30d -> 1y
-    else if (durationMilliSecs <= 365 * 24 * 60 * 60 * 1000) this.setState({resolution: {top: 'year', bottom: 'month'}});
+    else if (durationMilliSecs <= 365 * 24 * 60 * 60 * 1000)
+      this.setState({resolution: {top: 'year', bottom: 'month'}});
     // 1y ->
     else this.setState({resolution: {top: 'year', bottom: 'year'}});
   }
@@ -196,11 +198,33 @@ export default class Timebar extends React.Component {
   }
 
   /**
+   * It renders the header of a column in multi columns mode. Default renderer: props.groupTitleRenderer;
+   * which may be overriden per column: column.headerRender (react element or function).
+   * @param {object} column
+   */
+  renderColumnHeader(column, index) {
+    const columnWidth = column.width ? column.width : this.props.groupOffset;
+    return (
+      <div className="rct9k-timebar-group-title" key={index} style={{width: columnWidth}}>
+        {column.headerRenderer ? (
+          React.isValidElement(column.headerRenderer) ? (
+            column.headerRenderer
+          ) : (
+            <column.headerRenderer />
+          )
+        ) : (
+          <this.props.groupTitleRenderer column={column} />
+        )}
+      </div>
+    );
+  }
+
+  /**
    * Renders the timebar
    * @returns {Object} Timebar component
    */
   render() {
-    const {cursorTime} = this.props;
+    const {cursorTime, tableColumns} = this.props;
     const topBarComponent = this.renderTopBar();
     const bottomBarComponent = this.renderBottomBar();
     const GroupTitleRenderer = this.props.groupTitleRenderer;
@@ -213,11 +237,20 @@ export default class Timebar extends React.Component {
     else if (topBarComponent.length > 0) topBarCursorKey = topBarComponent[0].key;
 
     return (
-      <div className="rct9k-timebar">
-        <div className="rct9k-timebar-group-title" style={{width: this.props.leftOffset}}>
-          <GroupTitleRenderer />
-        </div>
-        <div className="rct9k-timebar-outer" style={{width: this.props.width, paddingLeft: this.props.leftOffset}}>
+      <div className="rct9k-timebar" style={{width: this.props.width}}>
+        {/* Single column mode */}
+        {(!tableColumns || tableColumns.length == 0) && (
+          <div className="rct9k-timebar-group-title" style={{width: this.props.leftOffset}}>
+            <GroupTitleRenderer />
+          </div>
+        )}
+        {/* Multiple columns mode */}
+        {tableColumns &&
+          tableColumns.length > 0 &&
+          tableColumns.map((column, index) => {
+            return this.renderColumnHeader(column, index);
+          })}
+        <div className="rct9k-timebar-outer" style={{width: this.props.width - this.props.leftOffset}}>
           <div className="rct9k-timebar-inner rct9k-timebar-inner-top">
             {_.map(topBarComponent, i => {
               let topLabel = i.label;
@@ -260,11 +293,13 @@ Timebar.propTypes = {
   top_resolution: PropTypes.string,
   bottom_resolution: PropTypes.string,
   selectedRanges: PropTypes.arrayOf(PropTypes.object), // [start: moment ,end: moment (end)]
-  timeFormats: PropTypes.object
+  timeFormats: PropTypes.object,
+  tableColumns: PropTypes.arrayOf(PropTypes.object)
 };
 Timebar.defaultProps = {
   selectedRanges: [],
-  groupTitleRenderer: () => <div />,
+  groupTitleRenderer: DefaultColumnHeaderRenderer,
   leftOffset: 0,
-  timeFormats: defaultTimebarFormat
+  timeFormats: defaultTimebarFormat,
+  tableColumns: []
 };
