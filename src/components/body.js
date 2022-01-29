@@ -17,7 +17,7 @@ class TimelineBody extends Component {
       return true;
     }
 
-    if (props.columnCount != nextProps.columnCount) {
+    if (props.columnCount !== nextProps.columnCount) {
       return true;
     }
 
@@ -55,7 +55,7 @@ class TimelineBody extends Component {
 TimelineBody.propTypes = {
   width: PropTypes.number.isRequired,
   columnWidth: PropTypes.func.isRequired,
-  columnCount: PropTypes.number.isRequired,
+  columnCount: PropTypes.number,
   height: PropTypes.number.isRequired,
   rowHeight: PropTypes.func.isRequired,
   rowCount: PropTypes.number.isRequired,
@@ -66,6 +66,7 @@ TimelineBody.propTypes = {
 };
 
 TimelineBody.defaultProps = {
+  columnCount: 2,
   shallowUpdateCheck: false,
   forceRedrawFunc: null
 };
