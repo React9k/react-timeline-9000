@@ -12,7 +12,7 @@ module.exports = merge(common, {
     new HtmlWebpackPlugin({
       title: 'React Timeline 9000',
       template: 'src/demo.html',
-      chunksSortMode: 'dependency',
+      chunksSortMode: 'auto',
       inject: 'body',
       minify: {
         removeComments: false,
