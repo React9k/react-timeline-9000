@@ -1,7 +1,15 @@
 import {expect} from 'chai';
 
 import moment from 'moment';
-import {timeSnap, getTimeAtPixel, getPixelAtTime, getDurationFromPixels, getSnapPixelFromDelta} from './timeUtils';
+import {
+  timeSnap,
+  getTimeAtPixel,
+  getPixelAtTime,
+  getDurationFromPixels,
+  getSnapPixelFromDelta,
+  convertDateToMoment,
+  convertMomentToDateType
+} from './timeUtils';
 
 describe('Time Utils', function() {
   describe('timeSnap', function() {
@@ -198,5 +206,37 @@ describe('Time Utils', function() {
       let duration = getDurationFromPixels(pixelOffset, visStart, visEnd, timelineWidth);
       expect(duration.asSeconds()).to.equal(expectedDuration);
     });
-  });
+  }),
+    describe('convertDateToMoment', function() {
+      it('should return the received date(moment) when useMoment is true', function() {
+        const date = moment('2000-01-01 00:00:00 Z', 'YYYY-MM-DD H:m:s Z');
+        const useMoment = true;
+        let expectedMoment = date;
+        let actualMoment = convertDateToMoment(date, useMoment);
+        expect(actualMoment).to.deep.equal(expectedMoment);
+      });
+      it('should convert date to moment when useMoment is false', function() {
+        const date = moment('2000-01-01 00:00:00 Z', 'YYYY-MM-DD H:m:s Z').valueOf();
+        const useMoment = false;
+        let expectedMoment = moment(date);
+        let actualMoment = convertDateToMoment(date, useMoment);
+        expect(actualMoment).to.deep.equal(expectedMoment);
+      });
+    }),
+    describe('convertMomentToDateType', function() {
+      it('should return moment when useMoment is true', function() {
+        const date = moment('2000-01-01 00:00:00 Z', 'YYYY-MM-DD H:m:s Z');
+        const useMoment = true;
+        let expectedMoment = date;
+        let actualMoment = convertMomentToDateType(date, useMoment);
+        expect(actualMoment).to.deep.equal(expectedMoment);
+      });
+      it('should return date in millis when useMoment is false', function() {
+        const date = moment('2000-01-01 00:00:00 Z', 'YYYY-MM-DD H:m:s Z');
+        const useMoment = false;
+        let expectedDate = 946684800000;
+        let actualDate = convertMomentToDateType(date, useMoment);
+        expect(actualDate).to.deep.equal(expectedDate);
+      });
+    });
 });
