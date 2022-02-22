@@ -3,6 +3,15 @@ import {expect} from 'chai';
 import _ from 'lodash';
 import moment from 'moment';
 import {getMaxOverlappingItems} from './itemUtils';
+import {convertDateToMoment} from './timeUtils';
+
+function getStartFromItem(item) {
+  return convertDateToMoment(item.start, true);
+}
+
+function getEndFromItem(item) {
+  return convertDateToMoment(item.end, true);
+}
 
 //
 // |--1--|
@@ -64,7 +73,7 @@ const allTestItems = [
 describe('Item Utils', function() {
   describe('getMaxOverlappingItems', function() {
     it('should return a default of 1', function() {
-      const result = getMaxOverlappingItems([]);
+      const result = getMaxOverlappingItems([], getStartFromItem, getEndFromItem);
       expect(result).to.equal(1);
     });
     // Diagram
@@ -74,7 +83,7 @@ describe('Item Utils', function() {
       let items = _.filter(allTestItems, i => {
         return _.includes(testInstanceIDs, i.key);
       });
-      const result = getMaxOverlappingItems(items);
+      const result = getMaxOverlappingItems(items, getStartFromItem, getEndFromItem);
       expect(result).to.equal(1);
     });
     // Diagram
@@ -85,7 +94,7 @@ describe('Item Utils', function() {
       let items = _.filter(allTestItems, i => {
         return _.includes(testInstanceIDs, i.key);
       });
-      const result = getMaxOverlappingItems(items);
+      const result = getMaxOverlappingItems(items, getStartFromItem, getEndFromItem);
       expect(result).to.equal(2);
     });
     // Diagram
@@ -95,7 +104,7 @@ describe('Item Utils', function() {
       let items = _.filter(allTestItems, i => {
         return _.includes(testInstanceIDs, i.key);
       });
-      const result = getMaxOverlappingItems(items);
+      const result = getMaxOverlappingItems(items, getStartFromItem, getEndFromItem);
       expect(result).to.equal(1);
     });
     // Diagram
@@ -107,7 +116,7 @@ describe('Item Utils', function() {
       let items = _.filter(allTestItems, i => {
         return _.includes(testInstanceIDs, i.key);
       });
-      const result = getMaxOverlappingItems(items);
+      const result = getMaxOverlappingItems(items, getStartFromItem, getEndFromItem);
       expect(result).to.equal(3);
     });
     // Diagram
@@ -118,7 +127,7 @@ describe('Item Utils', function() {
       let items = _.filter(allTestItems, i => {
         return _.includes(testInstanceIDs, i.key);
       });
-      const result = getMaxOverlappingItems(items);
+      const result = getMaxOverlappingItems(items, getStartFromItem, getEndFromItem);
       expect(result).to.equal(2);
     });
   });

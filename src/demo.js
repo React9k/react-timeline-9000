@@ -43,7 +43,8 @@ export default class DemoTimeline extends Component {
       endDate,
       message: '',
       timelineMode: TIMELINE_MODES.SELECT | TIMELINE_MODES.DRAG | TIMELINE_MODES.RESIZE,
-      multipleColumnsMode: false
+      multipleColumnsMode: false,
+      useMoment: true
     };
     this.reRender = this.reRender.bind(this);
     this.zoomIn = this.zoomIn.bind(this);
@@ -52,6 +53,7 @@ export default class DemoTimeline extends Component {
     this.toggleSelectable = this.toggleSelectable.bind(this);
     this.toggleDraggable = this.toggleDraggable.bind(this);
     this.toggleResizable = this.toggleResizable.bind(this);
+    this.toggleUseMoment = this.toggleUseMoment.bind(this);
     this.toggleMultipleColumnsMode = this.toggleMultipleColumnsMode.bind(this);
   }
 
@@ -59,7 +61,7 @@ export default class DemoTimeline extends Component {
     this.reRender();
   }
 
-  reRender() {
+  reRender(useMoment = this.state.useMoment) {
     const list = [];
     const groups = [];
     const {snap} = this.state;
@@ -91,8 +93,8 @@ export default class DemoTimeline extends Component {
           title: duration.humanize(),
           color,
           row: i,
-          start,
-          end
+          start: useMoment ? start : start.valueOf(),
+          end: useMoment ? end : end.valueOf()
         });
       }
     }
@@ -124,7 +126,7 @@ export default class DemoTimeline extends Component {
 
     // this.state = {selectedItems: [11, 12], groups, items: list};
     this.forceUpdate();
-    this.setState({items: list, groups, tableColumns});
+    this.setState({items: list, groups, tableColumns, useMoment});
   }
 
   handleRowClick = (e, rowNumber, clickedTime, snappedClickedTime) => {
@@ -160,6 +162,10 @@ export default class DemoTimeline extends Component {
     const {timelineMode} = this.state;
     let newMode = timelineMode ^ TIMELINE_MODES.RESIZE;
     this.setState({timelineMode: newMode, message: 'Timeline mode change: ' + timelineMode + ' -> ' + newMode});
+  }
+  toggleUseMoment() {
+    const {useMoment} = this.state;
+    this.reRender(!useMoment);
   }
   toggleMultipleColumnsMode() {
     const {multipleColumnsMode} = this.state;
@@ -235,7 +241,7 @@ export default class DemoTimeline extends Component {
         });
         if (i) {
           item = i;
-          item.title = moment.duration(item.end.diff(item.start)).humanize();
+          item.title = moment.duration(moment(item.end).diff(moment(item.start))).humanize();
         }
       });
     }
@@ -285,6 +291,7 @@ export default class DemoTimeline extends Component {
       message,
       useCustomRenderers,
       timelineMode,
+      useMoment,
       multipleColumnsMode,
       tableColumns
     } = this.state;
@@ -313,8 +320,13 @@ export default class DemoTimeline extends Component {
         }
 
         rowLayers.push({
-          start: curDate.clone(),
-          end: curDate.clone().add(bandDuration, 'days'),
+          start: this.state.useMoment ? curDate.clone() : curDate.valueOf(),
+          end: this.state.useMoment
+            ? curDate.clone().add(bandDuration, 'days')
+            : curDate
+                .clone()
+                .add(bandDuration, 'days')
+                .valueOf(),
           style: {backgroundColor: color, opacity: '0.3'},
           rowNumber: i
         });
@@ -375,6 +387,11 @@ export default class DemoTimeline extends Component {
               </Checkbox>
             </Form.Item>
             <Form.Item>
+              <Checkbox onChange={this.toggleUseMoment} checked={useMoment}>
+                Use moment for dates
+              </Checkbox>
+            </Form.Item>
+            <Form.Item>
               <Checkbox onChange={this.toggleMultipleColumnsMode} checked={multipleColumnsMode}>
                 Multiple columns mode
               </Checkbox>
@@ -389,9 +406,10 @@ export default class DemoTimeline extends Component {
           shallowUpdateCheck
           items={items}
           groups={groups}
+          useMoment={useMoment}
+          startDate={useMoment ? startDate : startDate.valueOf()}
+          endDate={useMoment ? endDate : endDate.valueOf()}
           tableColumns={multipleColumnsMode ? tableColumns : []}
-          startDate={startDate}
-          endDate={endDate}
           rowLayers={rowLayers}
           selectedItems={selectedItems}
           timelineMode={timelineMode}

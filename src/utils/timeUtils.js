@@ -14,7 +14,7 @@ export function timeSnap(time, snapMilliseconds) {
     newTime.set('millisecond', 0);
     return newTime;
   }
-  const newUnix = Math.round(time.unix() * 1000 / snapMilliseconds) * snapMilliseconds;
+  const newUnix = Math.round((time.unix() * 1000) / snapMilliseconds) * snapMilliseconds;
   return moment(newUnix);
 }
 
@@ -84,4 +84,30 @@ export function getDurationFromPixels(pixels, vis_start, vis_end, total_width) {
   const pixels_per_ms = total_width / start_end_ms;
   let millis = pixels / pixels_per_ms;
   return moment.duration(millis, 'milliseconds');
+}
+
+/**
+ * If useMoment is true returns the date, otherwise converts date to moment.
+ * @param {moment|number} date
+ * @param {boolean} useMoment
+ * @returns moment
+ */
+export function convertDateToMoment(date, useMoment) {
+  if (useMoment) {
+    return date;
+  }
+  return moment(date);
+}
+
+/**
+ * If useMoment is true returns dateAsMoment, otherwise it converts dateAsMoment to milliseconds.
+ * @param {moment} dateAsMoment moment to be converted
+ * @param {boolean} useMoment if true return dateAsMoment, otherwise return millis
+ * @returns a moment object or date in milliseconds
+ */
+export function convertMomentToDateType(dateAsMoment, useMoment) {
+  if (useMoment) {
+    return dateAsMoment;
+  }
+  return dateAsMoment.valueOf();
 }
