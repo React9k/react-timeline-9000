@@ -58,6 +58,7 @@ export default class Timeline extends React.Component {
   static propTypes = {
     items: PropTypes.arrayOf(
       PropTypes.shape({
+        key: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
         // start and end are not required because getStartFromItem() and getEndFromItem() functions
         // are being used and they can be overriden to use other fields
         start: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
@@ -107,7 +108,7 @@ export default class Timeline extends React.Component {
     onItemClick: PropTypes.func,
     onItemDoubleClick: PropTypes.func,
     onItemContext: PropTypes.func,
-    onInteraction: PropTypes.func.isRequired,
+    onInteraction: PropTypes.func,
     onRowClick: PropTypes.func,
     onRowContext: PropTypes.func,
     onRowDoubleClick: PropTypes.func,
@@ -127,7 +128,8 @@ export default class Timeline extends React.Component {
     interactOptions: PropTypes.shape({
       draggable: PropTypes.object,
       pointerEvents: PropTypes.object,
-      resizable: PropTypes.object.isRequired
+      // TODO: this doesn't seem used; originally it was w/ "required"; I removed this to avoid warnings in console
+      resizable: PropTypes.object
     }),
     useMoment: PropTypes.bool // Whether the timeline should receive dates as moment object or in milliseconds.
   };
@@ -520,11 +522,9 @@ export default class Timeline extends React.Component {
         })
         .on('dragstart', e => {
           let selections = [];
-          const animatedItems = this.props.onInteraction(
-            Timeline.changeTypes.dragStart,
-            null,
-            this.props.selectedItems
-          );
+          const animatedItems =
+            this.props.onInteraction &&
+            this.props.onInteraction(Timeline.changeTypes.dragStart, null, this.props.selectedItems);
 
           _.forEach(animatedItems, id => {
             let domItem = this._gridDomNode.querySelector("span[data-item-index='" + id + "'");
@@ -624,7 +624,7 @@ export default class Timeline extends React.Component {
             items.push(item);
           });
 
-          this.props.onInteraction(Timeline.changeTypes.dragEnd, changes, items);
+          this.props.onInteraction && this.props.onInteraction(Timeline.changeTypes.dragEnd, changes, items);
 
           // Reset the styles
           animatedItems.forEach(domItem => {
@@ -649,7 +649,9 @@ export default class Timeline extends React.Component {
           ...this.props.interactOptions.draggable
         })
         .on('resizestart', e => {
-          const selected = this.props.onInteraction(Timeline.changeTypes.resizeStart, null, this.props.selectedItems);
+          const selected =
+            this.props.onInteraction &&
+            this.props.onInteraction(Timeline.changeTypes.resizeStart, null, this.props.selectedItems);
           _.forEach(selected, id => {
             let domItem = this._gridDomNode.querySelector("span[data-item-index='" + id + "'");
             if (domItem) {
@@ -755,7 +757,7 @@ export default class Timeline extends React.Component {
           if (durationChange === null) durationChange = 0;
           const changes = {isStartTimeChange, timeDelta: -durationChange};
 
-          this.props.onInteraction(Timeline.changeTypes.resizeEnd, changes, items);
+          this.props.onInteraction && this.props.onInteraction(Timeline.changeTypes.resizeEnd, changes, items);
 
           e.target.setAttribute('delta-x', 0);
           this._grid.recomputeGridSize({rowIndex: minRowNo});
@@ -853,7 +855,7 @@ export default class Timeline extends React.Component {
                 })
               );
             }
-            this.props.onInteraction(Timeline.changeTypes.itemsSelected, selectedItems);
+            this.props.onInteraction && this.props.onInteraction(Timeline.changeTypes.itemsSelected, selectedItems);
           }
         });
     }
@@ -1029,11 +1031,12 @@ export default class Timeline extends React.Component {
       if (cursorSnappedTime.isSameOrAfter(this.getStartDate())) {
         this.mouse_snapped_time = cursorSnappedTime;
         this.setState({cursorTime: this.mouse_snapped_time});
-        this.props.onInteraction(
-          Timeline.changeTypes.snappedMouseMove,
-          {snappedTime: this.mouse_snapped_time.clone()},
-          null
-        );
+        this.props.onInteraction &&
+          this.props.onInteraction(
+            Timeline.changeTypes.snappedMouseMove,
+            {snappedTime: this.mouse_snapped_time.clone()},
+            null
+          );
       }
     }
   }
