@@ -1,6 +1,7 @@
 # Build dir
 dist/
 lib/
+*.d.ts
 
 # Docs
 docs/

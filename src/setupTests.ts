@@ -15,25 +15,19 @@ function setUpDomEnvironment() {
   global.window = window;
   global.document = window.document;
   global.navigator = {
+    ...global.navigator,
     userAgent: 'node.js'
   };
-  global.console.error = e => (consoleEr += e);
-  global.console.warn = e => (consoleWa += e);
-  global.console.warning = e => (consoleWa += e);
-  copyProps(window, global);
+  global.console.error = (e: string) => (consoleEr += e);
+  global.console.warn = (e: string) => (consoleWa += e);
 }
 
-function copyProps(src, target) {
-  const props = Object.getOwnPropertyNames(src)
-    .filter(prop => typeof target[prop] === 'undefined')
-    .map(prop => Object.getOwnPropertyDescriptor(src, prop));
-  Object.defineProperties(target, props);
-}
-
+//@ts-ignore
 beforeEach(function() {
   consoleEr = '';
   consoleWa = '';
 });
+//@ts-ignore
 afterEach(function() {
   expect(consoleEr).to.equal('');
   expect(consoleWa).to.equal('');

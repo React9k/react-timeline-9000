@@ -9,6 +9,7 @@ module.exports = {
   plugins: [],
   module: {
     rules: [
+      { test: /\.ts$/, exclude: /node_modules/, loader: "awesome-typescript-loader" },
       { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" },
       {test: /\.css$/,
       use: [
