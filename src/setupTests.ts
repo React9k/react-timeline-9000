@@ -23,12 +23,12 @@ function setUpDomEnvironment() {
 }
 
 //@ts-ignore
-beforeEach(function() {
+beforeEach(() => {
   consoleEr = '';
   consoleWa = '';
 });
 //@ts-ignore
-afterEach(function() {
+afterEach(() => {
   expect(consoleEr).to.equal('');
   expect(consoleWa).to.equal('');
 });

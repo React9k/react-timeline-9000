@@ -2,8 +2,8 @@
 import React from 'react';
 import {shallow, mount} from 'enzyme';
 import {expect} from 'chai';
+import '../setupTests';
 
-import setup from 'setupTests';
 import SelectBox from './selector';
 
 describe('Selector', () => {

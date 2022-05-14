@@ -9,9 +9,6 @@
     "@babel/plugin-proposal-object-rest-spread"
   ],
   "ignore": [
-    "**/*.test.js",
-    "demo*",
-    "setupTests.ts",
-    "stories/*"
+    "dist/*"
   ]
 }
