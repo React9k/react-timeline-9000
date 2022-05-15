@@ -1,8 +1,7 @@
 'use strict';
 
-import React from 'react';
+import React, {CSSProperties} from 'react';
 import _ from 'lodash';
-import moment from 'moment';
 
 /**
  * Render all items in a row
@@ -24,7 +23,7 @@ export function rowItemsRenderer(
   total_width,
   itemHeight,
   itemRenderer,
-  selectedItems = [],
+  selectedItems: any[] = [],
   getStartFromItem,
   getEndFromItem
 ) {
@@ -37,7 +36,7 @@ export function rowItemsRenderer(
     }),
     i => -getStartFromItem(i).unix()
   ); // sorted in reverse order as we iterate over the array backwards
-  let displayItems = [];
+  let displayItems: any[] = [];
   let rowOffset = 0;
   while (filtered_items.length > 0) {
     let lastEnd = null;
@@ -62,7 +61,7 @@ export function rowItemsRenderer(
     let width = Math.round(item_duration_mins * pixels_per_ms);
     let compClassnames = 'rct9k-items-inner';
     let outerClassnames = 'rct9k-items-outer item_draggable';
-    let style = {backgroundColor: color};
+    let style: CSSProperties = {backgroundColor: color};
     let isSelected = selectedItems.indexOf(Number(i.key)) > -1;
 
     if (isSelected) {
@@ -110,7 +109,7 @@ export function rowLayerRenderer(
     }),
     i => -getStartFromRowLayer(i).unix()
   ); // sorted in reverse order as we iterate over the array backwards
-  let displayItems = [];
+  let displayItems: any[] = [];
   let rowOffset = 0;
   while (filtered_items.length > 0) {
     let lastEnd = null;
@@ -212,7 +211,7 @@ export function getTrueBottom(elem) {
  * @param  {Object} topDiv Div to search under
  * @returns {number} The row number
  */
-export function getNearestRowNumber(x, y, topDiv = document) {
+export function getNearestRowNumber(x: number, y: number, topDiv: Node = document) {
   let elementsAtPixel = document.elementsFromPoint(x, y);
   let targetRow = _.find(elementsAtPixel, e => {
     const inDiv = topDiv.contains(e);
@@ -226,11 +225,15 @@ export function getNearestRowNumber(x, y, topDiv = document) {
  * @param  {Object[]} items List of items
  * @param  {function} getStartFromItem Function that returns the start of an item.
  * @param  {function} getEndFromItem Function that returns the end of an item.
- * @param  {boolean} useMoment This parameter is necessary because this method is also called when
- * the component receives new props.
+ * @param  {boolean} useMoment This parameter is necessary because this method is also called when the component receives new props.
  * @returns {number} Max row height
  */
-export function getMaxOverlappingItems(items, getStartFromItem, getEndFromItem, useMoment) {
+export function getMaxOverlappingItems(
+  items: any[],
+  getStartFromItem: Function,
+  getEndFromItem: Function,
+  useMoment: boolean
+): number {
   let max = 0;
   let sorted_items = _.sortBy(items, i => -getStartFromItem(i, useMoment).unix());
   while (sorted_items.length > 0) {

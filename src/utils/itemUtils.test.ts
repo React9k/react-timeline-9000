@@ -1,5 +1,3 @@
-import {expect} from 'chai';
-
 import _ from 'lodash';
 import moment from 'moment';
 import {getMaxOverlappingItems} from './itemUtils';
@@ -74,7 +72,7 @@ describe('Item Utils', function() {
   describe('getMaxOverlappingItems', function() {
     it('should return a default of 1', function() {
       const result = getMaxOverlappingItems([], getStartFromItem, getEndFromItem);
-      expect(result).to.equal(1);
+      expect(result).toEqual(1);
     });
     // Diagram
     //  |-----|  |----|
@@ -84,7 +82,7 @@ describe('Item Utils', function() {
         return _.includes(testInstanceIDs, i.key);
       });
       const result = getMaxOverlappingItems(items, getStartFromItem, getEndFromItem);
-      expect(result).to.equal(1);
+      expect(result).toEqual(1);
     });
     // Diagram
     //  |-----|
@@ -95,7 +93,7 @@ describe('Item Utils', function() {
         return _.includes(testInstanceIDs, i.key);
       });
       const result = getMaxOverlappingItems(items, getStartFromItem, getEndFromItem);
-      expect(result).to.equal(2);
+      expect(result).toEqual(2);
     });
     // Diagram
     //  |-----|-----|
@@ -105,7 +103,7 @@ describe('Item Utils', function() {
         return _.includes(testInstanceIDs, i.key);
       });
       const result = getMaxOverlappingItems(items, getStartFromItem, getEndFromItem);
-      expect(result).to.equal(1);
+      expect(result).toEqual(1);
     });
     // Diagram
     //  |-----|
@@ -117,7 +115,7 @@ describe('Item Utils', function() {
         return _.includes(testInstanceIDs, i.key);
       });
       const result = getMaxOverlappingItems(items, getStartFromItem, getEndFromItem);
-      expect(result).to.equal(3);
+      expect(result).toEqual(3);
     });
     // Diagram
     //  |-----|  |------|
@@ -128,7 +126,7 @@ describe('Item Utils', function() {
         return _.includes(testInstanceIDs, i.key);
       });
       const result = getMaxOverlappingItems(items, getStartFromItem, getEndFromItem);
-      expect(result).to.equal(2);
+      expect(result).toEqual(2);
     });
   });
 });

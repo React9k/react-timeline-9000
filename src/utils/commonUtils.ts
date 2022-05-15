@@ -4,7 +4,7 @@
  * @param  {number} diff The pixels to add/subtract
  * @returns {string} Style as string for css use
  */
-export function sumStyle(style, diff) {
+export function sumStyle(style: String, diff: number): String {
   return intToPix(pixToInt(style) + diff);
 }
 /**
@@ -12,16 +12,14 @@ export function sumStyle(style, diff) {
  * @param  {string} pix Pixel string
  * @return {number} Integer value of the pixel string
  */
-export function pixToInt(pix) {
+export function pixToInt(pix: String): number {
   return parseInt(pix.replace('px', ''));
 }
 /**
  * Convert integer to pixel string.
- * If not an integer the input is returned as is
- * @param  {number} int Integer value
+ * @param  {number} int value
  * @returns {string} Pixel string
  */
-export function intToPix(int) {
-  if (int === Number(int)) return int + 'px';
-  return int;
+export function intToPix(int: number): String {
+  return int + 'px';
 }

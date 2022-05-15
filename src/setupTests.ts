@@ -1,6 +1,5 @@
 import Enzyme from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import {expect} from 'chai';
 
 import jsdom from 'jsdom';
 
@@ -29,8 +28,8 @@ beforeEach(() => {
 });
 //@ts-ignore
 afterEach(() => {
-  expect(consoleEr).to.equal('');
-  expect(consoleWa).to.equal('');
+  expect(consoleEr).toEqual('');
+  expect(consoleWa).toEqual('');
 });
 setUpDomEnvironment();
 Enzyme.configure({adapter: new Adapter()});

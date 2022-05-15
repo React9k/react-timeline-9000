@@ -1,11 +1,11 @@
+//@ts-nocheck
 'use strict';
 
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
-import {Grid, AutoSizer, defaultCellRangeRenderer} from 'react-virtualized';
+import {AutoSizer} from 'react-virtualized';
 
-import moment from 'moment';
 import interact from 'interactjs';
 import _ from 'lodash';
 
@@ -172,7 +172,7 @@ export default class Timeline extends React.Component {
    * @param {number} mask Mask to check against
    * @returns {boolean} True if bit is set; else false
    */
-  static isBitSet(bit, mask) {
+  static isBitSet(bit, mask): boolean {
     return (bit & mask) === bit;
   }
 
@@ -181,7 +181,7 @@ export default class Timeline extends React.Component {
    */
   static no_op = () => {};
 
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     this.selecting = false;
     this.state = {selection: [], cursorTime: null};

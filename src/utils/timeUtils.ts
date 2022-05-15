@@ -2,13 +2,16 @@
 
 import moment from 'moment';
 
+type MomentType = moment.Moment;
+type MomentDurationType = moment.Duration;
+
 /**
  * Snaps a moment object to the given resolution
  * @param {moment} time The moment to snap
  * @param {number} snapMilliseconds The snap time in milliseconds
  * @returns {moment} Snapped moment
  */
-export function timeSnap(time, snapMilliseconds) {
+export function timeSnap(time: MomentType, snapMilliseconds: number): MomentType {
   if (snapMilliseconds === 0) {
     const newTime = time.clone();
     newTime.set('millisecond', 0);
@@ -25,7 +28,7 @@ export function timeSnap(time, snapMilliseconds) {
  * @param {number} total_width The width of the timeline in pixels
  * @returns {float} The pixels per millisecond
  */
-export function pixelsPerMillisecond(vis_start, vis_end, total_width) {
+export function pixelsPerMillisecond(vis_start: MomentType, vis_end: MomentType, total_width: number): number {
   const start_end_ms = vis_end.diff(vis_start, 'milliseconds');
   return total_width / start_end_ms;
 }
@@ -38,7 +41,13 @@ export function pixelsPerMillisecond(vis_start, vis_end, total_width) {
  * @param {number} total_width  the pixel width of the timeline
  * @param {number} snapMilliseconds the number of milliseconds to snap to
  */
-export function getSnapPixelFromDelta(delta, vis_start, vis_end, total_width, snapMilliseconds = 0) {
+export function getSnapPixelFromDelta(
+  delta: number,
+  vis_start: MomentType,
+  vis_end: MomentType,
+  total_width: number,
+  snapMilliseconds: number = 0
+): number {
   const pixelsPerSnapSegment = pixelsPerMillisecond(vis_start, vis_end, total_width) * snapMilliseconds;
   return Math.round(delta / pixelsPerSnapSegment) * pixelsPerSnapSegment;
 }
@@ -52,7 +61,13 @@ export function getSnapPixelFromDelta(delta, vis_start, vis_end, total_width, sn
  * @param {number} snapMilliseconds The snap resolution (in ms)
  * @returns {moment} Moment object
  */
-export function getTimeAtPixel(pixel_location, vis_start, vis_end, total_width, snapMilliseconds = 0) {
+export function getTimeAtPixel(
+  pixel_location: number,
+  vis_start: MomentType,
+  vis_end: MomentType,
+  total_width: number,
+  snapMilliseconds = 0
+) {
   let min_offset = pixel_location / pixelsPerMillisecond(vis_start, vis_end, total_width);
   let timeAtPix = vis_start.clone().add(min_offset, 'milliseconds');
   if (snapMilliseconds !== 0) timeAtPix = timeSnap(timeAtPix, snapMilliseconds);
@@ -66,7 +81,12 @@ export function getTimeAtPixel(pixel_location, vis_start, vis_end, total_width, 
  * @param  {number} total_width The width in pixels of the grid
  * @returns {number} The pixel offset
  */
-export function getPixelAtTime(time, vis_start, vis_end, total_width) {
+export function getPixelAtTime(
+  time: MomentType,
+  vis_start: MomentType,
+  vis_end: MomentType,
+  total_width: number
+): number {
   const min_from_start = time.diff(vis_start, 'milliseconds');
   return min_from_start * pixelsPerMillisecond(vis_start, vis_end, total_width);
 }
@@ -78,7 +98,12 @@ export function getPixelAtTime(time, vis_start, vis_end, total_width) {
  * @param  {number} total_width The width in pixels of the grid
  * @returns {moment} Moment duration
  */
-export function getDurationFromPixels(pixels, vis_start, vis_end, total_width) {
+export function getDurationFromPixels(
+  pixels: number,
+  vis_start: MomentType,
+  vis_end: MomentType,
+  total_width: number
+): MomentDurationType {
   const start_end_ms = vis_end.diff(vis_start, 'milliseconds');
   if (start_end_ms === 0) return moment.duration(0, 'milliseconds');
   const pixels_per_ms = total_width / start_end_ms;
@@ -92,7 +117,7 @@ export function getDurationFromPixels(pixels, vis_start, vis_end, total_width) {
  * @param {boolean} useMoment
  * @returns moment
  */
-export function convertDateToMoment(date, useMoment) {
+export function convertDateToMoment(date: MomentType | number, useMoment: boolean) {
   if (useMoment) {
     return date;
   }
@@ -105,7 +130,7 @@ export function convertDateToMoment(date, useMoment) {
  * @param {boolean} useMoment if true return dateAsMoment, otherwise return millis
  * @returns a moment object or date in milliseconds
  */
-export function convertMomentToDateType(dateAsMoment, useMoment) {
+export function convertMomentToDateType(dateAsMoment: MomentType, useMoment: boolean) {
   if (useMoment) {
     return dateAsMoment;
   }

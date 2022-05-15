@@ -8,11 +8,30 @@ import PropTypes from 'prop-types';
 import {Grid} from 'react-virtualized';
 
 class TimelineBody extends Component {
+  static propTypes = {
+    width: PropTypes.number.isRequired,
+    columnWidth: PropTypes.func.isRequired,
+    columnCount: PropTypes.number,
+    height: PropTypes.number.isRequired,
+    rowHeight: PropTypes.func.isRequired,
+    rowCount: PropTypes.number.isRequired,
+    grid_ref_callback: PropTypes.func.isRequired,
+    cellRenderer: PropTypes.func.isRequired,
+    shallowUpdateCheck: PropTypes.bool,
+    forceRedrawFunc: PropTypes.func
+  };
+
+  static defaultProps = {
+    columnCount: 2,
+    shallowUpdateCheck: false,
+    forceRedrawFunc: null
+  };
+
   componentDidMount() {
     this.forceUpdate();
   }
   shouldComponentUpdate(nextProps) {
-    const {props} = this;
+    const props: any = this.props;
     if (!props.shallowUpdateCheck) {
       return true;
     }
@@ -33,8 +52,9 @@ class TimelineBody extends Component {
     return shallowChange;
   }
   render() {
-    const {width, columnWidth, height, rowHeight, rowCount, columnCount} = this.props;
-    const {grid_ref_callback, cellRenderer} = this.props;
+    const props: any = this.props;
+    const {width, columnWidth, height, rowHeight, rowCount, columnCount} = props;
+    const {grid_ref_callback, cellRenderer} = props;
 
     return (
       <Grid
@@ -52,22 +72,4 @@ class TimelineBody extends Component {
   }
 }
 
-TimelineBody.propTypes = {
-  width: PropTypes.number.isRequired,
-  columnWidth: PropTypes.func.isRequired,
-  columnCount: PropTypes.number,
-  height: PropTypes.number.isRequired,
-  rowHeight: PropTypes.func.isRequired,
-  rowCount: PropTypes.number.isRequired,
-  grid_ref_callback: PropTypes.func.isRequired,
-  cellRenderer: PropTypes.func.isRequired,
-  shallowUpdateCheck: PropTypes.bool,
-  forceRedrawFunc: PropTypes.func
-};
-
-TimelineBody.defaultProps = {
-  columnCount: 2,
-  shallowUpdateCheck: false,
-  forceRedrawFunc: null
-};
 export default TimelineBody;
