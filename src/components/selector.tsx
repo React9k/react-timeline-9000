@@ -1,24 +1,21 @@
 'use strict';
-import React from 'react';
+import React, {ReactNode} from 'react';
 
 /**
  * Component to show a selection box (like on windows desktop)
  */
 export default class SelectBox extends React.Component {
-  constructor(props) {
-    super(props);
-    this.curX = 0;
-    this.curY = 0;
-    this.startX = 0;
-    this.startY = 0;
-  }
+  curX: number = 0;
+  curY: number = 0;
+  startX: number = 0;
+  startY: number = 0;
 
   /**
    * Create the selection box
    * @param {number} x Starting x coordinate for selection box
    * @param {number} y Starting y coordinate for selection box
    */
-  start(x, y) {
+  start(x: number, y: number) {
     this.startX = x;
     this.startY = y;
     this.curX = 0;
@@ -30,7 +27,7 @@ export default class SelectBox extends React.Component {
    * @param {number} x The current X coordinate of the mouse
    * @param {number} y The current Y coordinate of the mouse
    */
-  move(x, y) {
+  move(x: number, y: number) {
     this.curX = x;
     this.curY = y;
     this.forceUpdate();
@@ -45,7 +42,7 @@ export default class SelectBox extends React.Component {
    * @property {number} width The width of the box
    * @property {number} height The height of the box
    */
-  end() {
+  end(): {left: number; top: number; width: number; height: number} {
     const {startX, startY, curX, curY} = this;
     const left = Math.min(startX, curX);
     const top = Math.min(startY, curY);
@@ -64,7 +61,7 @@ export default class SelectBox extends React.Component {
   /**
    * @ignore
    */
-  render() {
+  render(): ReactNode {
     const {startX, startY, curX, curY} = this;
     const left = Math.min(startX, curX);
     const top = Math.min(startY, curY);

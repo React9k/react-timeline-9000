@@ -1,3 +1,4 @@
+//@ts-nocheck
 'use strict';
 
 import React from 'react';

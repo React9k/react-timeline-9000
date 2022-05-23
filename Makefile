@@ -17,10 +17,10 @@ run: install
 	yarn start
 
 test: install
-	env NODE_PATH=$$NODE_PATH:$$PWD/src/ $(mocha) --require babel-core/register --require ignore-styles "./src/**/*.test.js"
+	yarn test
 
 test-watch: install
-	env NODE_PATH=$$NODE_PATH:$$PWD/src/ $(mocha) -w --require babel-core/register --require ignore-styles "./src/**/*.test.js"
+	yarn test
 
 install:
 	yarn

@@ -4,10 +4,10 @@
   "description": "Performance focused timeline for react",
   "private": false,
   "scripts": {
-    "build": "webpack --config webpack.prod.js",
-    "build_lib": "babel src --out-dir lib --ignore demo*,setupTests.js,*.test.js --copy-files --source-maps inline",
+    "build": "tsc",
     "build_demo": "webpack --config webpack.demo.prod.js",
     "start": "webpack-dev-server --open --config webpack.dev.js",
+    "test": "jest",
     "docs": "esdoc",
     "pretty": "prettier --write --tab-width 4 \"src/**/*.js\"",
     "precommit": "lint-staged",
@@ -18,6 +18,11 @@
     "src/**/*.{js,jsx,json,css}": [
       "prettier --single-quote --write",
       "git add"
+    ]
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "dist"
     ]
   },
   "repository": {
@@ -40,25 +45,31 @@
     "dist",
     "lib"
   ],
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "homepage": "https://github.com/React9k/react-timeline-9000#readme",
   "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.0.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/preset-typescript": "^7.16.7",
+    "@babel/register": "^7.17.7",
     "@storybook/addon-actions": "^6.3.11",
     "@storybook/addon-essentials": "^6.3.11",
     "@storybook/addon-links": "^6.3.11",
     "@storybook/react": "^6.3.11",
+    "@types/jest": "^27.5.1",
+    "@types/lodash": "^4.14.182",
+    "@types/react-dom": "^18.0.4",
+    "@types/react-virtualized": "^9.21.21",
     "antd": "^3.6.5",
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.3",
-    "babel-eslint": "^8.2.5",
-    "babel-loader": "^7.1.4",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-react": "^6.24.1",
+    "babel-eslint": "^9.0.0",
+    "babel-loader": "^8.0.0",
     "babel-root-slash-import": "^1.1.0",
-    "chai": "^4.1.2",
     "core-js": "^2.4.0",
+    "cross-env": "^7.0.3",
     "css-loader": "^0.28.11",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
@@ -75,14 +86,16 @@
     "html-webpack-plugin": "5.5.0",
     "husky": "^0.14.3",
     "ignore-styles": "^5.0.1",
+    "jest": "^28.1.0",
     "jsdom": "^13.0.0",
     "lint-staged": "8.2.1",
-    "mocha": "^5.2.0",
     "prettier": "^1.13.5",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "style-loader": "^0.21.0",
     "tern": "^0.21.0",
+    "ts-loader": "^9.3.0",
+    "ts-node": "^10.7.0",
     "uglifyjs-webpack-plugin": "^2.2.0",
     "webpack": "^5.67.0",
     "webpack-cli": "^4.9.2",
@@ -94,7 +107,8 @@
     "interactjs": "^1.6.2",
     "lodash": "^4.17.19",
     "moment": "^2.22.2",
-    "react-virtualized": "^9.19.1"
+    "react-virtualized": "^9.19.1",
+    "typescript": "^4.6.4"
   },
   "peerDependencies": {
     "react": "^16.4.1 || ^17.0.0",

@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "es2016",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "jsx": "react",                                      /* Specify what JSX code is generated. */
+    "module": "commonjs",                                /* Specify what module code is generated. */
+    "rootDir": "./src/",                                  /* Specify the root folder within your source files. */
+    "baseUrl": "./src/",                                  /* Specify the base directory to resolve non-relative module names. */
+    "allowJs": true,                                  /* Allow JavaScript files to be a part of your program. Use the `checkJS` option to get errors from these files. */
+    "checkJs": false,                                  /* Enable error reporting in type-checked JavaScript files. */
+    "declaration": true,                              /* Generate .d.ts files from TypeScript and JavaScript files in your project. */
+    "sourceMap": true,                                /* Create source map files for emitted JavaScript files. */
+    "outDir": "./dist",                                   /* Specify an output folder for all emitted files. */
+    "removeComments": true,                           /* Disable emitting comments. */
+    "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables `allowSyntheticDefaultImports` for type compatibility. */
+    "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
+    "strict": true,                                      /* Enable all strict type-checking options. */
+    "noImplicitAny": false,                            /* Enable error reporting for expressions and declarations with an implied `any` type.. */
+    "skipLibCheck": true,                                 /* Skip type checking all .d.ts files. */
+  },
+  "include": [
+    "./src/*"
+  ]
+}
