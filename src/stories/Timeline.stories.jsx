@@ -38,7 +38,7 @@ export const BasicUsageWithoutMoment = () => (
   <div className="demo">
     <Alert
       message={
-        <>
+        <React.Fragment>
           <p>
             The Timeline was originally designed to handle date/times w/ <a href="https://momentjs.com/">Moment.js</a>,
             a popular lib. However there are 2 drawbacks. <b>#1</b>: even the authors/maintainers of Moment.js don't
@@ -63,7 +63,7 @@ export const BasicUsageWithoutMoment = () => (
             NOTE: the Timeline still uses "moment" internally. And this because it was quicker to refactor this way.
             This may change in the future, if we find reasons and time to refactor more.
           </p>
-        </>
+        </React.Fragment>
       }
     />
     <Timeline
