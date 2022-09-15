@@ -47,6 +47,8 @@ We prefix our issues in the upstream repo w/ `[rt10000]`.
 | React9k/react-timeline-9000#196 | React9k/react-timeline-9000#239 | yes |
 | React9k/react-timeline-9000#221 | React9k/react-timeline-9000#241 | yes |
 | React9k/react-timeline-9000#234 | React9k/react-timeline-9000#237 | yes |
+| minor | React9k/react-timeline-9000#257 | yes |
+| minor | React9k/react-timeline-9000#260 | yes |
 | React9k/react-timeline-9000#271 | React9k/react-timeline-9000#272 |  |
 
 ## Original `README.md` of the upstream repo is below
