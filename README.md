@@ -39,7 +39,9 @@ New work is always done on new branches. E.g. `my-new-branch`. At the end of the
 
 ## Tracking of the pull requests submitted to the upstream repo
 
-| Issue | Pull request | Merged |
+We prefix our issues in the upstream repo w/ `[rt10000]`.
+
+| Issue (mouse hover for title) | Pull request | Merged |
 | - | - | - |
 | React9k/react-timeline-9000#190 | React9k/react-timeline-9000#243 | yes |
 | React9k/react-timeline-9000#196 | React9k/react-timeline-9000#239 | yes |
