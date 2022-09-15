@@ -37,6 +37,16 @@ New work is always done on new branches. E.g. `my-new-branch`. At the end of the
 * we make a PR and/or merge it into `master-flower-platform`;
 * then, we increment *fp-ver-N* to *fp-ver-N+1* cf. above.
 
+## Tracking of the pull requests submitted to the upstream repo
+
+| Issue | Pull request | Merged |
+| - | - | - |
+| React9k/react-timeline-9000#190 | React9k/react-timeline-9000#243 | yes |
+| React9k/react-timeline-9000#196 | React9k/react-timeline-9000#239 | yes |
+| React9k/react-timeline-9000#221 | React9k/react-timeline-9000#241 | yes |
+| React9k/react-timeline-9000#234 | React9k/react-timeline-9000#237 | yes |
+| React9k/react-timeline-9000#271 | React9k/react-timeline-9000#272 |  |
+
 ## Original `README.md` of the upstream repo is below
 
 ---
