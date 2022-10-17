@@ -1,0 +1,4 @@
+/* Hide Home anchor */
+.layout-container > header > a[href="./"] {
+    display: none;
+}

@@ -1,0 +1,62 @@
+import { Meta, ArgsTable } from '@storybook/addon-docs';
+import Timeline from '../../timeline';
+import {encodeApiDocURIForSubpath} from '../StorybookUtils';
+
+<Meta title="Features/Use moment/Doc"
+  parameters={{
+    viewMode: 'docs',
+    previewTabs: {
+      canvas: {
+        hidden: true
+      }
+    }
+  }}
+/>
+
+## Use moment
+The Timeline was originally designed to handle date/times w/ [Moment.js](https://momentjs.com/),
+a popular lib. However there are 2 drawbacks. **#1**: even the authors/maintainers of Moment.js don't
+quite [recomment](https://momentjs.com/docs/) it any more for use with new projects. The major
+complain seems to be the mutability of "moment" objects. **#2**: "moment" objects are not friendly with 
+[Redux](https://redux.js.org/), a popular framework for state management. Many folk use React for
+state management. And not being able to store the state that feeds the Timeline is a big drawback, since
+additional conversions are necessary.
+
+The **property ```useMoment```** to the rescue! If ```false```, then you when you "talk" date/times to the Timeline, then you use
+plain timestamps (i.e. number of millis, e.g. ```new Date().valueOf()```). And this everywhere where
+a date/time is needed (e.g. for an item, for global start/end, etc.). This is the **recommended** way to
+go, especially if you use Redux. But be aware that this property is by default ```true```, in order
+to maintain backward compatibility.
+
+NOTE: the Timeline still uses "moment" internally. And this because it was quicker to refactor this way.
+This may change in the future, if we find reasons and time to refactor more.  
+
+## Props
+
+<ArgsTable of={Timeline} include={["useMoment", "startDate", "endDate", "items", "rowLayers"]}  />
+
+Default date fields in an **item**:
+
+* start - moment object or date in milliseconds(number) - start of an item
+* end - moment object or date in milliseconds(number) - end of an item
+
+Default date fields in a **row layer**:
+
+* start - moment object or date in milliseconds(number) - start of a row layer
+* end - moment object or date in milliseconds(number) - end of a row layer
+
+> **WARNING!**
+> It is **forbidden** to manipulate the dates directly from props. In case you want to modify/override the code
+that involve the dates you should read the documentation from [API Doc](?path=/docs/api-doc--page) for the following functions:
+* <a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-getStartDate")}>Timeline.getStartDate()</a>
+* <a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-getEndDate")}>Timeline.getEndDate()</a>
+* <a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-getStartFromItem")}>Timeline.getStartFromItem(item)</a>
+* <a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-getEndFromItem")}>Timeline.getEndFromItem(item)</a>
+* <a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-setStartToItem")}>Timeline.setStartToItem(item, newDateAsMoment)</a>
+* <a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-setEndToItem")}>Timeline.setEndToItem(item, newDateAsMoment)</a>
+* <a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-getStartFromRowLayer")}>Timeline.getStartFromRowLayer(layer)</a>
+* <a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-getEndFromRowLayer")}>Timeline.getEndFromRowLayer(layer)</a>
+* <a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-setStartToRowLayer")}>Timeline.setStartToRowLayer(layer, newDateAsMoment)</a>
+* <a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-setEndToRowLayer")}>Timeline.setEndToRowLayer(layer, newDateAsMoment)</a>
+* <a href={encodeApiDocURIForSubpath("function/index.html#static-function-convertDateToMoment")}>utils: convertDateToMoment(date, useMoment)</a>
+* <a href={encodeApiDocURIForSubpath("function/index.html#static-function-convertMomentToDateType")}>utils: convertMomentToDateType(dateAsMoment, useMoment)</a>

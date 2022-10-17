@@ -1,0 +1,24 @@
+import { Meta } from '@storybook/addon-docs';
+
+<!-- "Canvas" tab is not needed, show only "Docs" tab -->
+<Meta
+    title="API doc"
+    parameters={{
+        viewMode: 'docs',
+        previewTabs: { 
+            canvas: {
+                hidden: true
+            }
+        },
+    }}
+/>
+
+<!-- We use parent.window because we are already inside an iframe.-->
+<iframe
+    src={(new URLSearchParams(parent.window.location.search)).get('subpath') ? (new URLSearchParams(parent.window.location.search)).get('subpath') : 'index-docs.html'}
+    width="100%"
+    height="100%"
+    title="apidocs"
+    id="apidocs"
+    frameBorder="0"
+></iframe>

@@ -3,13 +3,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
-import {Grid, AutoSizer, defaultCellRangeRenderer} from 'react-virtualized';
+import {Grid, AutoSizer} from 'react-virtualized';
 
 import moment from 'moment';
 import interact from 'interactjs';
 import _ from 'lodash';
 
-import {pixToInt, intToPix, sumStyle} from './utils/commonUtils';
+import {pixToInt, intToPix} from './utils/commonUtils';
 import {
   rowItemsRenderer,
   rowLayerRenderer,
@@ -56,6 +56,9 @@ export default class Timeline extends React.Component {
   });
 
   static propTypes = {
+    /**
+     * Items that will be rendered in the grid.
+     */
     items: PropTypes.arrayOf(
       PropTypes.shape({
         key: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
@@ -65,25 +68,11 @@ export default class Timeline extends React.Component {
         end: PropTypes.oneOfType([PropTypes.object, PropTypes.number])
       })
     ).isRequired,
+    selectedItems: PropTypes.arrayOf(PropTypes.number),
     groups: PropTypes.arrayOf(PropTypes.object).isRequired,
-    // Single column mode: the width of the column.
-    // Multiple columns mode: the default width of the columns, which may be overridden on a per column basis.
-    groupOffset: PropTypes.number.isRequired,
-    tableColumns: PropTypes.arrayOf(
-      PropTypes.shape({
-        // The default renderer for a cell is props.groupRenderer that renders labelProperty from group.
-        // The renderer for a column can be overriden using cellRenderer. cellRenderer can be a React element
-        // or a function or a class component that generates a React element.
-        labelProperty: PropTypes.string,
-        cellRenderer: PropTypes.oneOfType([PropTypes.func, PropTypes.element]),
-        // The default renderer for a header is props.groupTitleRenderer that renders headerLabel.
-        // The renderer for a header column can be overriden using headerRenderer. headerRenderer can be a React element
-        // or a function or a class component that generates a React element.
-        headerLabel: PropTypes.string,
-        headerRenderer: PropTypes.oneOfType([PropTypes.func, PropTypes.element]),
-        width: PropTypes.number // width of the column in px
-      })
-    ),
+    /**
+     * List of layers that will be rendered for a row.
+     */
     rowLayers: PropTypes.arrayOf(
       PropTypes.shape({
         // start and end are not required because getStartFromItem() and getEndFromItem() functions
@@ -94,17 +83,92 @@ export default class Timeline extends React.Component {
         style: PropTypes.object.isRequired
       })
     ),
-    selectedItems: PropTypes.arrayOf(PropTypes.number),
+    /**
+     * The visible start date of the timeline as moment object or in milliseconds.
+     */
     startDate: PropTypes.oneOfType([PropTypes.object, PropTypes.number]).isRequired,
+    /**
+     * The visible end date of the timeline as moment object or in milliseconds.
+     */
     endDate: PropTypes.oneOfType([PropTypes.object, PropTypes.number]).isRequired,
+    /**
+     * If true the dates from props should be moment objects. Otherwise they will be dates in milliseconds (numbers)
+     * and will be converted internally in moment objects.
+     */
+    useMoment: PropTypes.bool,
+    /**
+     * Single column mode: the width of the column.
+     * Multiple columns mode: the default width of the columns (if column.width is not configured), which may be overridden on a per column basis.
+     */
+    groupOffset: PropTypes.number.isRequired,
+    /**
+     * The columns that will be rendered using data from groups.
+     */
+    tableColumns: PropTypes.arrayOf(
+      PropTypes.shape({
+        /**
+         * The default renderer for a cell is props.groupRenderer that renders labelProperty from group.
+         * The renderer for a column can be overriden using cellRenderer. cellRenderer can be a React element
+         * or a function or a class component that generates a React element.
+         */
+        labelProperty: PropTypes.string,
+        cellRenderer: PropTypes.oneOfType([PropTypes.func, PropTypes.element]),
+        // The default renderer for a header is props.groupTitleRenderer that renders headerLabel.
+        // The renderer for a header column can be overriden using headerRenderer. headerRenderer can be a React element
+        // or a function or a class component that generates a React element.
+        headerLabel: PropTypes.string,
+        headerRenderer: PropTypes.oneOfType([PropTypes.func, PropTypes.element]),
+        /**
+         * Width of the column in px.
+         */
+        width: PropTypes.number
+      })
+    ),
+    /**
+     * Single column mode: the renderer of a cell.
+     * Multiple columns mode: the default renderer of a cell, which may be overridden on a per column basis.
+     */
+    groupRenderer: PropTypes.func,
+    /**
+     * Single column mode: the renderer of the header cell.
+     * Multiple columns mode: the default renderer of a header cell, which may be overridden on a per column basis.
+     */
+    groupTitleRenderer: PropTypes.func,
+    itemRenderer: PropTypes.func,
+    itemHeight: PropTypes.number,
     snap: PropTypes.number, //like snapMinutes, but for seconds; couldn't get it any lower because the pixels are not calculated correctly
     snapMinutes: PropTypes.number,
+    /**
+     * Shows the cursor time in the timebar and a red marker in the grid indicating the cursor time.
+     */
     showCursorTime: PropTypes.bool,
+    /**
+     * The format of the cursor time displayed in the timebar.
+     */
     cursorTimeFormat: PropTypes.string,
-    componentId: PropTypes.string, // A unique key to identify the component. Only needed when 2 grids are mounted
-    itemHeight: PropTypes.number,
+    /**
+     * A unique key to identify the component. Only needed when 2 grids are mounted.
+     */
+    componentId: PropTypes.string,
     timelineMode: PropTypes.number,
     timebarFormat: PropTypes.object,
+    bottomResolution: PropTypes.string,
+    topResolution: PropTypes.string,
+    /**
+     * If true timeline will try to minimize re-renders . Set to false if items don't show up/update on prop change.
+     */
+    shallowUpdateCheck: PropTypes.bool,
+    /**
+     * Function called when shallowUpdateCheck==true. If returns true the timeline will be redrawn.
+     * If false the library will decide if redrawing is required.
+     */
+    forceRedrawFunc: PropTypes.func,
+    interactOptions: PropTypes.shape({
+      draggable: PropTypes.object,
+      pointerEvents: PropTypes.object,
+      // TODO: this doesn't seem used; originally it was w/ "required"; I removed this to avoid warnings in console
+      resizable: PropTypes.object
+    }),
     onItemClick: PropTypes.func,
     onItemDoubleClick: PropTypes.func,
     onItemContext: PropTypes.func,
@@ -113,25 +177,7 @@ export default class Timeline extends React.Component {
     onRowContext: PropTypes.func,
     onRowDoubleClick: PropTypes.func,
     onItemHover: PropTypes.func,
-    onItemLeave: PropTypes.func,
-    itemRenderer: PropTypes.func,
-    // Single column mode: the renderer of a cell.
-    // Multiple columns mode: the default renderer of a cell, which may be overridden on a per column basis.
-    groupRenderer: PropTypes.func,
-    // Single column mode: the renderer of the header cell.
-    // Multiple columns mode: the default renderer of a header cell, which may be overridden on a per column basis.
-    groupTitleRenderer: PropTypes.func,
-    shallowUpdateCheck: PropTypes.bool,
-    forceRedrawFunc: PropTypes.func,
-    bottomResolution: PropTypes.string,
-    topResolution: PropTypes.string,
-    interactOptions: PropTypes.shape({
-      draggable: PropTypes.object,
-      pointerEvents: PropTypes.object,
-      // TODO: this doesn't seem used; originally it was w/ "required"; I removed this to avoid warnings in console
-      resizable: PropTypes.object
-    }),
-    useMoment: PropTypes.bool // Whether the timeline should receive dates as moment object or in milliseconds.
+    onItemLeave: PropTypes.func
   };
 
   static defaultProps = {

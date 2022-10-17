@@ -5,6 +5,7 @@
   "plugins": [
     {"name": "esdoc-standard-plugin"},
     {"name": "esdoc-jsx-plugin", "option": {"enable": true}},
-    {"name": "esdoc-ecmascript-proposal-plugin", "option": {"all": true}}
+    {"name": "esdoc-ecmascript-proposal-plugin", "option": {"all": true}},
+    {"name": "esdoc-inject-style-plugin", "option": {"enable": true, "styles": ["./esdoc.css"]}}
   ]
 }

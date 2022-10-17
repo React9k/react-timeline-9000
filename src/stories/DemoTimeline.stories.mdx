@@ -1,0 +1,23 @@
+import { Canvas, Meta, Story, Props, ArgsTable, Description } from '@storybook/addon-docs';
+import moment from 'moment';
+import DemoTimeline from '../demo';
+import Timeline from '../timeline';
+import '../style.css'
+
+<!-- "Docs" tab is not needed, show only "Canvas" tab -->
+<Meta
+  title="Demo"
+  component={Timeline}
+  parameters={{
+    viewMode: 'story',
+    previewTabs: {
+      'storybook/docs/panel': { hidden: true }
+    },
+  }}
+/>
+
+<Canvas>
+  <Story name="Main">
+    <DemoTimeline/>
+  </Story>
+</Canvas>
