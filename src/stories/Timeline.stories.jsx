@@ -6,7 +6,7 @@ import Timeline from '../timeline';
 import {Alert} from 'antd';
 
 export default {
-  title: 'Timeline'
+  title: 'Internal/Timeline'
 };
 
 export const OriginalDemo = () => <DemoTimeline />;

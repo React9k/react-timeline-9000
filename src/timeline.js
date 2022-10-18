@@ -57,19 +57,37 @@ export default class Timeline extends React.Component {
 
   static propTypes = {
     /**
-     * Items that will be rendered in the grid.
+     * The rows (aka groups) of the Timeline.
+     *
+     * `id` is mandatory, it should: be numeric, start with 0 and have consecutive values.
+     *
+     * `title` is used displayed by the default renderer. This is optional, i.e. you may use this and/or other fields, provided
+     * you have a custom renderer.
+     */
+    groups: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        title: PropTypes.string
+      })
+    ).isRequired,
+
+    /**
+     * The segments. A segment is associated with a row. Hence `row` is mandatory, pointing to an `id` of a row (group).
+     *
+     * `key` is also needed and has the React standard meaning.
+     *
+     * `start` and `stop` are dates (numeric/millis or moment objects, cf. `useMoment`).
      */
     items: PropTypes.arrayOf(
       PropTypes.shape({
-        key: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+        key: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
         // start and end are not required because getStartFromItem() and getEndFromItem() functions
         // are being used and they can be overriden to use other fields
-        start: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
-        end: PropTypes.oneOfType([PropTypes.object, PropTypes.number])
+        start: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
+        end: PropTypes.oneOfType([PropTypes.number, PropTypes.object])
       })
     ).isRequired,
     selectedItems: PropTypes.arrayOf(PropTypes.number),
-    groups: PropTypes.arrayOf(PropTypes.object).isRequired,
     /**
      * List of layers that will be rendered for a row.
      */
@@ -83,17 +101,27 @@ export default class Timeline extends React.Component {
         style: PropTypes.object.isRequired
       })
     ),
+
     /**
-     * The visible start date of the timeline as moment object or in milliseconds.
+     * Start of the displayed interval, as date (numeric/millis or moment object, cf. `useMoment`).
      */
-    startDate: PropTypes.oneOfType([PropTypes.object, PropTypes.number]).isRequired,
+    startDate: PropTypes.oneOfType([PropTypes.number, PropTypes.object]).isRequired,
+
     /**
-     * The visible end date of the timeline as moment object or in milliseconds.
+     * End of the displayed interval, as date (numeric/millis or moment object, cf. `useMoment`).
      */
-    endDate: PropTypes.oneOfType([PropTypes.object, PropTypes.number]).isRequired,
-    /**
-     * If true the dates from props should be moment objects. Otherwise they will be dates in milliseconds (numbers)
-     * and will be converted internally in moment objects.
+    endDate: PropTypes.oneOfType([PropTypes.number, PropTypes.object]).isRequired,
+
+    /** If `false`, then when you "talk" dates/times to the Timeline, then you use
+     * plain timestamps (i.e. number of millis, e.g. `new Date().valueOf()`). And this everywhere where
+     * a date/time is needed (e.g. for an item, for global start/end, etc.). This is the **recommended** (and the default) way to go, especially if you use Redux.
+     *
+     * NOTE 1: the Timeline still uses "moment" internally. And this because it was quicker to refactor this way.
+     * This may change in the future, if we find reasons and time to refactor more.
+     *
+     * NOTE 2: The upstream repo, had this `true` by default, in order to maintain backward compatibility. But we discovered that w/ `false`, the component
+     * actually works both w/ timestamps AND moment objects. And this is because we convert using `moment(date)`, which works in the 2 cases. Obviously it's
+     * not a good idea to mix the date types, one of the reasons being that maybe in the future moment won't be used internally any more.
      */
     useMoment: PropTypes.bool,
     /**
@@ -191,12 +219,16 @@ export default class Timeline extends React.Component {
     groupRenderer: DefaultGroupRenderer,
     itemRenderer: DefaultItemRenderer,
     timelineMode: Timeline.TIMELINE_MODES.SELECT | Timeline.TIMELINE_MODES.DRAG | Timeline.TIMELINE_MODES.RESIZE,
-    shallowUpdateCheck: false,
+    // in rtl9k
+    // shallowUpdateCheck: false,
+    shallowUpdateCheck: true,
     forceRedrawFunc: null,
     onItemHover() {},
     onItemLeave() {},
     interactOptions: {},
-    useMoment: true,
+    // in rtl9k:
+    // useMoment: true,
+    useMoment: false,
     tableColumns: []
   };
 
@@ -304,76 +336,86 @@ export default class Timeline extends React.Component {
   }
 
   /**
-   * It returns the start date of the timeline as moment.
-   * @returns startDate as moment
+   * Start of the displayed interval (as moment object).
+   *
+   * @return {moment}
    */
   getStartDate() {
     return convertDateToMoment(this.props.startDate, this.props.useMoment);
   }
 
   /**
-   * It returns the end date of the timeline as moment.
-   * @returns endDate as moment
+   * End of the displayed interval (as moment object).
+   *
+   * @return {moment}
    */
   getEndDate() {
     return convertDateToMoment(this.props.endDate, this.props.useMoment);
   }
 
   /**
-   * It returns the start of the item as moment.
-   * @param {object} item Item that is displayed in the grid.
-   * @param {useMoment} useMoment This parameter is necessary because this method is also called when
-   * the component receives new props. Default value: this.props.useMoment.
-   * @returns start of the item as moment
+   * Start of the segment (item).
+   *
+   * @param {object} item The segment (item).
+   * @param {boolean} useMoment This parameter is necessary because this method is also called when
+   * the component receives new props. Default value: `this.props.useMoment`.
+   * @return {moment}
    */
   getStartFromItem(item, useMoment = this.props.useMoment) {
     return convertDateToMoment(item.start, useMoment);
   }
 
   /**
-   * It assigns newDateAsMoment to the start of the item, but first it converts newDateAsMoment
-   * to moment or milliseconds according to useMoment.
-   * @param {object} item Item that is displayed in the grid.
+   * It assigns `newDateAsMoment` to the start of the segment (item), but first it converts it
+   * to moment or number/milliseconds according to `useMoment`.
+   *
+   * @param {object} item The segment (item).
    * @param {moment} newDateAsMoment
+   * @return {void}
    */
   setStartToItem(item, newDateAsMoment) {
     item.start = convertMomentToDateType(newDateAsMoment, this.props.useMoment);
   }
 
   /**
-   * It returns the end of the item as moment.
-   * @param {object} item Item that is displayed in the grid.
-   * @param {useMoment} useMoment This parameter is necessary because this method is also called when
-   * the component receives new props. Default value: this.props.useMoment.
-   * @returns end of the item as moment.
+   * End of the segment (item).
+   *
+   * @param {object} item The segment (item).
+   * @param {boolean} useMoment This parameter is necessary because this method is also called when
+   * the component receives new props. Default value: `this.props.useMoment`.
+   * @return {moment}
    */
   getEndFromItem(item, useMoment = this.props.useMoment) {
     return convertDateToMoment(item.end, useMoment);
   }
 
   /**
-   * It assigns newDateAsMoment to the end of the item, but first it converts newDateAsMoment
-   * to moment or milliseconds according to useMoment.
-   * @param {object} item Item that is displayed in the grid.
+   * It assigns `newDateAsMoment` to the end of the segment (item), but first it converts it
+   * to moment or number/milliseconds according to `useMoment`.
+   *
+   * @param {object} item The segment (item).
    * @param {moment} newDateAsMoment
+   * @return {void}
    */
   setEndToItem(item, newDateAsMoment) {
     item.end = convertMomentToDateType(newDateAsMoment, this.props.useMoment);
   }
 
   /**
-   * It returns the start of the layer as moment.
+   * Start of the layer as a moment object.
+   *
    * @param {object} layer
-   * @returns the start of the rowLayer as moment.
+   * @return {moment}
    */
   getStartFromRowLayer(layer) {
     return convertDateToMoment(layer.start, this.props.useMoment);
   }
 
   /**
-   * It assigns newDateAsMoment to the start of the layer, but first it converts newDateAsMoment
-   * to moment or milliseconds according to useMoment.
-   * @param {object} layer Item that is displayed in the grid.
+   * It assigns `newDateAsMoment` to the start of the segment (item), but first it converts it
+   * to moment or number/milliseconds according to `useMoment`.
+   *
+   * @param {object} layer
    * @param {moment} newDateAsMoment
    */
   setStartToRowLayer(layer, newDateAsMoment) {
@@ -381,18 +423,20 @@ export default class Timeline extends React.Component {
   }
 
   /**
-   * It returns the end of the layer as moment.
+   * End of the layer as a moment object.
+   *
    * @param {object} layer
-   * @returns the end of the layer as moment.
+   * @return {moment}
    */
   getEndFromRowLayer(layer) {
     return convertDateToMoment(layer.end, this.props.useMoment);
   }
 
   /**
-   * It assigns newDateAsMoment to the end of the layer, but first it converts newDateAsMoment
-   * to moment or milliseconds according to useMoment.
-   * @param {object} layer Item that is displayed in the grid.
+   * It assigns `newDateAsMoment` to the end of the segment (item), but first it converts it
+   * to moment or number/milliseconds according to `useMoment`.
+   *
+   * @param {object} layer
    * @param {moment} newDateAsMoment
    */
   setEndToRowLayer(layer, newDateAsMoment) {

@@ -29,7 +29,7 @@ TIMELINE_EVENTS.forEach(timelineEvent => {
 });
 
 export default {
-  title: 'Features/Use moment',
+  title: 'Internal/Use moment',
   component: Timeline,
   parameters: {
     previewTabs: {
@@ -73,17 +73,15 @@ const tasksWithoutMoment = tasksWithMoment.map(t => {
 const TimelineWithMomentTemplate = args => {
   const {startDate, endDate, ...events} = args;
   return (
-    <div className="demo">
-      <Timeline
-        shallowUpdateCheck
-        useMoment={true}
-        startDate={moment(startDate)}
-        endDate={moment(endDate)}
-        items={tasksWithMoment}
-        groups={humanResources}
-        {...events}
-      />
-    </div>
+    <Timeline
+      shallowUpdateCheck
+      useMoment={true}
+      startDate={moment(startDate)}
+      endDate={moment(endDate)}
+      items={tasksWithMoment}
+      groups={humanResources}
+      {...events}
+    />
   );
 };
 
@@ -95,23 +93,24 @@ Main.args = {
 Main.parameters = {
   controls: {
     disable: false
+  },
+  actions: {
+    disable: false
   }
 };
 
 const TimelineWithoutMomentTemplate = args => {
   const {startDateInMillis, endDateInMillis, ...events} = args;
   return (
-    <div className="demo">
-      <Timeline
-        shallowUpdateCheck
-        useMoment={false}
-        items={tasksWithoutMoment}
-        groups={humanResources}
-        startDate={startDateInMillis}
-        endDate={endDateInMillis}
-        {...events}
-      />
-    </div>
+    <Timeline
+      shallowUpdateCheck
+      useMoment={false}
+      items={tasksWithoutMoment}
+      groups={humanResources}
+      startDate={startDateInMillis}
+      endDate={endDateInMillis}
+      {...events}
+    />
   );
 };
 

@@ -87,7 +87,9 @@ export function getDurationFromPixels(pixels, vis_start, vis_end, total_width) {
 }
 
 /**
- * If useMoment is true returns the date, otherwise converts date to moment.
+ * If `useMoment` is `true` then returns `date` as is. Otherwise converts `date` to
+ * a moment object.
+ *
  * @param {moment|number} date
  * @param {boolean} useMoment
  * @returns moment
@@ -100,10 +102,12 @@ export function convertDateToMoment(date, useMoment) {
 }
 
 /**
- * If useMoment is true returns dateAsMoment, otherwise it converts dateAsMoment to milliseconds.
- * @param {moment} dateAsMoment moment to be converted
- * @param {boolean} useMoment if true return dateAsMoment, otherwise return millis
- * @returns a moment object or date in milliseconds
+ * If `useMoment` is `true` returns `dateAsMoment` as is. Otherwise it converts `dateAsMoment` to
+ * number/milliseconds.
+ *
+ * @param {moment} dateAsMoment
+ * @param {boolean} useMoment
+ * @returns a moment object or a number/milliseconds
  */
 export function convertMomentToDateType(dateAsMoment, useMoment) {
   if (useMoment) {

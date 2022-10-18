@@ -1,0 +1,68 @@
+import { Meta, ArgsTable } from '@storybook/addon-docs';
+import Timeline from '../../timeline';
+import { encodeApiDocURIForSubpath, parametersDocPage } from '../StorybookUtils';
+
+<Meta title="Features/Basic/Doc" parameters={parametersDocPage} />
+
+## Parent component
+
+`Timeline` is meant to have a parent w/ `display: flex`. This way, it's height adapts to the one of the parent.
+
+## Mandatory props
+
+<ArgsTable of={Timeline} sort="none" include={["startDate", "endDate", "items", "groups"]}  />
+
+## About moment.js
+
+The `Timeline` was originally designed to handle date/times w/ [Moment.js](https://momentjs.com/),
+a popular lib. However there are 2 drawbacks. 
+
+**#1**: even the authors/maintainers of Moment.js don't
+quite [recommend](https://momentjs.com/docs/) it any more for use with new projects. The major
+complaint seems to be the mutability of "moment" objects. 
+
+**#2**: "moment" objects are not friendly with 
+[Redux](https://redux.js.org/), a popular framework for state management. Many folks use Redux for
+state management. And not being able to store the state that feeds the `Timeline` is a big drawback, since
+additional conversions are necessary.
+
+The property `useMoment` to the rescue:
+
+<ArgsTable of={Timeline} sort="none" include={["useMoment"]}  />
+
+## Extending `Timeline` / overriding date handling
+
+The default start/end fields for an **item** (segment) and for a **row layer** are `start` and `end`. Every date manipulation (read or write) is done exclusively via these functions
+(the links point to the [API Doc](?path=/docs/api-doc--page)).
+
+* <code><a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-getStartDate")}>Timeline.getStartDate()</a></code>
+* <code><a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-getEndDate")}>Timeline.getEndDate()</a></code>
+* <code><a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-getStartFromItem")}>Timeline.getStartFromItem(item)</a></code>
+* <code><a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-getEndFromItem")}>Timeline.getEndFromItem(item)</a></code>
+* <code><a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-setStartToItem")}>Timeline.setStartToItem(item, newDateAsMoment)</a></code>
+* <code><a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-setEndToItem")}>Timeline.setEndToItem(item, newDateAsMoment)</a></code>
+* <code><a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-getStartFromRowLayer")}>Timeline.getStartFromRowLayer(layer)</a></code>
+* <code><a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-getEndFromRowLayer")}>Timeline.getEndFromRowLayer(layer)</a></code>
+* <code><a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-setStartToRowLayer")}>Timeline.setStartToRowLayer(layer, newDateAsMoment)</a></code>
+* <code><a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-setEndToRowLayer")}>Timeline.setEndToRowLayer(layer, newDateAsMoment)</a></code>
+* <code><a href={encodeApiDocURIForSubpath("function/index.html#static-function-convertDateToMoment")}>utils: convertDateToMoment(date, useMoment)</a></code>
+* <code><a href={encodeApiDocURIForSubpath("function/index.html#static-function-convertMomentToDateType")}>utils: convertMomentToDateType(dateAsMoment, useMoment)</a></code>
+
+If you create your **own subclass of `Timeline`**, you may override these functions. Some possible scenarios:
+* the start/end fields are named differently for all the objects;
+* or maybe depending of the type of object, some are called in a way, and others in another way;
+* or for some objects such fields are calculated;
+* or the data type is not timestamp or moment, and an additional conversion is needed.
+
+The scenarios above are examples for the case you are constrained to adapt the `Timeline` to the shape of the data. However, this is something that you should avoid. By default,
+try to shape the data according to the defaults that `Timeline` expects.
+
+**IMPORTANT**: if you extend `Timeline` and manipulate dates, please use always use the functions above. E.g. 
+
+```js
+// bad
+const start = item.start;
+
+// good
+const start = this.getStartFromItem(item);
+```
