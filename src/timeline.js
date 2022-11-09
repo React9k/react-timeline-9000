@@ -31,7 +31,8 @@ import {
 } from './utils/timeUtils';
 import Timebar from './components/timebar';
 import SelectBox from './components/selector';
-import {DefaultGroupRenderer, DefaultItemRenderer} from './components/renderers';
+import ItemRenderer from './components/ItemRenderer';
+import {GroupRenderer} from './components/GroupRenderer';
 import TimelineBody from './components/body';
 import Marker from './components/marker';
 
@@ -72,11 +73,15 @@ export default class Timeline extends React.Component {
     ).isRequired,
 
     /**
-     * The segments. A segment is associated with a row. Hence `row` is mandatory, pointing to an `id` of a row (group).
+     * The segments (aka items). An item is associated with a row. Hence `row` is mandatory, pointing to an `id` of a row (group).
      *
      * `key` is also needed and has the React standard meaning.
      *
      * `start` and `stop` are dates (numeric/millis or moment objects, cf. `useMoment`).
+     *
+     * All the props of an item are copied to the props of the item renderer. E.g. `<ItemRenderer {...props.itemRendererDefaultProps } {...item}` ... />. See its
+     * doc, to see what props are known/rendered by `ItemRenderer` (such as `title`, `color`, etc.). The item renderer can be
+     * customized using the `itemRenderer` prop.
      */
     items: PropTypes.arrayOf(
       PropTypes.shape({
@@ -88,6 +93,33 @@ export default class Timeline extends React.Component {
       })
     ).isRequired,
     selectedItems: PropTypes.arrayOf(PropTypes.number),
+
+    /**
+     * The component that is the item (segment) renderer. You can change the default component (i.e. `ItemRenderer`). We
+     * recommend to create a subclass of it, rather than creating one from scratch.
+     */
+    itemRenderer: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+
+    /**
+     * This is used more or less like this:
+     *
+     * ```jsx
+     * <ItemRenderer {...props.itemRendererDefaultProps } {...item} ... />
+     * ```
+     *
+     * This is the way to go if you want to set a property for all segments (items). E.g. `color`. Take a look at the props
+     * of `ItemRenderer` to see what are the possible options. If you override the item renderer, and it will accept additional
+     * props, you can of course specify them here.
+     */
+    itemRendererDefaultProps: PropTypes.object,
+
+    /**
+     * The height of the items (segments) in pixels, it is used to calculate the height of the row.
+     *
+     * Items (segments) that are overlapping are displayed one below the other. In this case, the height of the row will
+     * be the maximum number of overlapping items (segments) multiplied by `itemHeight`.
+     */
+    itemHeight: PropTypes.number,
     /**
      * List of layers that will be rendered for a row.
      */
@@ -162,8 +194,6 @@ export default class Timeline extends React.Component {
      * Multiple columns mode: the default renderer of a header cell, which may be overridden on a per column basis.
      */
     groupTitleRenderer: PropTypes.func,
-    itemRenderer: PropTypes.func,
-    itemHeight: PropTypes.number,
     snap: PropTypes.number, //like snapMinutes, but for seconds; couldn't get it any lower because the pixels are not calculated correctly
     snapMinutes: PropTypes.number,
     /**
@@ -216,8 +246,8 @@ export default class Timeline extends React.Component {
     cursorTimeFormat: 'D MMM YYYY HH:mm',
     componentId: 'r9k1',
     showCursorTime: true,
-    groupRenderer: DefaultGroupRenderer,
-    itemRenderer: DefaultItemRenderer,
+    groupRenderer: GroupRenderer,
+    itemRenderer: ItemRenderer,
     timelineMode: Timeline.TIMELINE_MODES.SELECT | Timeline.TIMELINE_MODES.DRAG | Timeline.TIMELINE_MODES.RESIZE,
     // in rtl9k
     // shallowUpdateCheck: false,
@@ -226,10 +256,12 @@ export default class Timeline extends React.Component {
     onItemHover() {},
     onItemLeave() {},
     interactOptions: {},
+    itemStyle: {},
     // in rtl9k:
     // useMoment: true,
     useMoment: false,
-    tableColumns: []
+    tableColumns: [],
+    itemRendererDefaultProps: {}
   };
 
   /**
@@ -1027,6 +1059,7 @@ export default class Timeline extends React.Component {
               this.props.itemHeight,
               this.props.itemRenderer,
               canSelect ? this.props.selectedItems : [],
+              this.props.itemRendererDefaultProps,
               this.getStartFromItem,
               this.getEndFromItem
             )}

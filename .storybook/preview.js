@@ -22,7 +22,9 @@ export const parameters = {
 export const decorators = [
   (Story, context) => <>
     {context.parameters.scenarios && <ScenariosList scenarios={context.parameters.scenarios} />}
-    <Story />
+    <div className="demo">
+      <Story />
+    </div>
   </>
 ];
 

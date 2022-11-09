@@ -6,8 +6,8 @@ import _ from 'lodash';
 
 import Timeline from './timeline';
 import {
-  customItemRenderer,
-  customGroupRenderer,
+  CustomItemRenderer,
+  CustomGroupRenderer,
   CustomCellRenderer,
   CustomColumnHeaderRenderer
 } from './demo/customRenderers';
@@ -15,6 +15,7 @@ import {
 import {Layout, Form, InputNumber, Button, DatePicker, Checkbox, Switch, Icon} from 'antd';
 import 'antd/dist/antd.css';
 import './style.css';
+import './stories/storybook.css';
 
 const {TIMELINE_MODES} = Timeline;
 
@@ -71,7 +72,15 @@ export default class DemoTimeline extends Component {
       groups.push({id: i, title: `Row ${i}`, description: `Description for row ${i}`});
       for (let j = 0; j < this.state.items_per_row; j++) {
         this.key += 1;
-        const color = COLORS[(i + j) % COLORS.length];
+        const colorIndex = (i + j) % (COLORS.length + 1);
+        const color = colorIndex != COLORS.length + 1 ? COLORS[colorIndex] : '';
+        const gradientStop = Math.random() * 100;
+        let glowOnHover = false;
+        let tooltip;
+        if ((i + j) % 3 === 0) {
+          glowOnHover = true;
+          tooltip = 'Item with key=' + this.key;
+        }
         const duration = ITEM_DURATIONS[Math.floor(Math.random() * ITEM_DURATIONS.length)];
         // let start = last_moment;
         let start = moment(
@@ -94,7 +103,10 @@ export default class DemoTimeline extends Component {
           color,
           row: i,
           start: useMoment ? start : start.valueOf(),
-          end: useMoment ? end : end.valueOf()
+          end: useMoment ? end : end.valueOf(),
+          glowOnHover,
+          gradientStop,
+          tooltip
         });
       }
     }
@@ -421,8 +433,8 @@ export default class DemoTimeline extends Component {
           onRowClick={this.handleRowClick}
           onRowContextClick={this.handleRowContextClick}
           onRowDoubleClick={this.handleRowDoubleClick}
-          itemRenderer={useCustomRenderers ? customItemRenderer : undefined}
-          groupRenderer={useCustomRenderers ? customGroupRenderer : undefined}
+          itemRenderer={useCustomRenderers ? CustomItemRenderer : undefined}
+          groupRenderer={useCustomRenderers ? CustomGroupRenderer : undefined}
           groupTitleRenderer={useCustomRenderers ? () => <div>Group title</div> : undefined}
         />
       </div>

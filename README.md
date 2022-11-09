@@ -116,6 +116,8 @@ See http://react-timeline-9000.s3-website-ap-southeast-2.amazonaws.com/docs/ for
 | timelineMode       |             |                                                                                                                                                          |
 | timebarFormat      |             |                                                                                                                                                          |
 | itemRenderer       |             |                                                                                                                                                          |
+| itemStyle          | | Style applied to all items      |
+| itemClassName      | | Class name applied to all items |
 | groupRenderer      |             |                                                                                                                                                          |
 | shallowUpdateCheck | False       | If true timeline will try to minimize re-renders . Set to false if items don't show up/update on prop change                                             |
 | forceRedrawFunc  | () => False | Function called when `shallowUpdateCheck`==true. If returns true the timeline will be redrawn. If false the library will decide if redrawing is required |
@@ -127,6 +129,16 @@ See http://react-timeline-9000.s3-website-ap-southeast-2.amazonaws.com/docs/ for
 | items            |
 | groups           |
 | selectedItems    |
+
+### Items
+
+Required props:
+* key - number
+
+### Groups
+
+Required props:
+* id - number - needs to be consecutive
 
 ## Callbacks
 | Name              |

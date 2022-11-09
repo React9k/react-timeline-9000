@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import moment from 'moment';
 import {intToPix} from '../utils/commonUtils';
-import {DefaultColumnHeaderRenderer} from './renderers';
+import {ColumnHeaderRenderer} from './ColumnRenderer';
 import {timebarFormat as defaultTimebarFormat} from '../consts/timebarConsts';
 
 /**
@@ -298,7 +298,7 @@ Timebar.propTypes = {
 };
 Timebar.defaultProps = {
   selectedRanges: [],
-  groupTitleRenderer: DefaultColumnHeaderRenderer,
+  groupTitleRenderer: ColumnHeaderRenderer,
   leftOffset: 0,
   timeFormats: defaultTimebarFormat,
   tableColumns: []
