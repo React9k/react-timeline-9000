@@ -17,15 +17,17 @@
 .rct9k-items-outer {
   white-space: nowrap;
   position: absolute;
-  display: inline-block;
-  overflow: hidden;
+  display: flex;
+  overflow: visible;
   z-index: 3;
 }
 .rct9k-items-inner {
-  display: inline-block;
-  margin: 3px;
+  display: flex;
   padding: 3px;
+  margin: 5px 0;
   width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
 }
 .rct9k-marker-overlay {
   z-index: 2;
@@ -35,8 +37,23 @@
   background: red;
   pointer-events: none;
 }
+.rct9k-item-renderer {
+  opacity: 0.8;
+  border: darkgrey solid 1px;
+  border-radius: 3px;
+}
 .rct9k-item-renderer-inner {
   pointer-events: none;
+  align-self: center;
+}
+
+.rct9k-item-glow {
+  box-shadow: 0;
+  transition: opacity 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+}
+.rct9k-item-glow:hover {
+  box-shadow: 0 0 12px #2d618c;
+  opacity: 1 !important;
 }
 .rct9k-row {
   /* white-space: nowrap; */
@@ -47,7 +64,8 @@
 }
 
 .rct9k-items-selected {
-  background-color: magenta;
+  background: magenta !important;
+  opacity: 1 !important;
 }
 
 .ReactVirtualized__Grid {
@@ -74,15 +92,20 @@
 }
 
 /* Timeline top timebar */
+.rct9k-timebar {
+  display: flex;
+}
 .rct9k-timebar-outer,
 .rct9k-timebar-group-title {
   height: 60px;
   background-color: white;
   border: 1px solid black;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 .rct9k-timebar-outer {
-  border-left: none;
+  border-left: 1px solid black;
 }
 .rct9k-timebar-inner {
   height: 30px;
@@ -95,6 +118,11 @@
   border-left: 1px solid;
   white-space: nowrap;
   box-sizing: border-box;
+  height: 100%;
+  padding: 5px;
+}
+.rct9k-timebar-inner.rct9k-timebar-inner-bottom {
+  border-top: 1px solid black;
 }
 .rct9k-timebar-item-selected {
   background-color: lightblue;
@@ -102,6 +130,12 @@
 
 .rct9k-timebar-group-title {
   border-right: none;
+}
+
+.rct9k-timeline-div {
+  background-color: #fff;
+  font-size: 12px;
+  height: 100%;
 }
 
 /* Multi-select box */
@@ -125,12 +159,5 @@
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: column;
-}
-
-.demo {
-  height: 100%;
-  display: flex;
-  gap: 5px;
   flex-direction: column;
 }

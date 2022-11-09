@@ -1,0 +1,12 @@
+.demo {
+  height: 100%;
+  display: flex;
+  gap: 5px;
+  flex-direction: column;
+}
+
+.story-custom-item-class {
+  opacity: 1;
+  border: #d47b37 3px solid;
+  border-radius: 0;
+}

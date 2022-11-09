@@ -1,0 +1,28 @@
+import { Meta, ArgsTable } from '@storybook/addon-docs';
+import Timeline from '../../timeline';
+import ItemRenderer from '../../components/ItemRenderer';
+import { encodeApiDocURIForSubpath, parametersDocPage } from '../StorybookUtils';
+
+<Meta title="Features/Item Renderer/Doc"  />
+
+## Timeline props for items
+
+<ArgsTable of={Timeline} sort="none" include={["items", "itemRenderer", "itemRendererDefaultProps", "itemHeight"]}/>
+
+## ItemRenderer
+
+For each item, an `ItemRenderer` component is rendered. It has the following interesting props:
+
+<ArgsTable of={ItemRenderer} sort="none"/>
+
+## Extending/overriding `ItemRenderer`
+
+If you create your **own subclass of `ItemRenderer`**, you may override its functions (see <a href={encodeApiDocURIForSubpath("class/src/components/itemRenderer.js~ItemRenderer.html")}>ItemRenderer API Doc</a>). Some possible scenarios:
+* the fields are named differently for all the items;
+* or the background of the items should be a solid color, not be a gradient;
+* or maybe depending on the type of item, some should use a gradient, and some should not;
+* or the title of item is based on multiple fiels, i.e. the duration of the item should be shown in the title;
+* or maybe some items need different style or class name depending on the type of item.
+
+The scenarios above are examples for the case you are constrained to adapt the `ItemRenderer` to the shape of the data. However, this is something that you should avoid. By default,
+try to shape the data according to the properties that `ItemRenderer` expects.
