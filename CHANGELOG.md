@@ -1,6 +1,25 @@
 # Change Log
 
 ## Unreleased
+
+## v2.0.0
+
+The first official version published since the project was forked from `react-timeline-9000` to `@famiprog-foundation/react-gantt`.
+
+### Added
+
+| Short description | Issue | Pull request | 
+| - | - | - |
+| Multiple columns / table mode. | React9k/react-timeline-9000#190 | React9k/react-timeline-9000#243 |
+| Support for milliseconds. | React9k/react-timeline-9000#196 | React9k/react-timeline-9000#239 | 
+| Use of date/millis for compatibility w/ Redux. Moment.js support is still kept. | React9k/react-timeline-9000#221 | React9k/react-timeline-9000#241 | 
+| Storybook | React9k/react-timeline-9000#234 | React9k/react-timeline-9000#237 | 
+| Improved ItemRenderer and nice default styles | | [commit](https://github.com/flower-platform/react-timeline-10000/commit/e005eab4b4fbee1c737c2ebf323ad65304cdc26f)
+| Generate TypeScript `.d.ts` files. Storybook uses TS | | [commit](https://github.com/flower-platform/react-timeline-10000/commit/a6bb813fe2c229c97aff306d3bf9c79ce23e6503)
+| minor | | React9k/react-timeline-9000#257 |
+| minor | | React9k/react-timeline-9000#260 |
+| minor | React9k/react-timeline-9000#271 | React9k/react-timeline-9000#272 |
+
 ## v1.1.2
 ### Added
 - Pass resolution props to timeline
