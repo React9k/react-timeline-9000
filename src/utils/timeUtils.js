@@ -58,6 +58,7 @@ export function getTimeAtPixel(pixel_location, vis_start, vis_end, total_width, 
   if (snapMilliseconds !== 0) timeAtPix = timeSnap(timeAtPix, snapMilliseconds);
   return timeAtPix;
 }
+
 /**
  * Get the pixel location at a specific time
  * @param  {objects} time The time (moment) object
@@ -70,6 +71,7 @@ export function getPixelAtTime(time, vis_start, vis_end, total_width) {
   const min_from_start = time.diff(vis_start, 'milliseconds');
   return min_from_start * pixelsPerMillisecond(vis_start, vis_end, total_width);
 }
+
 /**
  * Returns the duration from the {@link vis_start}
  * @param  {number} pixels

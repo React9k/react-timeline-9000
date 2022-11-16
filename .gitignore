@@ -1,6 +1,7 @@
 # Build dir
 dist/
 lib/
+types/
 
 # Docs
 docs/

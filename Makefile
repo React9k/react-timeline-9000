@@ -28,3 +28,4 @@ install:
 clean:
 	rm -rf dist
 	rm -rf lib
+	rm -rf types

@@ -1,0 +1,16 @@
+{
+    "include": [
+        "src"
+    ],
+    "exclude": [
+        "src/demo/*", "src/demo*.js", "src/setupTests.js", "src/*test.js", "src/*/*.test.js", "src/stories/*"
+    ],
+    "compilerOptions": {
+        "allowJs": true,
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "outDir": "types",
+        "declarationMap": true,
+        "esModuleInterop": true
+    }
+}

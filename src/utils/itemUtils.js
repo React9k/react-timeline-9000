@@ -5,15 +5,21 @@ import _ from 'lodash';
 import moment from 'moment';
 
 /**
+ * @typedef {import('../types').Item} Item
+ * @typedef {import('../types').RowLayer} RowLayer
+ */
+
+/**
  * Render all items in a row
  * @external {moment} http://momentjs.com/
- * @param  {Object[]} items List of items to render for this row
+ * @param  {Item[]} items List of items to render for this row
  * @param  {moment} vis_start The visible start of the timeline
  * @param  {moment} vis_end The visible end of the timeline
  * @param  {number} total_width pixel width of the timeline
  * @param  {number} itemHeight The height of the item in px
  * @param  {function} itemRenderer The renderer of the item
  * @param  {Object[]} selectedItems
+ * @param  {Object} itemRendererDefaultProps
  * @param  {function} getStartFromItem Function that returns the start of an item
  * @param  {function} getEndFromItem Function that returns the end of an item
  */
@@ -90,7 +96,7 @@ export function rowItemsRenderer(
 
 /**
  * Render row layers
- * @param  {Object[]} layers List of layers to render for this row
+ * @param  {RowLayer[]} layers List of layers to render for this row
  * @param  {moment} vis_start The visible start of the timeline
  * @param  {moment} vis_end The visible end of the timeline
  * @param  {number} total_width pixel width of the timeline
@@ -228,7 +234,7 @@ export function getNearestRowNumber(x, y, topDiv = document) {
 
 /**
  * Use to find the height of a row, given a set of items
- * @param  {Object[]} items List of items
+ * @param  {Item[]} items List of items
  * @param  {function} getStartFromItem Function that returns the start of an item.
  * @param  {function} getEndFromItem Function that returns the end of an item.
  * @param  {boolean} useMoment This parameter is necessary because this method is also called when

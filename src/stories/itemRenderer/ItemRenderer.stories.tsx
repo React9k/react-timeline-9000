@@ -5,13 +5,16 @@ import Timeline from '../../timeline';
 import {d, someHumanResources, someTasks} from '../sampleData';
 import {itemRendererScenarios} from './ItemRendererScenarios';
 import {timelineScenarios} from '../TimelineScenarios';
+import { ComponentStory } from '@storybook/react';
+import { Item } from '../../types';
 
 export default {
-  title: 'Features/Item Renderer'
+  title: 'Features/Item Renderer',
+  component: Timeline
 };
 
-export const PropsForItemRenderer = () => {
-  const tasks = [
+export const PropsForItemRenderer: ComponentStory<typeof Timeline> = () => {
+  const tasks: Item[] = [
     ...someTasks,
     {
       key: 11,
@@ -83,7 +86,7 @@ PropsForItemRenderer.parameters = {
   ]
 };
 
-export const DefaultPropsForItemRenderer = () => {
+export const DefaultPropsForItemRenderer: ComponentStory<typeof Timeline> = () => {
   return (
     <>
       <Alert
@@ -111,8 +114,14 @@ DefaultPropsForItemRenderer.parameters = {
   scenarios: [timelineScenarios.propertyItemRendererDefaultProps]
 };
 
-export const CustomItemRenderer = () => {
-  const tasks = [...someTasks];
+type CustomTask = Item & {
+  type?: string,
+  spentHours?: number,
+  allTestsPassed?: boolean
+} 
+
+export const CustomItemRenderer: ComponentStory<typeof Timeline> = () => {
+  const tasks: CustomTask[] = [...someTasks];
   tasks[0].type = 'analysis';
   tasks[0].spentHours = 24;
   tasks[3].type = 'analysis';
@@ -127,7 +136,7 @@ export const CustomItemRenderer = () => {
   // custom item renderer that delegates to other renders based on the type of task
   class CustomItemRenderer extends ItemRenderer {
     render() {
-      const {type} = this.props.item;
+      const {type}: CustomTask = this.props.item;
       if (!type) {
         return super.render();
       }
@@ -146,14 +155,15 @@ export const CustomItemRenderer = () => {
     getTitle() {
       return (
         <>
-          <b>[A]</b> {super.getTitle()} <u>{this.props.item.spentHours}</u>
+          <b>[A]</b> {super.getTitle()} <u>{(this.props.item as CustomTask).spentHours}</u>
         </>
       );
     }
 
     // text color depending data in the item
     getTextColor() {
-      return this.props.item.spentHours > 10 ? 'yellow' : 'black';
+      const { spentHours } = this.props.item as CustomTask;
+      return (spentHours && spentHours > 10) ? 'yellow' : 'black';
     }
   }
 
@@ -170,7 +180,7 @@ export const CustomItemRenderer = () => {
 
   class TestingItemRenderer extends ItemRenderer {
     getColor() {
-      return this.props.item.allTestsPassed ? 'green' : 'red';
+      return (this.props.item as CustomTask).allTestsPassed ? 'green' : 'red';
     }
 
     getStyle() {
