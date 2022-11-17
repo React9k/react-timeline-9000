@@ -8,6 +8,7 @@ import {Grid, AutoSizer} from 'react-virtualized';
 import moment from 'moment';
 import interact from 'interactjs';
 import _ from 'lodash';
+import {Column, Group, InteractOption, Item, RowLayer} from './index';
 
 import {pixToInt, intToPix} from './utils/commonUtils';
 import {
@@ -43,11 +44,7 @@ const SINGLE_COLUMN_LABEL_PROPERTY = 'title';
 
 /**
  * Timeline class
- * @typedef { import("./types").Column } Column
- * @typedef { import("./types").Group } Group
- * @typedef { import("./types").Item } Item
- * @typedef { import("./types").RowLayer } RowLayer
- * @typedef { import('./types').InteractOption } InteractOption
+ * @extends React.Component<Timeline.propTypes>
  * @extends React.Component<Timeline.propTypes>
  */
 export default class Timeline extends React.Component {

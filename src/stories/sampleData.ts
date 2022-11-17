@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Group, Item } from '../types';
+import { Group, Item } from '../index';
 
 // utility function used for hardcoding our sample data
 export const d = (str: moment.MomentInput) => moment(str).valueOf();

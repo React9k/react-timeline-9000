@@ -3,7 +3,7 @@ import Timeline from '../../timeline';
 import {timelineScenarios} from '../TimelineScenarios';
 import {d, someHumanResources, someTasks} from '../sampleData';
 import { ComponentStory } from '@storybook/react'; 
-import { Group, Item } from '../../types';
+import { Group, Item } from '../../index';
 
 export default {
   title: 'Features/Basic',

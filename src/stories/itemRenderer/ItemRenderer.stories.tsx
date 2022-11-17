@@ -6,7 +6,7 @@ import {d, someHumanResources, someTasks} from '../sampleData';
 import {itemRendererScenarios} from './ItemRendererScenarios';
 import {timelineScenarios} from '../TimelineScenarios';
 import { ComponentStory } from '@storybook/react';
-import { Item } from '../../types';
+import { Item } from '../../index';
 
 export default {
   title: 'Features/Item Renderer',

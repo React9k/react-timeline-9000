@@ -7,10 +7,10 @@ import moment from 'moment';
 import {intToPix} from '../utils/commonUtils';
 import {ColumnHeaderRenderer} from './ColumnRenderer';
 import {timebarFormat as defaultTimebarFormat} from '../consts/timebarConsts';
+import {Column} from '../index';
 
 /**
  * Timebar component - displays the current time on top of the timeline.
- * @typedef { import('./types').Column } Column
  * @extends React.Component<Timebar.propTypes>
  */
 export default class Timebar extends React.Component {

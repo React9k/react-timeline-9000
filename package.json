@@ -13,8 +13,7 @@
     "pretty": "prettier --write --tab-width 4 \"src/**/*.js\"",
     "precommit": "lint-staged",
     "storybook": "yarn tsc && start-storybook -p 6006",
-    "storybook-build.bak": "yarn tsc && yarn docs && build-storybook",
-    "storybook-build": "yarn tsc && build-storybook",
+    "storybook-build": "yarn tsc && yarn docs && build-storybook",
     "storybook-move": "rm -r ../flower-platform.github.io/foundation-react-gantt; mv storybook-static ../flower-platform.github.io/foundation-react-gantt",
     "storybook-build-move": "yarn storybook-build && yarn storybook-move",
     "tsc": "tsc && cp src/types.d.ts types/types.d.ts"

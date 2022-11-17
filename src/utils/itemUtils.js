@@ -3,11 +3,7 @@
 import React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-
-/**
- * @typedef {import('../types').Item} Item
- * @typedef {import('../types').RowLayer} RowLayer
- */
+import {Item, RowLayer} from '../index';
 
 /**
  * Render all items in a row

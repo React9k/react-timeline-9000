@@ -1,8 +1,8 @@
 import React from 'react';
+import {Column} from '../index';
 
 /**
  * Renderer for column header.
- * @typedef { import('../types').Column } Column
  * @param { object } props - Component props
  * @param { Column } props.column - The properties of the column
  * @param { string } props.column.headerLabel - The header's label
