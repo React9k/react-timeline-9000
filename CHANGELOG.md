@@ -4,7 +4,7 @@
 
 ## v2.0.2
 
-GH-20 Upgraded color lib and code updated 
+* [Upgraded color lib and code updated](https://github.com/flower-platform/react-timeline-10000/pull/20)
 
 ## v2.0.1
 
@@ -12,7 +12,7 @@ The first official version published since the project was forked from `react-ti
 
 ### Added
 
-| Short description | Issue | Pull request | 
+| Short description | Issue | Pull request #19| 
 | - | - | - |
 | Multiple columns / table mode. | React9k/react-timeline-9000#190 | React9k/react-timeline-9000#243 |
 | Support for milliseconds. | React9k/react-timeline-9000#196 | React9k/react-timeline-9000#239 | 
