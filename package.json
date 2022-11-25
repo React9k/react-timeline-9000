@@ -1,6 +1,6 @@
 {
   "name": "@crispico/react-timeline-10000",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Performance focused timeline for react",
   "private": false,
   "types": "./types/index.d.ts",
