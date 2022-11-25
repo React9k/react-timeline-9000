@@ -53,7 +53,7 @@ export const PropsForItemRenderer: ComponentStory<typeof Timeline> = () => {
       end: d('2018-09-20 15:25'),
       color: 'red',
       gradientStop: 10,
-      gradientBrightness: 70,
+      gradientBrightness: 0.7,
       gradientReverseDirection: true,
       glowOnHover: false
     }

@@ -85,6 +85,7 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "color": "^4.2.3",
     "core-js": "^2.4.0",
     "interactjs": "^1.6.2",
     "lodash": "^4.17.19",

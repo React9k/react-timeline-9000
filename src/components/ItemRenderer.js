@@ -59,7 +59,7 @@ export default class ItemRenderer extends React.Component {
     color: PropTypes.string,
 
     /**
-     * A number between 0 and 100; it represents the percentage by which `color` is lightened to obtain the second color used in the gradient.
+     * A number between 0 and 1; it represents the percentage by which `color` is lightened to obtain the second color used in the gradient.
      * @type { number }
      * /
     gradientBrightness: PropTypes.number,
@@ -93,7 +93,7 @@ export default class ItemRenderer extends React.Component {
   static defaultProps = {
     color: '#3791D4',
     glowOnHover: true,
-    gradientBrightness: 45,
+    gradientBrightness: 0.45,
     gradientStop: 40,
     gradientReverseDirection: false,
     title: undefined,
@@ -165,7 +165,7 @@ export default class ItemRenderer extends React.Component {
    * @returns {string}
    */
   getTextColor() {
-    return Color(this.getColor()).light() ? 'black' : 'white';
+    return Color(this.getColor()).isLight() ? 'black' : 'white';
   }
 
   /**
@@ -179,8 +179,8 @@ export default class ItemRenderer extends React.Component {
   getBackgroundGradient() {
     let colors = [
       Color(this.getColor())
-        .lightness(this.getGradientBrightness())
-        .hexString(),
+        .lighten(this.getGradientBrightness())
+        .hex(),
       this.getColor()
     ];
     if (this.getGradientReverseDirection()) {
