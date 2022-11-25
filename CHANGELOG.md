@@ -2,7 +2,11 @@
 
 ## Unreleased
 
-## v2.0.0
+## v2.0.2
+
+GH-20 Upgraded color lib and code updated 
+
+## v2.0.1
 
 The first official version published since the project was forked from `react-timeline-9000` to `@famiprog-foundation/react-gantt`.
 
