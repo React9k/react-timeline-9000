@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## v2.1.0
+
+### Added
+
+* [Background layer: vertical grid, highlight weekends, highlighted intervals, now marker, markers](https://github.com/flower-platform/react-timeline-10000/pull/19)
+
 ## v2.0.2
 
 * [Upgraded color lib and code updated](https://github.com/flower-platform/react-timeline-10000/pull/20)

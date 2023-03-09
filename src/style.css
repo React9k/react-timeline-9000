@@ -1,3 +1,33 @@
+.rct9k-background-layer-vertical-grid {
+  position: absolute;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.rct9k-background-layer-vertical-line:first-child {
+  border: 0 !important;
+}
+
+.rct9k-background-layer-vertical-line {
+  height: 100%;
+  display: inline-block;
+  border-left: 1px solid;
+}
+
+.rct9k-timebar-item:first-child {
+  border: 0 !important;
+}
+
+.rct9k-highlighted-interval {
+  position: absolute;
+  background: #eeeeff;
+}
+
+.rct9k-background-layer-highlight-weekends {
+  background: #fff7ee;
+  opacity: 1;
+}
+
 .rct9k-timeline-div {
   width: 100%;
   /* if the timeline is in a flex layout, we want it to adapt to the parent */
@@ -29,6 +59,15 @@
   white-space: nowrap;
   overflow: hidden;
 }
+
+.rct9k-marker {
+  position: absolute;
+  margin: 0;
+  background: #a9a9e6;
+  width: 2px;
+  border: 0;
+}
+
 .rct9k-marker-overlay {
   z-index: 2;
   height: 475px;
@@ -37,6 +76,12 @@
   background: red;
   pointer-events: none;
 }
+
+.rct9k-background-layer-now-marker {
+  background: red;
+  width: 2px;
+}
+
 .rct9k-item-renderer {
   opacity: 0.8;
   border: darkgrey solid 1px;
@@ -60,7 +105,7 @@
   box-sizing: border-box;
   border: 1px solid black;
   border-top: 0;
-  border-left: 2px solid black;
+  border-left: 0;
 }
 
 .rct9k-items-selected {
@@ -70,6 +115,7 @@
 
 .ReactVirtualized__Grid {
   overflow-x: hidden;
+  z-index: 1;
 }
 
 .ReactVirtualized__Grid__innerScrollContainer:first-child {
@@ -85,6 +131,10 @@
   border-right: 0;
   background-color: white;
   z-index: 6;
+}
+
+.rct9k-group {
+  border-right: 2px solid black;
 }
 
 .rct9k-timebar {
@@ -105,7 +155,7 @@
   flex-direction: column;
 }
 .rct9k-timebar-outer {
-  border-left: 1px solid black;
+  border-left: 0;
 }
 .rct9k-timebar-inner {
   height: 30px;
@@ -129,7 +179,7 @@
 }
 
 .rct9k-timebar-group-title {
-  border-right: none;
+  border-right: 2px solid black;
 }
 
 .rct9k-timeline-div {

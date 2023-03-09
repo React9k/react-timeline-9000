@@ -16,6 +16,16 @@ export const parameters = {
   },
   actions: {
     disable: true
+  },
+  options: {
+    storySort: {
+      method: 'configure',
+      includeNames: true,
+      order: [
+        'Features',
+        ['Basic', 'Item Renderer', 'Background Layer', '*']
+      ]
+    }
   }
 }
 

@@ -110,7 +110,7 @@ TimelineBody.propTypes = {
   shallowUpdateCheck: PropTypes.bool,
 
   /**
-   * As e.g. @see Timeline.props.shallowUpdateCheck
+   * As e.g. @see Timeline.props.forceRedrawFunc
    * @type { Function }
    */
   forceRedrawFunc: PropTypes.func

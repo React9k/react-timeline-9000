@@ -12,6 +12,7 @@ import {Column, Group, InteractOption, Item, RowLayer} from './index';
 
 import {pixToInt, intToPix} from './utils/commonUtils';
 import {
+  adjustRowTopPositionToViewport,
   rowItemsRenderer,
   rowLayerRenderer,
   getNearestRowNumber,
@@ -35,12 +36,14 @@ import SelectBox from './components/selector';
 import ItemRenderer from './components/ItemRenderer';
 import {GroupRenderer} from './components/GroupRenderer';
 import TimelineBody from './components/body';
-import Marker from './components/marker';
+import {Marker} from './components/Marker';
 
 // startsWith polyfill for IE11 support
 import 'core-js/fn/string/starts-with';
 
 const SINGLE_COLUMN_LABEL_PROPERTY = 'title';
+const EMPTY_GROUP_KEY = 'empty-group';
+const GRID_CLASS = componentId => `.rct9k-id-${componentId} .ReactVirtualized__Grid`;
 
 /**
  * Timeline class
@@ -335,7 +338,17 @@ export default class Timeline extends React.Component {
     /**
      * @type { Function }
      */
-    onItemLeave: PropTypes.func
+    onItemLeave: PropTypes.func,
+
+    /**
+     * This property should be used like this:
+     *
+     * ```jsx
+     * <Timeline backgroundLayer={<BackgroundLayer ... /> ... />
+     * ```
+     * @type { JSX.Element }
+     */
+    backgroundLayer: PropTypes.object
   };
 
   static defaultProps = {
@@ -374,7 +387,8 @@ export default class Timeline extends React.Component {
     onRowContext() {},
     onRowDoubleClick() {},
     onInteraction() {},
-    itemRendererDefaultProps: {}
+    itemRendererDefaultProps: {},
+    backgroundLayer: null
   };
 
   /**
@@ -407,7 +421,7 @@ export default class Timeline extends React.Component {
   constructor(props) {
     super(props);
     this.selecting = false;
-    this.state = {selection: [], cursorTime: null};
+    this.state = {selection: [], cursorTime: null, groups: this.props.groups, verticalGridLines: []};
 
     // These functions need to be bound because they are passed as parameters.
     // getStartFromItem and getEndFromItem are used in rowItemsRenderer function
@@ -436,6 +450,7 @@ export default class Timeline extends React.Component {
     this.throttledMouseMoveFunc = _.throttle(this.throttledMouseMoveFunc.bind(this), 20);
     this.mouseMoveFunc = this.mouseMoveFunc.bind(this);
     this.getCursor = this.getCursor.bind(this);
+    this.setVerticalGridLines = this.setVerticalGridLines.bind(this);
 
     const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, this.props.timelineMode);
     const canDrag = Timeline.isBitSet(Timeline.TIMELINE_MODES.DRAG, this.props.timelineMode);
@@ -454,6 +469,7 @@ export default class Timeline extends React.Component {
       convertDateToMoment(nextProps.endDate, nextProps.useMoment),
       nextProps.useMoment
     );
+    this.fillInTimelineWithEmptyRows(nextProps.groups);
     // @TODO
     // investigate if we need this, only added to refresh the grid
     // when double click -> add an item
@@ -636,6 +652,54 @@ export default class Timeline extends React.Component {
   }
 
   /**
+   * Compute the number of rows that fit inside the timeline. If there can fit
+   * more rows than the model, fill in with empty groups.
+   * @param {Group[]} groups
+   */
+  fillInTimelineWithEmptyRows(groups) {
+    // remove empty groups
+    groups = groups.filter(group => !group.key || !group.key.startsWith(EMPTY_GROUP_KEY));
+
+    // get height of the grid (without timebar);
+    // used to compute the number of rows we need to fill in
+    if (!this._grid || this._grid.props.height <= 0) {
+      this.setState({groups: groups});
+      return;
+    }
+    const height = this._grid.props.height;
+
+    // compute the total height of the actual rows
+    let totalItemsHeight = 0;
+    _.forEach(this.rowHeightCache, row => {
+      totalItemsHeight += row * this.props.itemHeight;
+    });
+    let rowsToFillIn = (height - totalItemsHeight) / this.props.itemHeight;
+
+    let overflowStyle = 'auto';
+    let fillInGroups = [];
+    if (rowsToFillIn > 0) {
+      let groupId = groups.length;
+      while (rowsToFillIn > 0) {
+        // create new empty group
+        fillInGroups.push({
+          id: groupId,
+          key: EMPTY_GROUP_KEY + groupId
+        });
+        rowsToFillIn--;
+        groupId++;
+      }
+      overflowStyle = 'hidden';
+    }
+
+    const parentElement = document.querySelector(GRID_CLASS(this.props.componentId));
+    if (parentElement !== null) {
+      parentElement.style.overflow = overflowStyle;
+    }
+
+    this.setState({groups: [...groups, ...fillInGroups]});
+  }
+
+  /**
    * Returns an item given its DOM element
    * @param {Object} e the DOM element of the item
    * @return {Object} Item details
@@ -725,6 +789,10 @@ export default class Timeline extends React.Component {
    */
   refreshGrid = (config = {}) => {
     this._grid.recomputeGridSize(config);
+    // fill in timeline with empty rows only on resize
+    if (!_.isEmpty(config)) {
+      this.fillInTimelineWithEmptyRows(this.state.groups);
+    }
   };
 
   /**
@@ -1017,7 +1085,8 @@ export default class Timeline extends React.Component {
 
           // this._selectBox.start(e.clientX, e.clientY);
           // this._selectBox.start(e.clientX, topRowObj.style.top);
-          this._selectBox.start(e.clientX, nearestRowObject.getBoundingClientRect().y);
+          const startY = adjustRowTopPositionToViewport(nearestRowObject, nearestRowObject.getBoundingClientRect().y);
+          this._selectBox.start(e.clientX, startY);
           // const bottomRow = Number(getNearestRowNumber(left + width, top + height));
         })
         .on('dragmove', e => {
@@ -1037,7 +1106,8 @@ export default class Timeline extends React.Component {
             if (startRowNumber <= currentRowNumber) {
               // select box for selection going down
               // get the first selected rows top
-              const startTop = Math.ceil(startRowObject.getBoundingClientRect().top + rowMarginBorder);
+              let startTop = Math.ceil(startRowObject.getBoundingClientRect().top + rowMarginBorder);
+              startTop = adjustRowTopPositionToViewport(startRowObject, startTop);
               // get the currently selected rows bottom
               const currentBottom = Math.floor(getTrueBottom(currentRowObject) - magicalConstant - rowMarginBorder);
               this._selectBox.start(startX, startTop);
@@ -1063,11 +1133,9 @@ export default class Timeline extends React.Component {
             const topRowNumber = Number(getNearestRowNumber(left, top));
             const topRowLoc = topRowObject.getBoundingClientRect();
             const rowMarginBorder = getVerticalMarginBorder(topRowObject);
+            const y = Math.floor(topRowLoc.top - rowMarginBorder) + Math.floor(height - rowMarginBorder);
             const bottomRow = Number(
-              getNearestRowNumber(
-                left + width,
-                Math.floor(topRowLoc.top - rowMarginBorder) + Math.floor(height - rowMarginBorder)
-              )
+              getNearestRowNumber(left + width, adjustRowTopPositionToViewport(topRowObject, y))
             );
             //Get the start and end time of the selection rectangle
             left = left - topRowLoc.left;
@@ -1211,7 +1279,7 @@ export default class Timeline extends React.Component {
         } else {
           labelProperty = SINGLE_COLUMN_LABEL_PROPERTY;
         }
-        let group = _.find(this.props.groups, g => g.id == rowIndex);
+        let group = _.find(this.state.groups, g => g.id == rowIndex);
         return (
           <div data-row-index={rowIndex} key={key} style={style} className="rct9k-group">
             {React.isValidElement(ColumnRenderer) && ColumnRenderer}
@@ -1306,6 +1374,14 @@ export default class Timeline extends React.Component {
     return totalOffset;
   }
 
+  /**
+   * Setter for verticalGridLines (that will be passed to `BackgroundLayer`).
+   * @param { object } verticalGridLines
+   */
+  setVerticalGridLines(verticalGridLines) {
+    this.setState({verticalGridLines});
+  }
+
   render() {
     const {
       onInteraction,
@@ -1318,7 +1394,8 @@ export default class Timeline extends React.Component {
       forceRedrawFunc,
       bottomResolution,
       topResolution,
-      tableColumns
+      tableColumns,
+      backgroundLayer
     } = this.props;
     let that = this;
 
@@ -1364,10 +1441,9 @@ export default class Timeline extends React.Component {
     }
 
     /**
-     * @param { number } height
-     * @returns { number } height of the timeline w/o timebar
+     * @returns { number } height of the timebar
      */
-    function calculateHeight(height) {
+    function getTimebarHeight() {
       if (typeof window === 'undefined') {
         return 0;
       }
@@ -1377,8 +1453,19 @@ export default class Timeline extends React.Component {
         return 0;
       }
       // substract timebar height from total height
-      const timebarHeight = timebar.getBoundingClientRect().height;
-      return Math.max(height - timebarHeight, 0);
+      return timebar.getBoundingClientRect().height;
+    }
+
+    /**
+     * @param { number } height (total height of the timeline)
+     * @returns { number } height of the timeline w/o timebar
+     */
+    function calculateHeight(height) {
+      if (typeof window === 'undefined' || height === undefined) {
+        return 0;
+      }
+
+      return Math.max(height - getTimebarHeight(), 0);
     }
 
     // Markers (only current time marker atm)
@@ -1398,38 +1485,64 @@ export default class Timeline extends React.Component {
     return (
       <div className={divCssClass}>
         <AutoSizer className="rct9k-autosizer" onResize={this.refreshGrid}>
-          {({height, width}) => (
-            <div className="parent-div" onMouseMove={this.mouseMoveFunc}>
-              <SelectBox ref={this.select_ref_callback} />
-              <Timebar
-                cursorTime={this.getCursor()}
-                start={this.getStartDate()}
-                end={this.getEndDate()}
-                width={width}
-                leftOffset={this.calculateLeftOffset()}
-                selectedRanges={this.state.selection}
-                groupTitleRenderer={groupTitleRenderer}
-                tableColumns={tableColumns}
-                groupOffset={groupOffset}
-                {...varTimebarProps}
-              />
-              {markers.map(m => (
-                <Marker key={m.key} height={height} top={0} left={m.left} />
-              ))}
-              <TimelineBody
-                width={width}
-                columnWidth={columnWidth(width)}
-                height={calculateHeight(height)}
-                rowHeight={this.rowHeight}
-                rowCount={this.props.groups.length}
-                columnCount={(tableColumns && tableColumns.length > 0 ? tableColumns.length : 1) + 1}
-                cellRenderer={this.cellRenderer(this.getTimelineWidth(width))}
-                grid_ref_callback={this.grid_ref_callback}
-                shallowUpdateCheck={shallowUpdateCheck}
-                forceRedrawFunc={forceRedrawFunc}
-              />
-            </div>
-          )}
+          {({height, width}) => {
+            const leftOffset = this.calculateLeftOffset();
+            const bodyHeight = calculateHeight(height);
+            const timebarHeight = getTimebarHeight();
+            return (
+              <div className="parent-div" onMouseMove={this.mouseMoveFunc}>
+                <SelectBox ref={this.select_ref_callback} />
+                <Timebar
+                  cursorTime={this.getCursor()}
+                  start={this.getStartDate()}
+                  end={this.getEndDate()}
+                  width={width}
+                  leftOffset={leftOffset}
+                  selectedRanges={this.state.selection}
+                  groupTitleRenderer={groupTitleRenderer}
+                  tableColumns={tableColumns}
+                  groupOffset={groupOffset}
+                  setVerticalGridLines={this.setVerticalGridLines}
+                  {...varTimebarProps}
+                />
+                {markers.map(m => (
+                  <Marker
+                    key={m.key}
+                    height={height}
+                    top={0}
+                    date={0}
+                    shouldUpdate={true}
+                    calculateHorizontalPosition={() => {
+                      return {left: m.left};
+                    }}
+                    className="rct9k-marker-overlay"
+                  />
+                ))}
+                <TimelineBody
+                  width={width}
+                  columnWidth={columnWidth(width)}
+                  height={bodyHeight}
+                  rowHeight={this.rowHeight}
+                  rowCount={this.state.groups.length}
+                  columnCount={(tableColumns && tableColumns.length > 0 ? tableColumns.length : 1) + 1}
+                  cellRenderer={this.cellRenderer(this.getTimelineWidth(width))}
+                  grid_ref_callback={this.grid_ref_callback}
+                  shallowUpdateCheck={shallowUpdateCheck}
+                  forceRedrawFunc={forceRedrawFunc}
+                />
+                {backgroundLayer &&
+                  React.cloneElement(backgroundLayer, {
+                    startDateTimeline: this.getStartDate(),
+                    endDateTimeline: this.getEndDate(),
+                    width: width,
+                    leftOffset: leftOffset,
+                    height: bodyHeight,
+                    topOffset: timebarHeight,
+                    verticalGridLines: this.state.verticalGridLines
+                  })}
+              </div>
+            );
+          }}
         </AutoSizer>
       </div>
     );

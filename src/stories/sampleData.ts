@@ -1,9 +1,20 @@
 import moment from 'moment';
 import { Group, Item } from '../index';
 
-// utility function used for hardcoding our sample data
+////////////////////////////////////////////////////////
+// utility functions used for hardcoding our sample data
+////////////////////////////////////////////////////////
 export const d = (str: moment.MomentInput) => moment(str).valueOf();
 
+export const endOfCurrentMonth = () => d(moment().endOf('month'));
+
+export const startOfCurrentMonth = () => d(moment().startOf('month'));
+
+export const dateAndHourOfCurrentMonth = (day, hour = 0) => d(moment().startOf('month').add('days', day-1).add('hours', hour));
+
+////////////////////////////////////////////////////////
+// sample data
+////////////////////////////////////////////////////////
 export const someHumanResources: Group[] = [
   {id: 0, title: 'John Doe'},
   {id: 1, title: 'Alex Randal'},

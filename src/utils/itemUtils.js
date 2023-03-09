@@ -252,3 +252,30 @@ export function getMaxOverlappingItems(items, getStartFromItem, getEndFromItem, 
   }
   return Math.max(max, 1);
 }
+
+/**
+ * It finds the ancestor with the provided className of the element.
+ * @param {Object} the DOM element
+ * @param {string} className
+ * @returns {Object} ancestor with className
+ */
+export function findAncestorWithClassName(element, className) {
+  while ((element = element.parentNode) && !element.classList.contains(className));
+  return element;
+}
+
+/**
+ * A special case is when we try to select items from a row that is scrolled (not fully visible).
+ * The `top` position of that row is not visible, so when we move the mouse and try to find the nearest row object
+ * using the `top` position, it will not find the actual row because at that position the row is not visible.
+ * In this case we will use the `top` position of the viewport (the container of the rows).
+ * @param {Object} row the DOM element of the row object
+ * @param {number} top
+ */
+export function adjustRowTopPositionToViewport(row, top) {
+  let viewport = findAncestorWithClassName(row, 'ReactVirtualized__Grid').getBoundingClientRect();
+  if (viewport.top > top) {
+    return viewport.top;
+  }
+  return top;
+}

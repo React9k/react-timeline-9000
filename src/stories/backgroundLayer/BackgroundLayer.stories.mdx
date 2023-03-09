@@ -1,0 +1,34 @@
+import { Meta, ArgsTable } from '@storybook/addon-docs';
+import Timeline from '../../timeline';
+import { BackgroundLayer } from '../../components/BackgroundLayer';
+import { HighlightedInterval } from '../../components/HighlightedInterval';
+import { Marker } from '../../components/Marker';
+
+<Meta title="Features/Background Layer/Doc" />
+
+## Background layer
+
+A background layer contains 2 types of elements: 
+* markers (a vertical line),
+* and highlight intervals (a rectangle spanning from top to bottom). 
+
+You can add as many such items as you wish. Additionnaly, there are properties that generate:
+
+* a marker for the current date/time, 
+* and intervals for weekends.
+
+## `Timeline`
+
+<ArgsTable of={Timeline} include={["backgroundLayer"]} />
+
+## `BackgroundLayer`
+
+<ArgsTable of={BackgroundLayer} exclude={["startDateTimeline", "endDateTimeline", "height", "topOffset", "width", "leftOffset", "verticalGridLines"]}  />
+
+## `HighlightedInterval`
+
+<ArgsTable of={HighlightedInterval} exclude={["height", "top", "calculateHorizontalPosition", "shouldUpdate"]} />
+
+## `Marker`
+
+<ArgsTable of={Marker} exclude={["height", "top", "calculateHorizontalPosition", "shouldUpdate"]} />

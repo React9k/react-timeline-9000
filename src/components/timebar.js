@@ -16,16 +16,17 @@ import {Column} from '../index';
 export default class Timebar extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {topBarComponent: [], bottomBarComponent: [], resolution: {}};
 
     this.guessResolution = this.guessResolution.bind(this);
     this.renderBar = this.renderBar.bind(this);
-    this.renderTopBar = this.renderTopBar.bind(this);
-    this.renderBottomBar = this.renderBottomBar.bind(this);
   }
 
   componentWillMount() {
     this.guessResolution();
+    const bottomBarComponent = this.getBottomBar();
+    const topBarComponent = this.getTopBar();
+    this.setState({topBarComponent, bottomBarComponent});
   }
 
   /**
@@ -37,6 +38,22 @@ export default class Timebar extends React.Component {
       this.setState({resolution: {top: nextProps.top_resolution, bottom: nextProps.bottom_resolution}});
     } else {
       this.guessResolution(nextProps.start, nextProps.end);
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (
+      !this.props.start.isSame(prevProps.start) ||
+      !this.props.end.isSame(prevProps.end) ||
+      this.props.timeFormats !== prevProps.timeFormats ||
+      this.props.top_resolution !== prevProps.top_resolution ||
+      this.props.bottom_resolution !== prevProps.bottom_resolution ||
+      this.props.width !== prevProps.width ||
+      this.props.leftOffset !== prevProps.leftOffset
+    ) {
+      const bottomBarComponent = this.getBottomBar();
+      const topBarComponent = this.getTopBar();
+      this.setState({topBarComponent, bottomBarComponent});
     }
   }
 
@@ -70,21 +87,23 @@ export default class Timebar extends React.Component {
   }
 
   /**
-   * Renderer for top bar.
+   * Calculates the top bar.
    * @returns {Object} JSX for top menu bar - based of time format & resolution
    */
-  renderTopBar() {
+  getTopBar() {
     let res = this.state.resolution.top;
     return this.renderBar({format: this.props.timeFormats.majorLabels[res], type: res});
   }
 
   /**
-   * Renderer for bottom bar.
+   * Calculates the bottom bar.
    * @returns {Object} JSX for bottom menu bar - based of time format & resolution
    */
-  renderBottomBar() {
+  getBottomBar() {
     let res = this.state.resolution.bottom;
-    return this.renderBar({format: this.props.timeFormats.minorLabels[res], type: res});
+    const bottomBar = this.renderBar({format: this.props.timeFormats.minorLabels[res], type: res});
+    this.props.setVerticalGridLines(bottomBar);
+    return bottomBar;
   }
 
   /**
@@ -231,8 +250,7 @@ export default class Timebar extends React.Component {
    */
   render() {
     const {cursorTime, tableColumns} = this.props;
-    const topBarComponent = this.renderTopBar();
-    const bottomBarComponent = this.renderBottomBar();
+    const {topBarComponent, bottomBarComponent} = this.state;
     const GroupTitleRenderer = this.props.groupTitleRenderer;
 
     // Only show the cursor on 1 of the top bar segments
@@ -352,7 +370,14 @@ Timebar.propTypes = {
   /**
    * @type { Array.<Column> }
    */
-  tableColumns: PropTypes.arrayOf(PropTypes.object)
+  tableColumns: PropTypes.arrayOf(PropTypes.object),
+
+  /**
+   * It's passed by parent. The `vertical grid` uses the same intervals as the bottom timebar, it is redundant to calculated them again.
+   * This callback passes these intervals to parent.
+   * @type { Function }
+   */
+  setVerticalGridLines: PropTypes.func
 };
 
 Timebar.defaultProps = {

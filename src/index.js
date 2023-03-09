@@ -9,8 +9,10 @@ export {default as TimelineBody} from './components/body';
 export {default as ItemRenderer} from './components/ItemRenderer';
 export {GroupRenderer} from './components/GroupRenderer';
 export {ColumnHeaderRenderer} from './components/ColumnRenderer';
-export {default as Marker} from './components/marker';
+export {Marker} from './components/Marker';
 export {default as Selectbox} from './components/selector';
+export {BackgroundLayer} from './components/BackgroundLayer';
+export {HighlightedInterval} from './components/HighlightedInterval';
 
 // consts
 export {timebarFormat} from './consts/timebarConsts';

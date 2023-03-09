@@ -13,7 +13,7 @@ export default {
   component: Timeline
 };
 
-export const PropsForItemRenderer: ComponentStory<typeof Timeline> = () => {
+export const Main: ComponentStory<typeof Timeline> = () => {
   const tasks: Item[] = [
     ...someTasks,
     {
@@ -72,7 +72,7 @@ export const PropsForItemRenderer: ComponentStory<typeof Timeline> = () => {
   );
 };
 
-PropsForItemRenderer.parameters = {
+Main.parameters = {
   scenarios: [
     itemRendererScenarios.title,
     itemRendererScenarios.tooltip,
