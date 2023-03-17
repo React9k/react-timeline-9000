@@ -113,6 +113,18 @@
   opacity: 1 !important;
 }
 
+.rct9k-grid {
+  border-bottom: 1px solid black;
+}
+
+/**
+ * EM: RM27551 - in Firefox (on some computers), when we click on the body of the timeline, a blue outline is shown around the body.
+ * After some investigation, it seems that an outline is applied by the browser on `:focus-visible`.
+ */
+.rct9k-grid:focus-visible {
+  outline: none !important;
+}
+
 .ReactVirtualized__Grid {
   overflow-x: hidden;
   z-index: 1;

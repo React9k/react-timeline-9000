@@ -50,6 +50,7 @@ class TimelineBody extends Component {
         rowCount={rowCount}
         rowHeight={rowHeight}
         width={width}
+        className="rct9k-grid"
       />
     );
   }

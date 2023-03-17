@@ -43,7 +43,6 @@ import 'core-js/fn/string/starts-with';
 
 const SINGLE_COLUMN_LABEL_PROPERTY = 'title';
 const EMPTY_GROUP_KEY = 'empty-group';
-const GRID_CLASS = componentId => `.rct9k-id-${componentId} .ReactVirtualized__Grid`;
 
 /**
  * Timeline class
@@ -666,36 +665,32 @@ export default class Timeline extends React.Component {
       this.setState({groups: groups});
       return;
     }
-    const height = this._grid.props.height;
 
-    // compute the total height of the actual rows
+    // compute the total height of the actual rows;
+    // if there are items that are overlapping, then the total height of a row is the maximum number
+    // of items that are overlapping on that row, multiplied by props.itemHeight
     let totalItemsHeight = 0;
-    _.forEach(this.rowHeightCache, row => {
-      totalItemsHeight += row * this.props.itemHeight;
+    let that = this;
+    _.forEach(groups, group => {
+      totalItemsHeight += (that.rowHeightCache[group.id] || 1) * that.props.itemHeight;
     });
-    let rowsToFillIn = (height - totalItemsHeight) / this.props.itemHeight;
-
-    let overflowStyle = 'auto';
+    let heightToFillIn = this._grid.props.height - totalItemsHeight;
     let fillInGroups = [];
-    if (rowsToFillIn > 0) {
-      let groupId = groups.length;
-      while (rowsToFillIn > 0) {
-        // create new empty group
-        fillInGroups.push({
-          id: groupId,
-          key: EMPTY_GROUP_KEY + groupId
-        });
-        rowsToFillIn--;
-        groupId++;
+
+    let groupId = groups.length;
+    while (heightToFillIn > 0) {
+      // create new empty group;
+      // if the last row would be only partially visible, then we set the height of the row as the remaining
+      // height (add `rowHeight` in group, which will be used in rowHeight() function)
+      let emptyGroup = {id: groupId, key: EMPTY_GROUP_KEY + groupId};
+      if (heightToFillIn < this.props.itemHeight) {
+        emptyGroup.rowHeight = heightToFillIn;
       }
-      overflowStyle = 'hidden';
-    }
 
-    const parentElement = document.querySelector(GRID_CLASS(this.props.componentId));
-    if (parentElement !== null) {
-      parentElement.style.overflow = overflowStyle;
+      fillInGroups.push(emptyGroup);
+      heightToFillIn -= this.props.itemHeight;
+      groupId++;
     }
-
     this.setState({groups: [...groups, ...fillInGroups]});
   }
 
@@ -1299,9 +1294,15 @@ export default class Timeline extends React.Component {
   }
 
   /**
-   * Helper for react virtuaized to get the row height given a row index
+   * Helper for react virtualized to get the row height given a row index.
    */
   rowHeight({index}) {
+    let group = _.find(this.state.groups, g => g.id == index);
+    // only for empty rows (EMPTY_GROUP_KEY), if the group has a custom row height,
+    // we will return that height
+    if (group.rowHeight && group.key.startsWith(EMPTY_GROUP_KEY)) {
+      return group.rowHeight;
+    }
     let rh = this.rowHeightCache[index] ? this.rowHeightCache[index] : 1;
     return rh * this.props.itemHeight;
   }
