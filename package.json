@@ -16,7 +16,7 @@
     "storybook-build": "yarn tsc && yarn docs && build-storybook",
     "storybook-move": "rm -r ../flower-platform.github.io/foundation-react-gantt; mv storybook-static ../flower-platform.github.io/foundation-react-gantt",
     "storybook-build-move": "yarn storybook-build && yarn storybook-move",
-    "tsc": "tsc && cp src/types.d.ts types/types.d.ts"
+    "tsc": "tsc -p tsconfig.ts-types-from-jsdoc.json && cp src/types.d.ts types/types.d.ts"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,json,css}": [
@@ -41,6 +41,7 @@
   "homepage": "https://github.com/flower-platform/react-timeline-10000",
   "devDependencies": {
     "@babel/cli": "^7.0.0",
+    "@famiprog-foundation/tests-are-demo": "^0.7.0",
     "@storybook/addon-actions": "^6.3.11",
     "@storybook/addon-essentials": "^6.3.11",
     "@storybook/addon-links": "^6.3.11",
@@ -77,6 +78,7 @@
     "semantic-ui-react": "^2.1.3",
     "style-loader": "^0.21.0",
     "tern": "^0.21.0",
+    "ts-loader": "^9.4.2",
     "typescript": "~4.4.0",
     "uglifyjs-webpack-plugin": "^2.2.0",
     "webpack": "^5.67.0",
