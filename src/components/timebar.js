@@ -110,6 +110,7 @@ export default class Timebar extends React.Component {
    * Gets the number of pixels per segment of the timebar section (using the resolution)
    * @param {moment} date The date being rendered. This is used to figure out how many days are in the month
    * @param {string} resolutionType Timebar section resolution [Year; Month...]
+   * @param {number} offset
    * @returns {number} The number of pixels per segment
    */
   getPixelIncrement(date, resolutionType, offset = 0) {
@@ -226,6 +227,7 @@ export default class Timebar extends React.Component {
    * It renders the header of a column in multi columns mode. Default renderer: props.groupTitleRenderer;
    * which may be overriden per column: column.headerRender (react element or function).
    * @param {object} column
+   * @param {number | string} index
    */
   renderColumnHeader(column, index) {
     const columnWidth = column.width ? column.width : this.props.groupOffset;

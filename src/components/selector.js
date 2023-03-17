@@ -62,6 +62,14 @@ export default class SelectBox extends React.Component {
   }
 
   /**
+   * Check if the selection box is created.
+   * @return {boolean}
+   */
+  isStart() {
+    return this.startX != 0 && this.startY != 0 && this.curX != 0 && this.curY != 0;
+  }
+
+  /**
    * @ignore
    */
   render() {
@@ -71,6 +79,6 @@ export default class SelectBox extends React.Component {
     const width = Math.abs(startX - curX);
     const height = Math.abs(startY - curY);
     let style = {left, top, width, height};
-    return <div className="rct9k-selector-outer" style={style} />;
+    return <div className={'rct9k-selector-outer ' + this.props.className} style={style} />;
   }
 }

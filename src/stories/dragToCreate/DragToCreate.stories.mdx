@@ -1,0 +1,16 @@
+import { Meta, ArgsTable } from '@storybook/addon-docs';
+import Timeline from '../../timeline';
+import ItemRenderer from '../../components/ItemRenderer';
+import { encodeApiDocURIForSubpath, parametersDocPage } from '../StorybookUtils';
+
+<Meta title="Features/Drag to create/Doc"  />
+
+## Drag to create mode
+
+ Exist 2 mode for enter in ** Drag to create mode ** :
+ * Click on "Add (drag to create)" menu entry
+ * <code><a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-setDragToCreateMode")}>Timeline.setDragToCreateMode(true)</a></code>
+
+## `Timeline`   
+
+<ArgsTable of={Timeline} sort="none" include={["onDragToCreateEnded"]}/>
