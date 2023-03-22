@@ -1491,6 +1491,8 @@ export default class Timeline extends React.Component {
       });
     }
     return (
+      // Instead of <Measure .../>, in the past <AutoSizer ... /> was used. However it would round with/height, which generated and endless
+      // scrollbar appear/disappear, depending on the parent, depending on the resolution.
       <Measure
         bounds
         onResize={contentRect => {

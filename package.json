@@ -1,12 +1,12 @@
 {
   "name": "@crispico/react-timeline-10000",
-  "version": "2.0.2",
+  "version": "2.1.1",
   "description": "Performance focused timeline for react",
   "private": false,
   "types": "./types/index.d.ts",
   "scripts": {
     "build": "yarn tsc && webpack --config webpack.prod.js",
-    "build_lib": "yarn tsc && babel src --out-dir lib -x '.js,.jsx,.mdx,.html,.tsx' --ignore **/demo.js,**/demo_index.js,**/demo.html,**/demo/,**/setupTests.js,**/*/*.test.js,**/stories/ --copy-files --source-maps inline --no-copy-ignored",
+    "build_lib": "yarn tsc && babel src --out-dir lib -x '.js,.jsx,.mdx,.html,.tsx' --ignore **/demo.js,**/demo_index.js,**/demo.html,**/demo/,**/setupTests.js,**/*/*.test.js,**/stories/,**/testsAreDemo --copy-files --source-maps inline --no-copy-ignored",
     "build_demo": "webpack --config webpack.demo.prod.js",
     "start": "webpack-dev-server --open --config webpack.dev.js",
     "docs": "esdoc && mv docs/index.html docs/index-docs.html",

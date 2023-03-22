@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## v2.1.1
+
+### Fixed
+
+* [In some cases, depending on the parent DomElem, scrollbars appear/disappear in an infinite loop](https://github.com/flower-platform/react-timeline-10000/issues/26)
+
 ## v2.1.0
 
 ### Added
@@ -9,6 +15,8 @@
 * [Background layer: vertical grid, highlight weekends, highlighted intervals, now marker, markers](https://github.com/flower-platform/react-timeline-10000/pull/19)
 
 ## v2.0.2
+
+### Fixed
 
 * [Upgraded color lib and code updated](https://github.com/flower-platform/react-timeline-10000/pull/20)
 
