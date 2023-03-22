@@ -3,7 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
-import {Grid, AutoSizer} from 'react-virtualized';
+import Measure from 'react-measure';
 
 import moment from 'moment';
 import interact from 'interactjs';
@@ -420,7 +420,14 @@ export default class Timeline extends React.Component {
   constructor(props) {
     super(props);
     this.selecting = false;
-    this.state = {selection: [], cursorTime: null, groups: this.props.groups, verticalGridLines: []};
+    this.state = {
+      selection: [],
+      cursorTime: null,
+      groups: this.props.groups,
+      verticalGridLines: [],
+      width: 0,
+      height: 0
+    };
 
     // These functions need to be bound because they are passed as parameters.
     // getStartFromItem and getEndFromItem are used in rowItemsRenderer function
@@ -1484,20 +1491,25 @@ export default class Timeline extends React.Component {
       });
     }
     return (
-      <div className={divCssClass}>
-        <AutoSizer className="rct9k-autosizer" onResize={this.refreshGrid}>
-          {({height, width}) => {
-            const leftOffset = this.calculateLeftOffset();
-            const bodyHeight = calculateHeight(height);
-            const timebarHeight = getTimebarHeight();
-            return (
+      <Measure
+        bounds
+        onResize={contentRect => {
+          this.setState({width: contentRect.bounds?.width || 0, height: contentRect.bounds?.height || 0});
+          this.refreshGrid();
+        }}>
+        {({measureRef}) => {
+          const leftOffset = this.calculateLeftOffset();
+          const bodyHeight = calculateHeight(this.state.height);
+          const timebarHeight = getTimebarHeight();
+          return (
+            <div ref={measureRef} className={divCssClass}>
               <div className="parent-div" onMouseMove={this.mouseMoveFunc}>
                 <SelectBox ref={this.select_ref_callback} />
                 <Timebar
                   cursorTime={this.getCursor()}
                   start={this.getStartDate()}
                   end={this.getEndDate()}
-                  width={width}
+                  width={this.state.width}
                   leftOffset={leftOffset}
                   selectedRanges={this.state.selection}
                   groupTitleRenderer={groupTitleRenderer}
@@ -1509,7 +1521,7 @@ export default class Timeline extends React.Component {
                 {markers.map(m => (
                   <Marker
                     key={m.key}
-                    height={height}
+                    height={this.state.height}
                     top={0}
                     date={0}
                     shouldUpdate={true}
@@ -1520,13 +1532,13 @@ export default class Timeline extends React.Component {
                   />
                 ))}
                 <TimelineBody
-                  width={width}
-                  columnWidth={columnWidth(width)}
+                  width={this.state.width}
+                  columnWidth={columnWidth(this.state.width)}
                   height={bodyHeight}
                   rowHeight={this.rowHeight}
                   rowCount={this.state.groups.length}
                   columnCount={(tableColumns && tableColumns.length > 0 ? tableColumns.length : 1) + 1}
-                  cellRenderer={this.cellRenderer(this.getTimelineWidth(width))}
+                  cellRenderer={this.cellRenderer(this.getTimelineWidth(this.state.width))}
                   grid_ref_callback={this.grid_ref_callback}
                   shallowUpdateCheck={shallowUpdateCheck}
                   forceRedrawFunc={forceRedrawFunc}
@@ -1535,17 +1547,17 @@ export default class Timeline extends React.Component {
                   React.cloneElement(backgroundLayer, {
                     startDateTimeline: this.getStartDate(),
                     endDateTimeline: this.getEndDate(),
-                    width: width,
+                    width: this.state.width,
                     leftOffset: leftOffset,
                     height: bodyHeight,
-                    topOffset: timebarHeight,
+                    topOffset: timebarHeisght,
                     verticalGridLines: this.state.verticalGridLines
                   })}
               </div>
-            );
-          }}
-        </AutoSizer>
-      </div>
+            </div>
+          );
+        }}
+      </Measure>
     );
   }
 }

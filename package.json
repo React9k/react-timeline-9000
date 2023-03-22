@@ -92,6 +92,7 @@
     "interactjs": "^1.6.2",
     "lodash": "^4.17.19",
     "moment": "^2.22.2",
+    "react-measure": "^2.5.2",
     "react-virtualized": "^9.19.1"
   },
   "peerDependencies": {
