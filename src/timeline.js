@@ -395,6 +395,8 @@ export default class Timeline extends React.Component {
     onRowClick() {},
     onRowContext() {},
     onRowDoubleClick() {},
+    onGroupRowClick() {},
+    onGroupRowDoubleClick() {},
     onInteraction() {},
     itemRendererDefaultProps: {},
     backgroundLayer: null
