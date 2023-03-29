@@ -332,6 +332,16 @@ export default class Timeline extends React.Component {
     /**
      * @type { Function }
      */
+    onGroupRowClick: PropTypes.func,
+
+    /**
+     * @type { Function }
+     */
+    onGroupRowDoubleClick: PropTypes.func,
+
+    /**
+     * @type { Function }
+     */
     onItemHover: PropTypes.func,
 
     /**
@@ -1283,7 +1293,13 @@ export default class Timeline extends React.Component {
         }
         let group = _.find(this.state.groups, g => g.id == rowIndex);
         return (
-          <div data-row-index={rowIndex} key={key} style={style} className="rct9k-group">
+          <div
+            data-row-index={rowIndex}
+            key={key}
+            style={style}
+            className="rct9k-group"
+            onClick={e => this.props.onGroupRowClick(e, group)}
+            onDoubleClick={e => this.props.onGroupRowDoubleClick(e, group)}>
             {React.isValidElement(ColumnRenderer) && ColumnRenderer}
             {!React.isValidElement(ColumnRenderer) && (
               <ColumnRenderer group={group} labelProperty={labelProperty} rowIndex={rowIndex} />

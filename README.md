@@ -141,17 +141,19 @@ Required props:
 * id - number - needs to be consecutive
 
 ## Callbacks
-| Name              |
-| ----------------  |
-| onItemClick       |
-| onItemDoubleClick |
-| onItemContext     |
-| onInteraction     |
-| onRowClick        |
-| onRowContext      |
-| onRowDoubleClick  |
-| onItemHover       |
-| onItemLeave       |
+| Name                  |
+| ----------------      |
+| onItemClick           |
+| onItemDoubleClick     |
+| onItemContext         |
+| onInteraction         |
+| onRowClick            |
+| onRowContext          |
+| onRowDoubleClick      |
+| onItemHover           |
+| onItemLeave           |
+| onGroupRowClick       |
+| onGroupRowDoubleClick |
 
 # Styling
 * View `src/style.css` for styling examples.

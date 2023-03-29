@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+* [Click and double click handler for a group](https://github.com/flower-platform/react-timeline-10000/pull/11)
+
 ## v2.1.1
 
 ### Fixed

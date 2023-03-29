@@ -3,7 +3,7 @@ import moment from 'moment';
 
 import DemoTimeline from '../demo';
 import Timeline from '../timeline';
-import {Alert} from 'antd';
+import {Alert, notification} from 'antd';
 
 export default {
   title: 'Internal/Timeline'
@@ -85,6 +85,51 @@ export const BasicUsageWithMoment = () => (
       groups={humanResources}
       startDate={moment('2018-09-20')}
       endDate={moment('2018-09-21')}
+    />
+  </div>
+);
+
+export const GroupClickHandler = () => (
+  <div className="demo">
+    <Alert
+      message={
+        <span>
+          Sometimes we might need to do an action when a group row is clicked. For example, we want to show a
+          notification when a group is clicked. For this you can use <b>onGroupRowClick</b> that receives the click
+          event and the group that was clicked.
+        </span>
+      }
+    />
+    <Timeline
+      shallowUpdateCheck
+      items={tasksWithMoment}
+      groups={humanResources}
+      startDate={moment('2018-09-20')}
+      endDate={moment('2018-09-21')}
+      onGroupRowClick={(e, group) => notification.open({message: `Clicked row ${group.id}: ${group.title}`})}
+    />
+  </div>
+);
+
+export const GroupDoubleClickHandler = () => (
+  <div className="demo">
+    <Alert
+      message={
+        <span>
+          Using <b>onGroupRowDoubleClick</b> we can specify a function that will be called when the a group is double
+          clicked. This function receives the double click event and the group that was double clicked.
+        </span>
+      }
+    />
+    <Timeline
+      shallowUpdateCheck
+      items={tasksWithMoment}
+      groups={humanResources}
+      startDate={moment('2018-09-20')}
+      endDate={moment('2018-09-21')}
+      onGroupRowDoubleClick={(e, group) =>
+        notification.open({message: `Double click on row ${group.id}: ${group.title}`})
+      }
     />
   </div>
 );
