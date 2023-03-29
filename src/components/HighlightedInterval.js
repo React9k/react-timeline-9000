@@ -67,6 +67,7 @@ export class HighlightedInterval extends React.Component {
 
   static defaultProps = {
     className: '',
+    style: {},
     height: undefined,
     top: undefined,
     calculateHorizontalPosition: () => {},

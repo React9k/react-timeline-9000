@@ -1217,14 +1217,17 @@ export default class Timeline extends React.Component {
      * @param  {} rowIndex Vertical (row) index of cell
      * @param  {} style Style object to be applied to cell (to position it);
      */
-    const {timelineMode, onItemHover, onItemLeave, rowLayers} = this.props;
+    const {timelineMode, onItemHover, onItemLeave} = this.props;
     const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, timelineMode);
     return ({columnIndex, key, parent, rowIndex, style}) => {
       // the items column is the last column in the grid; itemCol is the index of this column
       let itemCol = this.props.tableColumns && this.props.tableColumns.length > 0 ? this.props.tableColumns.length : 1;
       if (itemCol == columnIndex) {
         let itemsInRow = this.rowItemMap[rowIndex];
-        const layersInRow = rowLayers.filter(r => r.rowNumber === rowIndex);
+        // Previously, `rowLayers` constant was instatiated outside the arrow function. However, I have discovered that when
+        // the rowLayers were updated, the `rowLayers` constant had the previous value,
+        // but this.props.rowLayers has the new value.
+        const layersInRow = this.props.rowLayers.filter(r => r.rowNumber === rowIndex);
         let rowHeight = this.props.itemHeight;
         if (this.rowHeightCache[rowIndex]) {
           rowHeight = rowHeight * this.rowHeightCache[rowIndex];
@@ -1512,8 +1515,9 @@ export default class Timeline extends React.Component {
       <Measure
         bounds
         onResize={contentRect => {
-          this.setState({width: contentRect.bounds?.width || 0, height: contentRect.bounds?.height || 0});
-          this.refreshGrid();
+          const config = {width: contentRect.bounds?.width || 0, height: contentRect.bounds?.height || 0};
+          this.setState(config);
+          this.refreshGrid(config);
         }}>
         {({measureRef}) => {
           const leftOffset = this.calculateLeftOffset();
@@ -1568,7 +1572,7 @@ export default class Timeline extends React.Component {
                     width: this.state.width,
                     leftOffset: leftOffset,
                     height: bodyHeight,
-                    topOffset: timebarHeisght,
+                    topOffset: timebarHeight,
                     verticalGridLines: this.state.verticalGridLines
                   })}
               </div>

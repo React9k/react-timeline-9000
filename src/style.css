@@ -1,3 +1,16 @@
+/**
+ * BackgroundLayer has `position: absolute`, but it is positioned relative to its closest positioned ancestor, if any;
+ * otherwise, it is positioned relative to the initial containing block. In this case,
+ * BackgroundLayer did not have any positioned ancestor and it was positioned relative to viewport.
+ *
+ * We want to position BackgroundLayer relative to the direct parent. In order to do this, we need to add `position` to the `parent-div`.
+ * An element with `position: relative` is positioned relative to its normal position in the document flow, but its position can be
+ * adjusted using the `top`, `bottom` etc. We will not adjust the `top`, `bottom` etc. of `parent-div`, we only want to set a position to it.
+ */
+.parent-div {
+  position: relative;
+}
+
 .rct9k-background-layer-vertical-grid {
   position: absolute;
   overflow: hidden;
