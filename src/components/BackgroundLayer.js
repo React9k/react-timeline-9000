@@ -224,17 +224,20 @@ export class BackgroundLayer extends React.Component {
       return;
     }
 
-    // get display interval start date; if it's sunday, substract a day
-    let startDate = this.props.startDateTimeline.clone();
-    if (startDate.weekday() == 0) {
-      startDate = startDate.subtract(1, 'days');
+    let weekendStartDate = this.props.startDateTimeline.clone().startOf('day');
+    let weekendEndDate = null;
+    // find first weekend day
+    while (weekendStartDate.isoWeekday() !== 6 && weekendStartDate.isoWeekday() !== 7) {
+      weekendStartDate = weekendStartDate.add(1, 'days');
     }
 
-    let weekendStartDate = startDate.startOf('isoWeek').day('saturday');
-    let weekendEndDate = null;
     // compute all the weekends in the interval
     while (weekendStartDate < this.props.endDateTimeline) {
-      weekendEndDate = weekendStartDate.clone().add(2, 'days');
+      if (weekendStartDate.isoWeekday() === 7) {
+        weekendEndDate = weekendStartDate.clone().add(1, 'days');
+      } else {
+        weekendEndDate = weekendStartDate.clone().add(2, 'days');
+      }
       weekends.push({
         start: weekendStartDate,
         end: weekendEndDate,
@@ -242,10 +245,7 @@ export class BackgroundLayer extends React.Component {
       });
 
       // go to the next weekend
-      weekendStartDate = weekendEndDate
-        .clone()
-        .startOf('isoWeek')
-        .day('saturday');
+      weekendStartDate = weekendEndDate.clone().add(5, 'days');
     }
     this.setState({weekends: weekends});
   }
