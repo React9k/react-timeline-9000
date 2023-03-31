@@ -13,6 +13,7 @@
   * align BackgroundLayer with TimelineBody
   * rowLayers were not rendererd correctly after update
   * typo
+  * weekends calculation depended on moment.locale
 
 ## v2.1.1
 
