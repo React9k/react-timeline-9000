@@ -5,7 +5,6 @@
 ### Added
 
 * [Click and double click handler for a group](https://github.com/flower-platform/react-timeline-10000/pull/11)
-* [Drag to create](https://github.com/flower-platform/react-timeline-10000/pull/25)
 
 ### Fixed
 
@@ -15,6 +14,7 @@
   * rowLayers were not rendererd correctly after update
   * typo
   * weekends calculation depended on moment.locale
+  * remove margin and border from selection box
 
 ## v2.1.1
 

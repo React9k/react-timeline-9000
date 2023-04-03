@@ -879,9 +879,9 @@ export default class Timeline extends React.Component {
       // do nothing if drag is canceled
       return;
     }
-    const magicalConstant = 2;
-    // @bendog: I added this magical constant to solve the issue of selection bleed,
-    // I don't understand why it works, but if frequentist statisticians can use imaginary numbers, so can i.
+    // when selection going up, the bottom start row === top next row of start and getNearestRowObject
+    // returns both row and we cannot determine which row is needed and we substract this constant from bottom select box
+    const magicalConstant = 1;
     const {startX, startY} = this._selectBox;
     const startRowObject = getNearestRowObject(startX, startY);
     const startXRowObject = startRowObject.getBoundingClientRect().x + 1;
@@ -894,34 +894,29 @@ export default class Timeline extends React.Component {
       // only run if you can detect the top row
       const startRowNumber = getRowObjectRowNumber(startRowObject);
       const currentRowNumber = getRowObjectRowNumber(currentRowObject);
-      const rowMarginBorder = getVerticalMarginBorder(currentRowObject);
       if (startRowNumber <= currentRowNumber) {
         // select box for selection going down
         // get the first selected rows top
-        let startTop = Math.ceil(startRowObject.getBoundingClientRect().top + rowMarginBorder);
+        let startTop = startRowObject.getBoundingClientRect().top;
         startTop = adjustRowTopPositionToViewport(startRowObject, startTop);
         // get the currently selected rows bottom
         // if drag to create mode set bottom from the first selected row
-        const currentBottom = Math.floor(
-          (this.state.dragToCreateMode ? getTrueBottom(startRowObject) : getTrueBottom(currentRowObject)) -
-            magicalConstant -
-            rowMarginBorder
-        );
+        const currentBottom = this.state.dragToCreateMode
+          ? getTrueBottom(startRowObject)
+          : getTrueBottom(currentRowObject);
         this._selectBox.start(startX, startTop);
-        this._selectBox.move(clientX, currentBottom);
+        this._selectBox.move(clientX, currentBottom - magicalConstant);
       } else {
         // select box for selection going up
         // get the currently selected rows top
         // if drag to create mode keep set top from the first selected row
-        const currentTop = Math.ceil(
-          (this.state.dragToCreateMode
-            ? startRowObject.getBoundingClientRect().top
-            : currentRowObject.getBoundingClientRect().top) + rowMarginBorder
-        );
+        const currentTop = this.state.dragToCreateMode
+          ? startRowObject.getBoundingClientRect().top
+          : currentRowObject.getBoundingClientRect().top;
         // get the first selected rows bottom
-        const startBottom = Math.floor(getTrueBottom(startRowObject) - magicalConstant - rowMarginBorder * 2);
+        const startBottom = getTrueBottom(startRowObject);
         // the bottom will bleed south unless you counter the margins and boreders from the above rows
-        this._selectBox.start(startX, startBottom);
+        this._selectBox.start(startX, startBottom - magicalConstant);
         this._selectBox.move(clientX, currentTop);
       }
     }
