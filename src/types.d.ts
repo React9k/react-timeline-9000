@@ -44,3 +44,10 @@ export type RowLayer = {
     rowNumber: number,
     style: object
 }
+
+export type DragToCreateParam = {
+    groupIndex: number, // Index of selected group
+    itemIndex: number, // Index for new item
+    itemStart: object, // Start for new item
+    itemEnd?: object //  End for new item
+}

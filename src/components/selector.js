@@ -1,5 +1,6 @@
 'use strict';
 import React from 'react';
+import {timelineTestids} from '../timeline';
 
 /**
  * Component to show a selection box (like on windows desktop)
@@ -21,8 +22,8 @@ export default class SelectBox extends React.Component {
   start(x, y) {
     this.startX = x;
     this.startY = y;
-    this.curX = 0;
-    this.curY = 0;
+    this.curX = x;
+    this.curY = y;
   }
 
   /**
@@ -62,6 +63,14 @@ export default class SelectBox extends React.Component {
   }
 
   /**
+   * Check if the selection box is created.
+   * @return {boolean}
+   */
+  isStart() {
+    return this.startX != 0 && this.startY != 0 && this.curX != 0 && this.curY != 0;
+  }
+
+  /**
    * @ignore
    */
   render() {
@@ -71,6 +80,12 @@ export default class SelectBox extends React.Component {
     const width = Math.abs(startX - curX);
     const height = Math.abs(startY - curY);
     let style = {left, top, width, height};
-    return <div className="rct9k-selector-outer" style={style} />;
+    return (
+      <div
+        data-testid={timelineTestids.selector}
+        className={`rct9k-selector-outer ${this.props.className}`}
+        style={style}
+      />
+    );
   }
 }

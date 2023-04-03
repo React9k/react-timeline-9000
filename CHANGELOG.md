@@ -5,6 +5,7 @@
 ### Added
 
 * [Click and double click handler for a group](https://github.com/flower-platform/react-timeline-10000/pull/11)
+* [Drag to create](https://github.com/flower-platform/react-timeline-10000/pull/25)
 
 ### Fixed
 

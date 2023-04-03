@@ -4,6 +4,7 @@ import React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import {Item, RowLayer} from '../index';
+import {timelineTestids} from '../timeline';
 
 /**
  * Render all items in a row
@@ -80,6 +81,7 @@ export function rowItemsRenderer(
 
     return (
       <span
+        data-testid={timelineTestids.item + '_' + i.key}
         key={i.key}
         data-item-index={i.key}
         className={outerClassnames}

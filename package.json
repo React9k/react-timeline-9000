@@ -86,13 +86,18 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "@babel/plugin-transform-runtime": "^7.21.0",
     "color": "^4.2.3",
     "core-js": "^2.4.0",
     "interactjs": "^1.6.2",
     "lodash": "^4.17.19",
     "moment": "^2.22.2",
+    "pretty-format": "^29.5.0",
     "react-measure": "^2.5.2",
     "react-virtualized": "^9.19.1"
+  },
+  "dependencies / comments": {
+    "// pretty-format": "We have a TypeError on buid, it is imported from @testing-library/dom but was needed to add it explicitly"
   },
   "peerDependencies": {
     "react": "^16.4.1 || ^17.0.0",

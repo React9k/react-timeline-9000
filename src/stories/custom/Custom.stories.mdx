@@ -1,0 +1,15 @@
+import { Meta, ArgsTable } from '@storybook/addon-docs';
+import Timeline from '../../timeline';
+import ItemRenderer from '../../components/ItemRenderer';
+import { encodeApiDocURIForSubpath, parametersDocPage } from '../StorybookUtils';
+
+<Meta title="Features/Custom/Doc"  />
+
+## Custom Timeline
+
+### Menu: 
+ * We can override the <code><a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#instance-method-renderMenuButton")}>Timeline.renderMenuButton()</a></code> for change the default menu.
+
+## `Timeline`   
+
+<ArgsTable of={Timeline} sort="none" include={["renderMenuButton"]}/>

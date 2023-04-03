@@ -64,6 +64,7 @@
   overflow: visible;
   z-index: 3;
 }
+
 .rct9k-items-inner {
   display: flex;
   padding: 3px;
@@ -100,6 +101,7 @@
   border: darkgrey solid 1px;
   border-radius: 3px;
 }
+
 .rct9k-item-renderer-inner {
   pointer-events: none;
   align-self: center;
@@ -109,10 +111,12 @@
   box-shadow: 0;
   transition: opacity 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
 }
+
 .rct9k-item-glow:hover {
   box-shadow: 0 0 12px #2d618c;
   opacity: 1 !important;
 }
+
 .rct9k-row {
   /* white-space: nowrap; */
   box-sizing: border-box;
@@ -170,6 +174,7 @@
 .rct9k-timebar {
   display: flex;
 }
+
 .rct9k-timebar-outer,
 .rct9k-timebar-group-title {
   height: 60px;
@@ -179,14 +184,17 @@
   display: flex;
   flex-direction: column;
 }
+
 .rct9k-timebar-outer {
   border-left: 0;
 }
+
 .rct9k-timebar-inner {
   height: 30px;
   white-space: nowrap;
   overflow: hidden;
 }
+
 .rct9k-timebar-item {
   text-align: center;
   display: inline-block;
@@ -196,9 +204,11 @@
   height: 100%;
   padding: 5px;
 }
+
 .rct9k-timebar-inner.rct9k-timebar-inner-bottom {
   border-top: 1px solid black;
 }
+
 .rct9k-timebar-item-selected {
   background-color: lightblue;
 }
@@ -223,6 +233,10 @@
   z-index: 5;
 }
 
+.rct9k-selector-outer-add {
+  background-color: #b0e09dab;
+}
+
 /* Row layer */
 .rct9k-row-layer {
   pointer-events: none;
@@ -235,4 +249,19 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.rct9k-menu-div {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+}
+
+.rct9k-menu.ui.popup {
+  padding: 0;
+  margin: 0;
+}
+
+.no-margin {
+  margin: 0 !important;
 }
