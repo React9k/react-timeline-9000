@@ -5,6 +5,7 @@
 ### Added
 
 * [Click and double click handler for a group](https://github.com/flower-platform/react-timeline-10000/pull/11)
+* [Drag to create](https://github.com/flower-platform/react-timeline-10000/pull/25)
 
 ### Fixed
 
@@ -15,6 +16,9 @@
   * typo
   * weekends calculation depended on moment.locale
   * remove margin and border from selection box
+* [Drag to create issues](https://github.com/flower-platform/react-timeline-10000/pull/32)
+  * selection was going up on mouse move on different browsers
+  * right click was prevented even if it was not in `drag to create` mode
 
 ## v2.1.1
 
