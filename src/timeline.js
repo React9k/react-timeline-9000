@@ -852,7 +852,9 @@ export default class Timeline extends React.Component {
   #onDragStartSelect(clientX, clientY) {
     const nearestRowObject = getNearestRowObject(clientX, clientY);
     const startY = adjustRowTopPositionToViewport(nearestRowObject, nearestRowObject.getBoundingClientRect().y);
-    this._selectBox.start(clientX, startY);
+    // Add 2 to startY because on some occasions/browsers, when using document.elementsFromPonint(), it will return the wrong row if startY is used.
+    // Adding 2 to it ensures that the point isn't shared with other row.
+    this._selectBox.start(clientX, startY + 2);
 
     if (this.state.dragToCreateMode && this.props.onDragToCreateStarted) {
       const groupIndex = Number(getNearestRowNumber(clientX, clientY));
@@ -881,7 +883,7 @@ export default class Timeline extends React.Component {
     }
     // when selection going up, the bottom start row === top next row of start and getNearestRowObject
     // returns both row and we cannot determine which row is needed and we substract this constant from bottom select box
-    const magicalConstant = 1;
+    const magicalConstant = 2;
     const {startX, startY} = this._selectBox;
     const startRowObject = getNearestRowObject(startX, startY);
     const startXRowObject = startRowObject.getBoundingClientRect().x + 1;
@@ -904,7 +906,10 @@ export default class Timeline extends React.Component {
         const currentBottom = this.state.dragToCreateMode
           ? getTrueBottom(startRowObject)
           : getTrueBottom(currentRowObject);
-        this._selectBox.start(startX, startTop);
+        // If startTop is used as it is, on some occasions/browsers (usually when we zoom in/out and the values recalculate) we have issues when getNearestRowObject is called.
+        // It uses document.elementsFromPoint() and it returns the wrong row or 2 rows and can't determine which row is needed.
+        // For top value we add magical constant and for bottom value we substract it. This way we assure that the point is "more inside" the row and is not shared with other row.
+        this._selectBox.start(startX, startTop + magicalConstant);
         this._selectBox.move(clientX, currentBottom - magicalConstant);
       } else {
         // select box for selection going up
@@ -917,7 +922,7 @@ export default class Timeline extends React.Component {
         const startBottom = getTrueBottom(startRowObject);
         // the bottom will bleed south unless you counter the margins and boreders from the above rows
         this._selectBox.start(startX, startBottom - magicalConstant);
-        this._selectBox.move(clientX, currentTop);
+        this._selectBox.move(clientX, currentTop + magicalConstant);
       }
     }
   }
@@ -1255,14 +1260,6 @@ export default class Timeline extends React.Component {
         });
     }
     if (canSelect) {
-      window.oncontextmenu = e => {
-        // on right click if drag in progress cancel it
-        e.preventDefault();
-        if (this._selectBox.isStart()) {
-          this.setState({dragCancel: true});
-          this._selectBox.end();
-        }
-      };
       this._selectRectangleInteractable
         .draggable({
           enabled: true,
@@ -1709,7 +1706,17 @@ export default class Timeline extends React.Component {
             const bodyHeight = calculateHeight(this.state.height);
             const timebarHeight = getTimebarHeight();
             return (
-              <div ref={measureRef} className={divCssClass}>
+              <div
+                ref={measureRef}
+                className={divCssClass}
+                onContextMenu={e => {
+                  if (this._selectBox.isStart()) {
+                    // on right click if drag in progress cancel it
+                    e.preventDefault();
+                    this.setState({dragCancel: true});
+                    this._selectBox.end();
+                  }
+                }}>
                 <div className="parent-div" onMouseMove={this.mouseMoveFunc}>
                   <SelectBox
                     ref={this.select_ref_callback}
