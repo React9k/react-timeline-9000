@@ -1352,10 +1352,10 @@
   resolved "https://registry.yarnpkg.com/@emotion/weak-memoize/-/weak-memoize-0.2.5.tgz#8eed982e2ee6f7f4e44c253e12962980791efd46"
   integrity sha512-6U71C2Wp7r5XtFtQzYrW5iKFT67OixrSxjI4MptCHzdSVlgabczzqLe0ZSgnub/5Kp4hSbpDB1tMytZY9pwxxA==
 
-"@famiprog-foundation/tests-are-demo@^0.8.0":
-  version "0.8.0"
-  resolved "http://csp-dev-tools.lan/nexus/repository/npm-public/@famiprog-foundation/tests-are-demo/-/tests-are-demo-0.8.0.tgz#dd4993d574942b078c1e504b4ebce9001b7aa039"
-  integrity sha512-npLzCUDO71syYMLQWJkK0TI/uyDB0CuTe1x8W0BCXGfpuNsjtt0jl+KnePh0Vn9Mn7IfIX7CiN7nQkR0OSrKYQ==
+"@famiprog-foundation/tests-are-demo@^0.10.1":
+  version "0.10.1"
+  resolved "http://csp-dev-tools.lan/nexus/repository/npm-public/@famiprog-foundation/tests-are-demo/-/tests-are-demo-0.10.1.tgz#608ddb0f24d40e46b5b8c53854a851c0dfe64d0d"
+  integrity sha512-TYZ5chnfRbxV+ljQ3dwCMgi0YwVuyOcgDaSKbkwkWtDAXa/JqPJHBV8W8ChLQiV793rDl8B0MbOdlKOXvcGi3w==
   dependencies:
     "@testing-library/react" "^12.1.2"
     "@testing-library/user-event" "^13.2.1"
