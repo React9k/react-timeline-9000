@@ -16,7 +16,7 @@ export const CustomMenuButtonRenderer: ComponentStory<typeof Timeline> = () => {
 
   class CustomTimeline extends Timeline {
     static propTypes = {
-      ...super.propTypes,
+      ...Timeline.propTypes,
       /**
        * @type { JSX.Element }
        */
