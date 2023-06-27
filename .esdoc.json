@@ -1,10 +1,12 @@
 {
   "source": "./src",
   "destination": "./docs",
-  "excludes": ["demo*", "demo\\/.*"],
+  "includes": ["\\.(js|jsx|ts|tsx)$"],
+  "excludes": ["demo*", "demo\\/.*", "stories\\/.*", "testsAreDemo\\/.*"],
   "plugins": [
     {"name": "esdoc-standard-plugin"},
     {"name": "esdoc-jsx-plugin", "option": {"enable": true}},
+    {"name": "esdoc-typescript-plugin", "option": {"enable": true}},
     {"name": "esdoc-ecmascript-proposal-plugin", "option": {"all": true}},
     {"name": "esdoc-inject-style-plugin", "option": {"enable": true, "styles": ["./esdoc.css"]}}
   ]

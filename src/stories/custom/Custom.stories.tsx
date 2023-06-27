@@ -24,8 +24,8 @@ export const CustomMenuButtonRenderer: ComponentStory<typeof Timeline> = () => {
     };
 
     renderMenuButton() {
-      return this.props.toolbarDomElement
-        ? ReactDOM.createPortal(super.renderMenuButton(), this.props.toolbarDomElement)
+      return (this.props as any).toolbarDomElement
+        ? ReactDOM.createPortal(super.renderMenuButton(), (this.props as any).toolbarDomElement)
         : super.renderMenuButton();
     }
   }
