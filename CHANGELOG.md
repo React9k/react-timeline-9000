@@ -19,6 +19,7 @@
 * [Drag to create issues](https://github.com/flower-platform/react-timeline-10000/pull/32)
   * selection was going up on mouse move on different browsers
   * right click was prevented even if it was not in `drag to create` mode
+* Item click was not working for complex renderers. A special css class was searched only 2 levels. Now there is a loop, so deeper nesting is possible.
 
 ## v2.1.1
 
