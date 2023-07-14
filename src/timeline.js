@@ -1284,8 +1284,15 @@ export default class Timeline extends React.Component {
     if (this.selecting) {
       return;
     }
-    if (e.target.hasAttribute('data-item-index') || e.target.parentElement.hasAttribute('data-item-index')) {
-      let itemKey = e.target.getAttribute('data-item-index') || e.target.parentElement.getAttribute('data-item-index');
+    let target = e.target;
+    while (target) {
+      if (target.hasAttribute('data-item-index')) {
+        break;
+      }
+      target = target.parentElement;
+    }
+    if (target) {
+      let itemKey = target.getAttribute('data-item-index');
       itemCallback && itemCallback(e, Number(itemKey));
     } else {
       let row = e.target.getAttribute('data-row-index');
