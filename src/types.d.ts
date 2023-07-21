@@ -67,6 +67,7 @@ export interface IGanttActionParam extends IActionParam {
 }
 
 export interface IGanttActionParamForRun extends IGanttActionParam, IActionParamForRun {
+    selection: (number | string)[];
 }
 
 export interface IGanttAction extends IAction {

@@ -6,13 +6,13 @@ interface SelectionHolderProps {
    * This property "dictates" the selection. 
    * I.e. if this property is set, the selection doesn't change anymore when user interaction happens. 
    */
-  selectedItems: number[];
+  selectedItems: (number | string)[];
 
   /**
      * The host component should listen when the selection changes by passing this property
      * (e.g. of usecase: for updating the item renderers).
      */
-  selectionChangedHandler : (selectedItems: number[]) => void;
+  selectionChangedHandler : (selectedItems: (number | string)[]) => void;
 }
 
 interface SelectionHolderState {
@@ -20,7 +20,7 @@ interface SelectionHolderState {
   /**
    * If the host components needs access to the selected items it should use this
    */
-  selectedItems: number[];
+  selectedItems: (number | string)[];
 }
 
 /**
@@ -59,7 +59,7 @@ export class SelectionHolder extends React.Component<SelectionHolderProps, Selec
    * 
    * Usually the right click on the host component works just as a left click regarding the selection.  So the host component calls should be the same in both click cases 
    */
-  addRemoveItems(itemsKeys: number[], event: MouseEvent) {
+  addRemoveItems(itemsKeys: (number | string)[], event: MouseEvent) {
     if (this.props.selectedItems) {
       return;
     }

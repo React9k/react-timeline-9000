@@ -138,9 +138,9 @@ export default class Timeline extends React.Component {
     /**
      * By default when the user clicks/drag to select items they gets selected.
      * By setting this property the gantt selection mechanism (mentioned above) is disabled, and the selected items are only the ones "dictated" by this property
-     * @type { Array.<number> }
+     * @type { Array.<number | string> }
      */
-    selectedItems: PropTypes.arrayOf(PropTypes.number),
+    selectedItems: PropTypes.arrayOf(PropTypes.number | PropTypes.string),
 
     /**
      * The component that is the item (segment) renderer. You can change the default component (i.e. `ItemRenderer`). We
@@ -1389,11 +1389,11 @@ export default class Timeline extends React.Component {
     if (target) {
       row = target.parentElement.getAttribute('data-row-index');
       let itemKey = target.getAttribute('data-item-index');
-      itemCallback && itemCallback(e, Number(itemKey));
+      itemCallback && itemCallback(e, itemKey);
       // window.ontouchstart added to checks is we are on mobile
       if (e.type == 'click' || (window.ontouchstart && e.type == 'tap') || e.type == 'contextmenu') {
         // Calculate new selection by delegating to selection component
-        this._selectionHolder.addRemoveItems([Number(itemKey)], e);
+        this._selectionHolder.addRemoveItems([itemKey], e);
       }
     } else {
       row = e.target.getAttribute('data-row-index');

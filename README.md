@@ -133,7 +133,7 @@ See http://react-timeline-9000.s3-website-ap-southeast-2.amazonaws.com/docs/ for
 ### Items
 
 Required props:
-* key - number
+* key - number or string
 
 ### Groups
 

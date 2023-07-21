@@ -190,12 +190,11 @@ export default class DemoTimeline extends Component {
     let newSelection = selectedItems.slice();
 
     // If the item is already selected, then unselected
-    const idx = selectedItems.indexOf(key);
-    if (idx > -1) {
-      // Splice modifies in place and returns removed elements
-      newSelection.splice(idx, 1);
+    const isSelected = selectedItems.find(item => item == key);
+    if (isSelected) {
+      newSelection = newSelection.filter(item => item != key);
     } else {
-      newSelection.push(Number(key));
+      newSelection.push(key);
     }
 
     this.setState({selectedItems: newSelection, message});
