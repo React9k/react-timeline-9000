@@ -1,34 +1,16 @@
 import { ComponentStory } from "@storybook/react";
 import { useEffect, useRef, useState } from "react";
 import { Segment } from "semantic-ui-react";
-import PropTypes from 'prop-types';
-import Timeline from "../../timeline";
 import { d, someHumanResources, someTasks } from "../sampleData";
 import { customTimelineScenarios } from "./CustomTimelineScenarios";
-import ReactDOM from "react-dom";
+import { CustomTimeline } from "./CustomTimeline";
 
 export default {
   title: 'Features/Custom',
-  component: Timeline
+  component: CustomTimeline
 };
 
-export const CustomMenuButtonRenderer: ComponentStory<typeof Timeline> = () => {
-
-  class CustomTimeline extends Timeline {
-    static propTypes = {
-      ...Timeline.propTypes,
-      /**
-       * @type { JSX.Element }
-       */
-      toolbarDomElement: PropTypes.object.isRequired
-    };
-
-    renderMenuButton() {
-      return this.props.toolbarDomElement
-        ? ReactDOM.createPortal(super.renderMenuButton(), this.props.toolbarDomElement)
-        : super.renderMenuButton();
-    }
-  }
+export const CustomMenuButtonRenderer: ComponentStory<typeof CustomTimeline> = () => {
 
   const divRef = useRef<any>();
   const [value, setValue] = useState(0);
