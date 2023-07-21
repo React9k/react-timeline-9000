@@ -6,17 +6,17 @@
   "types": "./types/index.d.ts",
   "scripts": {
     "build": "yarn tsc && webpack --config webpack.prod.js",
-    "build_lib": "yarn tsc && babel src --out-dir lib -x '.js,.jsx,.mdx,.html,.tsx' --ignore **/demo.js,**/demo_index.js,**/demo.html,**/demo/,**/setupTests.js,**/*/*.test.js,**/stories/,**/testsAreDemo --copy-files --source-maps inline --no-copy-ignored",
+    "build_lib": "yarn tsc && babel src --out-dir lib -x '.js,.jsx,.mdx,.html,.tsx,.ts' --ignore **/demo.js,**/demo_index.js,**/demo.html,**/demo/,**/setupTests.js,**/*/*.test.js,**/stories/,**/testsAreDemo --copy-files --source-maps inline --no-copy-ignored",
     "build_demo": "webpack --config webpack.demo.prod.js",
     "start": "webpack-dev-server --open --config webpack.dev.js",
-    "docs": "esdoc && mv docs/index.html docs/index-docs.html",
+    "docs": "typedoc && mv docs/index.html docs/index-docs.html",
     "pretty": "prettier --write --tab-width 4 \"src/**/*.js\"",
     "precommit": "lint-staged",
     "storybook": "yarn tsc && start-storybook -p 6006",
     "storybook-build": "yarn tsc && yarn docs && build-storybook",
     "storybook-move": "rm -r ../flower-platform.github.io/foundation-react-gantt; mv storybook-static ../flower-platform.github.io/foundation-react-gantt",
     "storybook-build-move": "yarn storybook-build && yarn storybook-move",
-    "tsc": "tsc -p tsconfig.ts-types-from-jsdoc.json && cp src/types.d.ts types/types.d.ts"
+    "tsc": "tsc && cp src/types.d.ts types/types.d.ts"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,json,css}": [
@@ -54,11 +54,6 @@
     "css-loader": "^0.28.11",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
-    "esdoc": "^1.1.0",
-    "esdoc-ecmascript-proposal-plugin": "^1.0.0",
-    "esdoc-inject-style-plugin": "^1.0.0",
-    "esdoc-jsx-plugin": "^1.0.0",
-    "esdoc-standard-plugin": "^1.0.0",
     "eslint": "^5.0.1",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-babel": "^5.1.0",
@@ -78,7 +73,7 @@
     "style-loader": "^0.21.0",
     "tern": "^0.21.0",
     "ts-loader": "^9.4.2",
-    "typescript": "~4.4.0",
+    "typescript": "~4.6.0",
     "uglifyjs-webpack-plugin": "^2.2.0",
     "webpack": "^5.67.0",
     "webpack-cli": "^4.9.2",
@@ -94,7 +89,8 @@
     "moment": "^2.22.2",
     "pretty-format": "^29.5.0",
     "react-measure": "^2.5.2",
-    "react-virtualized": "^9.19.1"
+    "react-virtualized": "^9.19.1",
+    "typedoc": "^0.24.8"
   },
   "dependencies / comments": {
     "// pretty-format": "We have a TypeError on buid, it is imported from @testing-library/dom but was needed to add it explicitly"

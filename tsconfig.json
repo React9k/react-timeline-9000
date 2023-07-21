@@ -3,9 +3,12 @@
         "src"
     ],
     "compilerOptions": {
-        "outDir": "dist-ts",
+        "outDir": "types",
         "allowJs": true,
+        "declaration": true,
+        "declarationMap": true,
         "esModuleInterop": true,
+        "skipLibCheck": true,
         "jsx": "react-jsx",
         "experimentalDecorators": true,
         "sourceMap": true

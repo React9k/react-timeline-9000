@@ -6,11 +6,10 @@ import { dragToCreateScenarios } from './DragToCreateScenarios';
 import { DragToCreateParam } from '../../types';
 
 export default {
-    title: 'Features/Drag to create',
-    component: Timeline
+    title: 'Features/Drag to create'
 };
 
-export const Main: ComponentStory<typeof Timeline> = () => {
+export const Main = () => {
     class DragToCreateDemo extends React.Component {
         someTasks = [...someTasks];
         groups = [...someHumanResources, { id: 4, title: 'Andy' }];

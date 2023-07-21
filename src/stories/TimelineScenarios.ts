@@ -4,5 +4,6 @@ export const timelineScenarios = {
   whenMouseMovesThenRedBar:
     'WHEN the mouse moves THEN the red bar moves also (with snapping) AND the its date is displayed',
   propertyItemRendererDefaultProps: 'PROPERTY itemRendererDefaultProps',
-  propertyItemRenderer: 'PROPERTY itemRenderer'
+  propertyItemRenderer: 'PROPERTY itemRenderer',
+  whenClickOrDragToSelectThenItemsSelected: "WHEN click or drag to select THEN items are selected/deselected"
 };

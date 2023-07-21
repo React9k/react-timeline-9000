@@ -30,7 +30,6 @@ TIMELINE_EVENTS.forEach(timelineEvent => {
 
 export default {
   title: 'Internal/Use moment',
-  component: Timeline,
   parameters: {
     previewTabs: {
       'storybook/docs/panel': {hidden: true}

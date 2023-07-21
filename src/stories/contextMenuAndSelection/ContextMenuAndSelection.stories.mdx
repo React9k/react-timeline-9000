@@ -1,0 +1,23 @@
+import { Meta, ArgsTable } from '@storybook/addon-docs';
+import Timeline from '../../timeline';
+import { encodeApiDocURIForSubpath, parametersDocPage } from '../StorybookUtils';
+
+<Meta title="Features/Context Menu And Selection/Doc" />
+
+## Context Menu
+In order for a context menu to be displayed when right clicking the gantt, some actions should be provided by setting <code><a href={encodeApiDocURIForSubpath("classes/Timeline.html#propTypes")}>onContextMenuShow</a></code>. The action descriptors (<code><a href={encodeApiDocURIForSubpath("interfaces/IGanttAction.html")}>IGanttAction</a></code>) return by this handler describe the actions that will fill in the context menu.
+
+### Timeline
+<ArgsTable of={Timeline} sort="none" include={["onContextMenuShow"]}/> 
+
+By default the context menu is closed after the you click a context menu entry (i.e after <code><a href={encodeApiDocURIForSubpath("interfaces/IGanttAction.html#run")}>IGanttAction.run(param)</a></code> is called). To avoid this you should set <code><a href={encodeApiDocURIForSubpath("interfaces/IGanttActionParamForRun.html#dontCloseContextMenuAfterRunAutomatically")}>param.dontCloseContextMenuAfterRunAutomatically</a></code> to true. You can close the context menu afterwards by manually calling <code><a href={("interfaces/IGanttActionParamForRun.html#closeContextMenu")}>closeContextMenu()</a></code>
+
+## Selection
+Segments can be selected by clicking on them or by dragging to select them.
+Right click can be also used instead of left click.
+Multiple selection is available by keeping CTRL or SHIFT key pressed.
+
+Selection change listener can by added by setting the <a href={encodeApiDocURIForSubpath("classes/Timeline.html#propTypes")}>onSelectionChange</a> property.
+
+### Timeline
+<ArgsTable of={Timeline} sort="none" include={["onSelectionChange", "selectedItems"]}/> 

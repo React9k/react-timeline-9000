@@ -13,6 +13,7 @@ export {Marker} from './components/Marker';
 export {default as Selectbox} from './components/selector';
 export {BackgroundLayer} from './components/BackgroundLayer';
 export {HighlightedInterval} from './components/HighlightedInterval';
+export {IAction, IActionParam, IActionParamForRun} from './components/ContextMenu/IAction';
 
 // consts
 export {timebarFormat} from './consts/timebarConsts';

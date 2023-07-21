@@ -27,6 +27,23 @@
   border-left: 1px solid;
 }
 
+/**
+* By default semantic ui vertical menu has a width of 15rem. That's why larger content were truncated
+* in the context menu 
+*/
+.rct9k-context-menu {
+  width: unset !important;
+  min-width: 15rem;
+}
+
+.rct9k-drag-to-create-popup-buttons-div {
+  text-align: center;
+}
+
+.rct9k-drag-to-create-popup-buttons-div > button {
+  margin-top: 5px !important;
+}
+
 .rct9k-timebar-item:first-child {
   border: 0 !important;
 }
@@ -63,6 +80,33 @@
   display: flex;
   overflow: visible;
   z-index: 3;
+}
+
+/* Styles that draws the drag achors that appears on selecting an element */
+.rct9k-items-outer:has(.rct9k-items-selected):after {
+  right: -2.5px;
+  z-index: 1;
+}
+
+.rct9k-items-outer:has(.rct9k-items-selected):before {
+  left: -2.5px;
+  z-index: 1;
+}
+
+.rct9k-items-outer:has(.rct9k-items-selected):before,
+.rct9k-items-outer:has(.rct9k-items-selected):after {
+  content: '';
+  border: 1px solid white;
+  height: 6px;
+  width: 6px;
+  background-color: black;
+  top: 50%;
+  transform: translateY(-50%);
+  position: absolute;
+}
+
+.rct9k-items-selected {
+  filter: drop-shadow(0px 0px 0.5rem black) brightness(1.25);
 }
 
 .rct9k-items-inner {
@@ -123,11 +167,6 @@
   border: 1px solid black;
   border-top: 0;
   border-left: 0;
-}
-
-.rct9k-items-selected {
-  background: magenta !important;
-  opacity: 1 !important;
 }
 
 .rct9k-grid {

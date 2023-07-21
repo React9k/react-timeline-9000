@@ -9,11 +9,10 @@ import { ComponentStory } from '@storybook/react';
 import { Item } from '../../index';
 
 export default {
-  title: 'Features/Item Renderer',
-  component: Timeline
+  title: 'Features/Item Renderer'
 };
 
-export const Main: ComponentStory<typeof Timeline> = () => {
+export const Main = () => {
   const tasks: Item[] = [
     ...someTasks,
     {
@@ -86,7 +85,7 @@ Main.parameters = {
   ]
 };
 
-export const DefaultPropsForItemRenderer: ComponentStory<typeof Timeline> = () => {
+export const DefaultPropsForItemRenderer = () => {
   return (
     <>
       <Alert
@@ -120,7 +119,7 @@ type CustomTask = Item & {
   allTestsPassed?: boolean
 } 
 
-export const CustomItemRenderer: ComponentStory<typeof Timeline> = () => {
+export const CustomItemRenderer = () => {
   const tasks: CustomTask[] = [...someTasks];
   tasks[0].type = 'analysis';
   tasks[0].spentHours = 24;

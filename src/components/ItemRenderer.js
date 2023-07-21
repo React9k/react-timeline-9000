@@ -195,12 +195,13 @@ export default class ItemRenderer extends React.Component {
    * @returns { object }
    */
   getStyle() {
-    return {
+    var style = {
       ...this.props.style,
       color: this.getTextColor(),
       height: this.getHeight(),
       background: this.getBackgroundGradient()
     };
+    return style;
   }
 
   /**

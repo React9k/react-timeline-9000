@@ -75,8 +75,6 @@ export function rowItemsRenderer(
 
     if (isSelected) {
       compClassnames += ' rct9k-items-selected';
-      outerClassnames += ' rct9k-items-outer-selected';
-      style = {};
     }
 
     return (
