@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-Nothing for now.
+* [In some places, key of type string was not supported](https://github.com/flower-platform/react-timeline-10000/pull/40). Now keys of type `number | string` are supported.
 
 ## v2.2.0
 
