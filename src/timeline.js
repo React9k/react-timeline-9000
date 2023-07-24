@@ -527,7 +527,9 @@ export default class Timeline extends React.Component {
       rightClickDraggingState: undefined,
       openedContextMenuCoordinates: undefined,
       openedContextMenuRow: undefined,
-      openedContextMenuTime: undefined
+      openedContextMenuTime: undefined,
+      startDate: undefined,
+      endDate: undefined
     };
 
     // These functions need to be bound because they are passed as parameters.
@@ -563,6 +565,7 @@ export default class Timeline extends React.Component {
     this.getCursor = this.getCursor.bind(this);
     this.setVerticalGridLines = this.setVerticalGridLines.bind(this);
     this.selectionChangedHandler = this.selectionChangedHandler.bind(this);
+    this.mousewheel = this.mousewheel.bind(this);
 
     const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, this.props.timelineMode);
     const canDrag = Timeline.isBitSet(Timeline.TIMELINE_MODES.DRAG, this.props.timelineMode);
@@ -571,21 +574,9 @@ export default class Timeline extends React.Component {
   }
 
   componentDidMount() {
+    this.setState({startDate: this.props.startDate, endDate: this.props.endDate});
     window.addEventListener('resize', this.updateDimensions);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.setTimeMap(
-      nextProps.items,
-      convertDateToMoment(nextProps.startDate, nextProps.useMoment),
-      convertDateToMoment(nextProps.endDate, nextProps.useMoment),
-      nextProps.useMoment
-    );
-    this.fillInTimelineWithEmptyRows(nextProps.groups);
-    // @TODO
-    // investigate if we need this, only added to refresh the grid
-    // when double click -> add an item
-    this.refreshGrid();
+    window.addEventListener('mousewheel', this.mousewheel, {passive: false});
   }
 
   componentWillUnmount() {
@@ -593,6 +584,7 @@ export default class Timeline extends React.Component {
     if (this._selectRectangleInteractable) this._selectRectangleInteractable.unset();
 
     window.removeEventListener('resize', this.updateDimensions);
+    window.removeEventListener('mousewheel', this.mousewheel);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -605,6 +597,57 @@ export default class Timeline extends React.Component {
       const canDrag = Timeline.isBitSet(Timeline.TIMELINE_MODES.DRAG, timelineMode);
       const canResize = Timeline.isBitSet(Timeline.TIMELINE_MODES.RESIZE, timelineMode);
       this.setUpDragging(canSelect, canDrag, canResize);
+    }
+    if (this.props.startDate != prevProps.startDate || this.props.endDate != prevProps.endDate) {
+      this.setState({startDate: this.props.startDate, endDate: this.props.endDate});
+    }
+    if (
+      prevProps != this.props ||
+      prevState.startDate != this.state.startDate ||
+      prevState.endDate != this.state.endDate
+    ) {
+      this.setTimeMap(
+        this.props.items,
+        convertDateToMoment(this.state.startDate, this.props.useMoment),
+        convertDateToMoment(this.state.endDate, this.props.useMoment),
+        this.props.useMoment
+      );
+      this.fillInTimelineWithEmptyRows(this.props.groups);
+      // @TODO
+      // investigate if we need this, only added to refresh the grid
+      // when double click -> add an item
+      this.refreshGrid();
+    }
+  }
+
+  mousewheel(e) {
+    if (e.ctrlKey) {
+      let target = e.target;
+      while (target) {
+        if (target.className.includes('rct9k-grid')) {
+          break;
+        }
+        target = target.parentElement;
+      }
+      if (!target) {
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      let offset = 5;
+      if (e.deltaY > 0) {
+        offset *= -1;
+      }
+      const timelineWidth = this.getTimelineWidth();
+      const diff = moment(this.state.endDate).valueOf() - moment(this.state.startDate).valueOf();
+      if (diff <= 60000 && offset < 0) {
+        return;
+      }
+      this.setState({
+        startDate: moment(this.state.startDate).add((diff / timelineWidth) * offset, 'ms'),
+        endDate: moment(this.state.endDate).add((-diff / timelineWidth) * offset, 'ms')
+      });
+      this.throttledMouseMoveFunc(e);
     }
   }
 
@@ -624,7 +667,7 @@ export default class Timeline extends React.Component {
    * @return {moment}
    */
   getStartDate() {
-    return convertDateToMoment(this.props.startDate, this.props.useMoment);
+    return convertDateToMoment(this.state.startDate, this.props.useMoment);
   }
 
   /**
@@ -633,7 +676,7 @@ export default class Timeline extends React.Component {
    * @return {moment}
    */
   getEndDate() {
-    return convertDateToMoment(this.props.endDate, this.props.useMoment);
+    return convertDateToMoment(this.state.endDate, this.props.useMoment);
   }
 
   /**
