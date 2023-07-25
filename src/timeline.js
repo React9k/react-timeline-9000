@@ -1389,6 +1389,7 @@ export default class Timeline extends React.Component {
     if (target) {
       row = target.parentElement.getAttribute('data-row-index');
       let itemKey = target.getAttribute('data-item-index');
+      itemKey = isNaN(Number(itemKey)) ? itemKey : Number(itemKey);
       itemCallback && itemCallback(e, itemKey);
       // window.ontouchstart added to checks is we are on mobile
       if (e.type == 'click' || (window.ontouchstart && e.type == 'tap') || e.type == 'contextmenu') {
