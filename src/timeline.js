@@ -61,6 +61,9 @@ import {ContextMenu} from './components/ContextMenu/ContextMenu';
 const SINGLE_COLUMN_LABEL_PROPERTY = 'title';
 const EMPTY_GROUP_KEY = 'empty-group';
 
+const ZOOM_PERCENT = 0.2;
+const MIN_DISPALY_TIME = 60000;
+
 export const PARENT_ELEMENT = componentId => document.querySelector(`.rct9k-id-${componentId} .parent-div`);
 
 export const ActionType = PropTypes.arrayOf(
@@ -460,7 +463,7 @@ export default class Timeline extends React.Component {
     useMoment: false,
     tableColumns: [],
     selectedItems: undefined,
-    snap: undefined,
+    snap: 1,
     groupTitleRenderer: undefined,
     timebarFormat: undefined,
     bottomResolution: undefined,
@@ -528,8 +531,8 @@ export default class Timeline extends React.Component {
       openedContextMenuCoordinates: undefined,
       openedContextMenuRow: undefined,
       openedContextMenuTime: undefined,
-      startDate: undefined,
-      endDate: undefined
+      startDate: this.props.startDate,
+      endDate: this.props.endDate
     };
 
     // These functions need to be bound because they are passed as parameters.
@@ -565,7 +568,7 @@ export default class Timeline extends React.Component {
     this.getCursor = this.getCursor.bind(this);
     this.setVerticalGridLines = this.setVerticalGridLines.bind(this);
     this.selectionChangedHandler = this.selectionChangedHandler.bind(this);
-    this.mousewheel = this.mousewheel.bind(this);
+    this.mouseWheel = this.mouseWheel.bind(this);
 
     const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, this.props.timelineMode);
     const canDrag = Timeline.isBitSet(Timeline.TIMELINE_MODES.DRAG, this.props.timelineMode);
@@ -574,9 +577,8 @@ export default class Timeline extends React.Component {
   }
 
   componentDidMount() {
-    this.setState({startDate: this.props.startDate, endDate: this.props.endDate});
     window.addEventListener('resize', this.updateDimensions);
-    window.addEventListener('mousewheel', this.mousewheel, {passive: false});
+    window.addEventListener('mousewheel', this.mouseWheel, {passive: false});
   }
 
   componentWillUnmount() {
@@ -584,7 +586,7 @@ export default class Timeline extends React.Component {
     if (this._selectRectangleInteractable) this._selectRectangleInteractable.unset();
 
     window.removeEventListener('resize', this.updateDimensions);
-    window.removeEventListener('mousewheel', this.mousewheel);
+    window.removeEventListener('mousewheel', this.mouseWheel);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -620,7 +622,7 @@ export default class Timeline extends React.Component {
     }
   }
 
-  mousewheel(e) {
+  mouseWheel(e) {
     if (e.ctrlKey) {
       let target = e.target;
       while (target) {
@@ -634,19 +636,25 @@ export default class Timeline extends React.Component {
       }
       e.preventDefault();
       e.stopPropagation();
-      let offset = 5;
+
+      const interval = moment(this.state.endDate).valueOf() - moment(this.state.startDate).valueOf();
+      const delta = e.clientX / this._grid.props.width;
+      let deltaInterval = interval * ZOOM_PERCENT;
       if (e.deltaY > 0) {
-        offset *= -1;
+        deltaInterval *= -1;
       }
-      const timelineWidth = this.getTimelineWidth();
-      const diff = moment(this.state.endDate).valueOf() - moment(this.state.startDate).valueOf();
-      if (diff <= 60000 && offset < 0) {
+      let startDate = moment(moment(this.state.startDate).valueOf() + delta * deltaInterval);
+      let endDate = moment(moment(this.state.endDate).valueOf() - (1 - delta) * deltaInterval);
+      if (endDate - startDate < MIN_DISPALY_TIME) {
         return;
       }
-      this.setState({
-        startDate: moment(this.state.startDate).add((diff / timelineWidth) * offset, 'ms'),
-        endDate: moment(this.state.endDate).add((-diff / timelineWidth) * offset, 'ms')
-      });
+      if (startDate.valueOf() < moment(this.props.startDate).valueOf()) {
+        startDate = this.props.startDate;
+      }
+      if (endDate.valueOf() > moment(this.props.endDate).valueOf()) {
+        endDate = this.props.endDate;
+      }
+      this.setState({startDate, endDate});
       this.throttledMouseMoveFunc(e);
     }
   }
