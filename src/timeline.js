@@ -46,7 +46,7 @@ const testids = createTestids('Timeline', {
   menuButton: '',
   dragToCreatePopup: '',
   dragToCreatePopupCancelButton: '',
-  dragToCreatePopupCloseButton: '',
+  dragToCreatePopupLabel: '',
   row: ``,
   group: ``,
   item: '',
@@ -60,6 +60,8 @@ import {ContextMenu} from './components/ContextMenu/ContextMenu';
 
 const SINGLE_COLUMN_LABEL_PROPERTY = 'title';
 const EMPTY_GROUP_KEY = 'empty-group';
+export const DRAG_TO_CREATE_POPUP_CLOSE_TIME = 5000;
+export const DRAG_TO_CREATE_POPUP_LABEL_2 = 'Popup will close in a few moments.';
 
 export const PARENT_ELEMENT = componentId => document.querySelector(`.rct9k-id-${componentId} .parent-div`);
 
@@ -80,6 +82,7 @@ export const ActionType = PropTypes.arrayOf(
   })
 );
 
+export const DRAG_TO_CREATE_ACTION_LABEL = 'Drag to create';
 /**
  * Timeline class
  * @extends React.Component<Timeline.propTypes>
@@ -398,8 +401,8 @@ export default class Timeline extends React.Component {
     backgroundLayer: PropTypes.object,
 
     /**
-     * Gantt has a default enable/disable drag to create mechanism implemented via a "Drag To Create" context menu action.
-     * If this property is set, this default mechanism is disabled. So the application can enter/exit the dragToCreateMode by setting this property
+     * Gantt has a default enable/disable drag to create mechanism implemented via a "Drag to create" context menu action.
+     * If this property is set, this default mechanism is disabled and the application can enter/exit the dragToCreateMode by setting this property to true/false
      *
      * @type { undefined | boolean}
      */
@@ -1083,12 +1086,7 @@ export default class Timeline extends React.Component {
 
     const topDivClassId = `rct9k-id-${this.props.componentId}`;
 
-    /**
-     * This selector selects the "rct9k-items-outer" ancestors of the items that are selected.
-     * This was added to have only ".rct9k-items-selected" class for the selected items functionality
-     * Before it also existed "rct9k-items-outer-selected"class
-     */
-    const selectedItemSelector = '.rct9k-items-outer:has(.rct9k-items-selected)';
+    const selectedItemSelector = '.rct9k-items-outer-selected';
     if (this._itemInteractable) this._itemInteractable.unset();
     if (this._selectRectangleInteractable) this._selectRectangleInteractable.unset();
 
@@ -1625,6 +1623,7 @@ export default class Timeline extends React.Component {
   mouseMoveFunc(e) {
     e.persist();
     this.throttledMouseMoveFunc(e);
+
     if (this.state.rightClickDraggingState && this.state.rightClickDraggingState != 'move') {
       e = this.state.rightClickDraggingState;
       this.onDragStartSelect(e.clientX, e.clientY);
@@ -1639,13 +1638,23 @@ export default class Timeline extends React.Component {
     // We needed it to work also on right click. But the initial implementation of drag to select from the timeline
     // is based on interact js that ignores right click drag (this type of drag is not a nativelly supported one).
     // We choosed a basic implementation using mouseDown, mouseMove and mouseUp events for implementing the right click drag to select
+
+    // Just as drag to select with left click works,
+    // Also the drag to select doesn't start on segments (item_draggable), it needds to start on the empty row
+    if (
+      e.target.classList.contains('item_draggable') ||
+      (e.target.parentElement && e.target.parentElement.classList.contains('item_draggable'))
+    ) {
+      return;
+    }
+
     if (e.button === 2) {
       this.setState({rightClickDraggingState: e});
     }
   }
 
   mouseUpFunc(e) {
-    if (e.button === 2) {
+    if (this.state.rightClickDraggingState) {
       if (this.state.rightClickDraggingState == 'move') {
         this.onDragEndSelect(e);
       }
@@ -1688,6 +1697,7 @@ export default class Timeline extends React.Component {
     this.setState({dragToCreateMode});
     if (dragToCreateMode) {
       this.setState({dragToCreatePopupClosed: false});
+      setTimeout(() => this.setState({dragToCreatePopupClosed: true}), DRAG_TO_CREATE_POPUP_CLOSE_TIME);
     }
   }
 
@@ -1700,6 +1710,7 @@ export default class Timeline extends React.Component {
         data-testid={testids.dragToCreatePopup}
         position="top right"
         open={this.state.dragToCreateMode && !this.state.dragToCreatePopupClosed}
+        wide="very"
         trigger={
           <Button
             data-testid={testids.menuButton}
@@ -1726,7 +1737,7 @@ export default class Timeline extends React.Component {
             ref={this.menuButton_ref_callback}></Button>
         }>
         <div>
-          <div>
+          <div data-testid={testids.dragToCreatePopupLabel + '_1'}>
             <b>Click and drag</b> to create a new segment
           </div>
           <div className="rct9k-drag-to-create-popup-buttons-div">
@@ -1735,17 +1746,15 @@ export default class Timeline extends React.Component {
               content="Cancel 'drag to create' mode"
               icon="cancel"
               negative
-              size="mini"
+              size="tiny"
               onClick={() => this.setDragToCreateMode(false)}
             />
-            <Button
-              data-testid={testids.dragToCreatePopupCloseButton}
-              content="Close"
-              icon="cancel"
-              negative
-              size="mini"
-              onClick={() => this.setState({dragToCreatePopupClosed: true})}
-            />
+          </div>
+          <div data-testid={testids.dragToCreatePopupLabel + '_2'} className="rct9k-drag-to-create-popup-hint-div">
+            {DRAG_TO_CREATE_POPUP_LABEL_2}
+          </div>
+          <div data-testid={testids.dragToCreatePopupLabel + '_3'} className="rct9k-drag-to-create-popup-hint-div">
+            To <b>cancel</b> you can also click on gantt
           </div>
         </div>
       </Popup>
@@ -1767,7 +1776,7 @@ export default class Timeline extends React.Component {
       // a default mechanism is implemented via an action that enters the drag to create mode
       let that = this;
       actions.push({
-        label: 'Drag To Create',
+        label: DRAG_TO_CREATE_ACTION_LABEL,
         run: param => {
           that.setDragToCreateMode(true);
           param.closeContextMenu();

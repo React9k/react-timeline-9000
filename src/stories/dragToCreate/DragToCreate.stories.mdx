@@ -5,12 +5,15 @@ import { encodeApiDocURIForSubpath, parametersDocPage } from '../StorybookUtils'
 
 <Meta title="Features/Drag to create/Doc"  />
 
+Drag to create mechanism requires the <code><a href={encodeApiDocURIForSubpath("/classes/Timeline.html#propTypes")}>Timeline.onDragToCreateEnded</a></code> to be set.
 ## Drag to create mode
 
- Exist 2 mode for enter in ** Drag to create mode ** :
- * Click on "Add (drag to create)" menu entry
- * <code><a href={encodeApiDocURIForSubpath("/classes/Timeline.html#setDragToCreateMode")}>Timeline.setDragToCreateMode(true)</a></code>
+ It exists 2 ways for entering in ** Drag to create mode ** :
+ * ** The default one **: by clicking on "Drag to create" menu entry. 
+ In this case you can exit either by pressing the `Cancel` button displayed in the opened popup or by simply clicking the gantt diagram. 
+ After you finish creating a segment, it automatically exits the drag to create mode 
+ * By setting <code><a href={encodeApiDocURIForSubpath("/classes/Timeline.html#propTypes")}>Timeline.forceDragToCreateMode</a></code> to true. Setting it to false it exists the drag to create mode. If this property is set, the default mechanism doesn't work anymore (so there will be no "Drag to create" menu entry, no popup and the drag to create mode will remain active when clicking on gantt diagram)
 
 ## `Timeline`   
 
-<ArgsTable of={Timeline} sort="none" include={["onDragToCreateEnded", "onDragToCreateStarted"]}/>
+<ArgsTable of={Timeline} sort="none" include={["onDragToCreateEnded", "onDragToCreateStarted", "forceDragToCreateMode"]}/>

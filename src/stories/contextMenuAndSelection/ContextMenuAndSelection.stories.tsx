@@ -43,10 +43,15 @@ export const ContextMenu = () => {
                                     isVisible: param => param.selection.length == 1,
                                     run: param => {
                                         param.dontCloseContextMenuAfterRunAutomatically = true;
+                                        // This timeout is just for exemplify a delayed closing of the CM 
                                         setTimeout(() => {
+                                            param.closeContextMenu();
                                             const selectedTask = tasks.find((task) => task.key == param.selection[0]);
-                                            let newTitle = prompt("Task new title:", selectedTask.title);
-                                            newTitle && setTasks(tasks.map((task) => task == selectedTask ? { ...task, title: newTitle } : task));
+                                            // This timeout for the menu to actual close before the prompt is shown
+                                            setTimeout(() => {
+                                                let newTitle = prompt("Task new title:", selectedTask.title);
+                                                newTitle && setTasks(tasks.map((task) => task == selectedTask ? { ...task, title: newTitle } : task));
+                                            }, 10);
                                         }, 10);
                                     }
                                 },
@@ -67,7 +72,7 @@ export const ContextMenu = () => {
                             // We can filter the actions that will be displayed directly here in the actions provider    
                             if (contextMenuShowParam.actionParam.row < someHumanResources.length) {
                                 actions.splice(0, 0, {
-                                    icon: addTaskActionIcon,
+                                    icon: <Icon name={addTaskActionIcon} />,
                                     label: param => addTaskActionLabel + someHumanResources[param.row].title,
                                     run: param => { 
                                         let end = moment(param.time); 

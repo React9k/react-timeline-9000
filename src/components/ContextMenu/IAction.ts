@@ -1,4 +1,5 @@
 import React from "react"
+import { IconProps, SemanticShorthandItem } from "semantic-ui-react"
 
 export interface IActionParam {
     selection: any[]
@@ -27,7 +28,7 @@ export interface IOnContextMenuShowParam {
  */
 export interface IAction {
     isVisible?: (param: IActionParam) => boolean,
-    icon?: string | ((param: IActionParam) => string),
+    icon?: SemanticShorthandItem<IconProps>,
     label?: string | ((param: IActionParam) => string),
     run?: (param: IActionParamForRun) => void,
     renderInMenu?: (param: IActionParamForRun) => React.ReactElement

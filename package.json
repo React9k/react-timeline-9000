@@ -1,6 +1,6 @@
 {
   "name": "@crispico/react-timeline-10000",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Performance focused timeline for react",
   "private": false,
   "types": "./types/index.d.ts",
@@ -42,7 +42,7 @@
   "homepage": "https://github.com/flower-platform/react-timeline-10000",
   "devDependencies": {
     "@babel/cli": "^7.0.0",
-    "@famiprog-foundation/tests-are-demo": "^0.10.3",
+    "@famiprog-foundation/tests-are-demo": "^0.10.5",
     "@storybook/addon-actions": "^6.3.11",
     "@storybook/addon-essentials": "^6.3.11",
     "@storybook/addon-links": "^6.3.11",

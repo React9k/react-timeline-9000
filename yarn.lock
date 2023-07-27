@@ -1497,10 +1497,10 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.18.16.tgz#5be58d31d0120c68af8e38b702e6937ce764cd68"
   integrity sha512-sCIVrrtcWN5Ua7jYXNG1xD199IalrbfV2+0k/2Zf2OyV2FtnQnMgdzgpRAbi4AWlKJj1jkX+M+fEGPQj6BQB4w==
 
-"@famiprog-foundation/tests-are-demo@^0.10.3":
-  version "0.10.3"
-  resolved "http://csp-dev-tools.lan/nexus/repository/npm-public/@famiprog-foundation/tests-are-demo/-/tests-are-demo-0.10.3.tgz#dcb325e7e595dfdec55609bb685173b6ba4c0e6a"
-  integrity sha512-nPs8Qz8eXc2GgCjTMD3jQSJDDVKCZ/Zttv3j747hxaSbA54IU4Yg3OzXLddAgKWiQXZNTzAdLT/ykg1JGqOxhQ==
+"@famiprog-foundation/tests-are-demo@^0.10.5":
+  version "0.10.5"
+  resolved "http://csp-dev-tools.lan/nexus/repository/npm-public/@famiprog-foundation/tests-are-demo/-/tests-are-demo-0.10.5.tgz#d1dd56e394a1488ad3467f8774f83b935e0c7047"
+  integrity sha512-v7wLE3/q0oHtKGLMBVGcxH2be9rD1QPRQeDqBV9wQkjRwG/XQOTxg7FfaCa7pkTlEKQeYLqIXrQyFSRmGm6oEA==
   dependencies:
     "@testing-library/react" "^12.1.2"
     "@testing-library/user-event" "^13.2.1"

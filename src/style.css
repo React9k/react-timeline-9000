@@ -44,6 +44,11 @@
   margin-top: 5px !important;
 }
 
+.rct9k-drag-to-create-popup-hint-div {
+  font-style: italic;
+  font-size: small;
+}
+
 .rct9k-timebar-item:first-child {
   border: 0 !important;
 }
@@ -83,18 +88,18 @@
 }
 
 /* Styles that draws the drag achors that appears on selecting an element */
-.rct9k-items-outer:has(.rct9k-items-selected):after {
+.rct9k-items-outer-selected:after {
   right: -2.5px;
   z-index: 1;
 }
 
-.rct9k-items-outer:has(.rct9k-items-selected):before {
+.rct9k-items-outer-selected:before {
   left: -2.5px;
   z-index: 1;
 }
 
-.rct9k-items-outer:has(.rct9k-items-selected):before,
-.rct9k-items-outer:has(.rct9k-items-selected):after {
+.rct9k-items-outer-selected:before,
+.rct9k-items-outer-selected:after {
   content: '';
   border: 1px solid white;
   height: 6px;
@@ -105,8 +110,9 @@
   position: absolute;
 }
 
-.rct9k-items-selected {
-  filter: drop-shadow(0px 0px 0.5rem black) brightness(1.25);
+.rct9k-items-outer-selected .rct9k-items-inner {
+  filter: brightness(1.15);
+  box-shadow: 3px 3px 8px -3px black;
 }
 
 .rct9k-items-inner {
@@ -153,7 +159,7 @@
 
 .rct9k-item-glow {
   box-shadow: 0;
-  transition: opacity 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+  transition: opacity 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .rct9k-item-glow:hover {
@@ -297,8 +303,8 @@
 }
 
 .rct9k-menu.ui.popup {
-  padding: 0;
-  margin: 0;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 .no-margin {

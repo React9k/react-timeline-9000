@@ -1,7 +1,7 @@
-import { Only, render, Scenario, ScenarioOptions, tad } from "@famiprog-foundation/tests-are-demo";
-import { Main } from "../stories/dragToCreate/DragToCreate.stories";
-import Timeline, { timelineTestids } from "../timeline";
+import { render, Scenario, tad } from "@famiprog-foundation/tests-are-demo";
 import { contextMenuTestIds } from "../components/ContextMenu/ContextMenu";
+import { Main } from "../stories/dragToCreate/DragToCreate.stories";
+import Timeline, { DRAG_TO_CREATE_ACTION_LABEL, DRAG_TO_CREATE_POPUP_CLOSE_TIME, DRAG_TO_CREATE_POPUP_LABEL_2, timelineTestids } from "../timeline";
 
 export class DragToCreateTestsAreDemo {
 
@@ -17,7 +17,7 @@ export class DragToCreateTestsAreDemo {
         await tad.assertWaitable.exists(tad.screenCapturing.getByTestId(contextMenuTestIds.popup));
 
         tad.cc("Check if exist the 'Drag To Create' action");
-        await tad.assertWaitable.equal(tad.screenCapturing.getByTestId(contextMenuTestIds.menuItem + "_0").textContent, "Drag To Create");
+        await tad.assertWaitable.equal(tad.screenCapturing.getByTestId(contextMenuTestIds.menuItem + "_0").textContent, DRAG_TO_CREATE_ACTION_LABEL);
         tad.getObjectViaCheat(Timeline).setState({ openedContextMenuCoordinates: undefined });
     }
 
@@ -36,20 +36,30 @@ export class DragToCreateTestsAreDemo {
 	    const popup = tad.screenCapturing.getByTestId(timelineTestids.dragToCreatePopup);
         tad.cc("Check if drag to create popup exists");
         await tad.assertWaitable.exists(popup);
-        tad.cc("Check if the mesage of popup is 'Drag to create mode'");
-        await tad.assertWaitable.equal(popup.querySelector("div").querySelector("div").innerHTML, "<b>Click and drag</b> to create a new segment");
         
+        // Check the labels
+        await tad.assertWaitable.equal(tad.withinCapturing(popup).getByTestId(timelineTestids.dragToCreatePopupLabel + "_1").innerHTML, "<b>Click and drag</b> to create a new segment");
+        await tad.assertWaitable.equal(tad.withinCapturing(popup).getByTestId(timelineTestids.dragToCreatePopupLabel + "_2").textContent, DRAG_TO_CREATE_POPUP_LABEL_2);
+        await tad.assertWaitable.equal(tad.withinCapturing(popup).getByTestId(timelineTestids.dragToCreatePopupLabel + "_3").innerHTML, "To <b>cancel</b> you can also click on gantt");
         const cancelButton = tad.withinCapturing(popup).getByTestId(timelineTestids.dragToCreatePopupCancelButton);
         tad.cc("Check if exists 'Cancel' button");
         await tad.assertWaitable.exists(cancelButton);
-        tad.cc("Check if the cancel buton is negative");
+        tad.cc("Check if the cancel button is negative");
         await tad.assertWaitable.include(cancelButton.className, "negative");
 
-        const closeButton = tad.withinCapturing(popup).getByTestId(timelineTestids.dragToCreatePopupCloseButton);
-        tad.cc("Check if exists 'Close' button");
-        await tad.assertWaitable.exists(closeButton);
-        tad.cc("Check if the close buton is negative");
-        await tad.assertWaitable.include(closeButton.className, "negative");
+        // Test auto closing of the popup
+        tad.demoForEndUserHide();
+
+        // AND the popup closes after DRAG_TO_CREATE_POPUP_CLOSE_TIME 
+        // I tried to test also from time to time that the popup is opened but the setTimeout(time) 
+        // doesn't ensure that exacly `time` has passed, it could have passed a little bit more (and that little bit cause
+        // inexact test for when the popup is still opened)
+        await new Promise(resolve => setTimeout(resolve, DRAG_TO_CREATE_POPUP_CLOSE_TIME));
+        await tad.assertWaitable.notExists(tad.screenCapturing.queryByTestId(timelineTestids.dragToCreatePopup));
+        
+        // AND still in drag to create mode
+        await tad.assertWaitable.isTrue(tad.getObjectViaCheat(Timeline).state.dragToCreateMode);
+        tad.demoForEndUserShow();
 
         tad.getObjectViaCheat(Timeline).setState({ openedContextMenuCoordinates: undefined });
         tad.getObjectViaCheat(Timeline).setState({ dragToCreateMode: false });
@@ -57,7 +67,7 @@ export class DragToCreateTestsAreDemo {
 
     @Scenario("GIVEN drag to create mode, WHEN click on cancel, THEN mode is cancelled")
     async givenDragToCreateModeWhenClickCancel() {
-        // GIVEN context menu was opened and 'Add To Create' was pressed
+        // GIVEN context menu was opened and 'Drag To Create' was pressed
         await tad.userEventWaitable.click(tad.screenCapturing.getByTestId(timelineTestids.menuButton));
         tad.cc("Click 'Drag To Create' menu entry");
         await tad.userEventWaitable.click(tad.screenCapturing.getByTestId(contextMenuTestIds.menuItem + "_0"));
@@ -69,28 +79,6 @@ export class DragToCreateTestsAreDemo {
         // THEN
         await tad.assertWaitable.isFalse(tad.getObjectViaCheat(Timeline).state.dragToCreateMode, "Check if the drag to create mode is cancelled");
        
-        tad.getObjectViaCheat(Timeline).setState({ openedContextMenuCoordinates: undefined });
-        tad.getObjectViaCheat(Timeline).setState({ dragToCreateMode: false });
-    }
-
-    @Scenario("GIVEN drag to create mode, WHEN click on close, THEN the popup closes but the drag to create mode is still active")
-    async givenDragToCreateModeWhenClickClose() {
-        // GIVEN context menu was opened and 'Add To Create' was pressed
-        await tad.userEventWaitable.click(tad.screenCapturing.getByTestId(timelineTestids.menuButton));
-        tad.cc("Click 'Drag To Create' menu entry");
-        await tad.userEventWaitable.click(tad.screenCapturing.getByTestId(contextMenuTestIds.menuItem + "_0"));
-
-        //WHEN
-        tad.cc("Click on `Close` button from drag to create mode popup");
-        await tad.userEventWaitable.click(tad.screenCapturing.getByTestId(timelineTestids.dragToCreatePopupCloseButton));
-
-        //THEN
-        tad.cc("Check if is the drag to create popup is closed");
-        await tad.assertWaitable.notExists(tad.screenCapturing.queryByTestId(timelineTestids.dragToCreatePopup));
-
-        tad.cc("Drag to create mode still active");
-        await tad.assertWaitable.isTrue(tad.getObjectViaCheat(Timeline).state.dragToCreateMode);
-
         tad.getObjectViaCheat(Timeline).setState({ openedContextMenuCoordinates: undefined });
         tad.getObjectViaCheat(Timeline).setState({ dragToCreateMode: false });
     }

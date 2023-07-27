@@ -73,7 +73,7 @@ export function rowItemsRenderer(
     let style = {};
     let isSelected = selectedItems.find(item => item == i.key);
     if (isSelected !== undefined) {
-      compClassnames += ' rct9k-items-selected';
+      outerClassnames += ' rct9k-items-outer-selected';
     }
 
     return (

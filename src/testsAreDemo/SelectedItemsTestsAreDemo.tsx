@@ -324,13 +324,13 @@ export class SelectedItemsTestsAreDemo {
 
     async assertOnlyExpectedSegmentsAreSelected(expectedSelectedSegments: number[], demoForEndUserHide?) {
         for (var i = 0; i < someTasks.length; i++) {
-            const segment = tad.screenCapturing.getByTestId(testids.item + "_" + i).getElementsByClassName("rct9k-items-inner")[0];
+            const segment = tad.screenCapturing.getByTestId(testids.item + "_" + i);
             if (expectedSelectedSegments.indexOf(i) >= 0) {
                 tad.cc("Segment " + i + " is selected (has resize anchors, brighter color and shadow effect)");
-                await tad.assertWaitable.include(Array.from(segment.classList), "rct9k-items-selected");
+                await tad.assertWaitable.include(Array.from(segment.classList), "rct9k-items-outer-selected");
             } else {
                 tad.demoForEndUserHide();
-                await tad.assertWaitable.notInclude(Array.from(segment.classList), "rct9k-items-selected");
+                await tad.assertWaitable.notInclude(Array.from(segment.classList), "rct9k-items-outer-selected");
                 !demoForEndUserHide && tad.demoForEndUserShow();
             }
         }

@@ -1,4 +1,16 @@
 # Change Log
+## v2.2.2
+
+### Fixed
+
+* [Various small issues](https://github.com/flower-platform/react-timeline-10000/pull/47/files)
+  * drag to create popup auto-closing 
+  * visual improvements of the selected and hovered segments style
+  * Error in console when running an action without `run` property defined 
+  * Right clicking on one segments caused drag to select on the entire row
+  * A semantic-ui `Icon` can be passed to IAction.icon 
+  * On Firefox a thin blue line appeared on top of segments
+  * Improve storybook documentation for "drag to create" feature
 
 ## v2.2.1
 
