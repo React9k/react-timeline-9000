@@ -62,7 +62,9 @@ export const ContextMenu = () => {
                                      * e.g. maybe containing a color picker (for an action that changes the color of a segment)*/
                                     renderInMenu: (param) => {
                                         return <Menu.Item onClick={() => { 
-                                                        setTasks(tasks.filter(task => !param.selection.includes(task.key)));}}>        
+                                                            setTasks(tasks.filter(task => !param.selection.includes(task.key)));
+                                                            param.closeContextMenu();
+                                                        }}>        
                                                     <span style={{color: "red"}}>{deleteActionLabel}</span> 
                                                     <Icon name={deleteActionIcon} color={deleteActionIconColor}/>      
                                                 </Menu.Item>
@@ -76,8 +78,9 @@ export const ContextMenu = () => {
                                     label: param => addTaskActionLabel + someHumanResources[param.row].title,
                                     run: param => { 
                                         let end = moment(param.time); 
-                                        end.hours(end.hours() + 3); 
-                                        setTasks([...tasks, { key: tasks.length, row: param.row, title: 'NEW TASK', start: param.time, end: end}]);
+                                        end.hours(end.hours() + 3);
+                                        const maxKey = tasks.reduce((maxKey, task) => maxKey > (task.key as number) ?  maxKey : (task.key as number), 0);
+                                        setTasks([...tasks, { key: maxKey + 1, row: param.row, title: 'NEW TASK', start: param.time, end: end}]);
                                     }
                                 });
                             } else {
