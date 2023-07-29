@@ -1638,19 +1638,24 @@ export default class Timeline extends React.Component {
     // We needed it to work also on right click. But the initial implementation of drag to select from the timeline
     // is based on interact js that ignores right click drag (this type of drag is not a nativelly supported one).
     // We choosed a basic implementation using mouseDown, mouseMove and mouseUp events for implementing the right click drag to select
-
-    // Just as drag to select with left click works,
-    // Also the drag to select doesn't start on segments (item_draggable), it needds to start on the empty row
-    if (
-      e.target.classList.contains('item_draggable') ||
-      (e.target.parentElement && e.target.parentElement.classList.contains('item_draggable'))
-    ) {
+    if (e.button == 1) {
       return;
     }
 
-    if (e.button === 2) {
-      this.setState({rightClickDraggingState: e});
+    // Just as drag to select with left click works,
+    // Also the drag to select doesn't start on segments (item_draggable), it needds to start on the empty row
+
+    // In some client applications the segments are complex components and can have a complex children hierachy.
+    // That's why we needed to iterate from bottom to top the parent hierachy
+    let target = e.target;
+    while (target && !target.hasAttribute('data-row-index')) {
+      if (target.classList && target.classList.contains('item_draggable')) {
+        return;
+      }
+      target = target.parentElement;
     }
+
+    this.setState({rightClickDraggingState: e});
   }
 
   mouseUpFunc(e) {

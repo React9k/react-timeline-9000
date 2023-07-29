@@ -1,4 +1,11 @@
 # Change Log
+
+## v2.2.3
+
+### Fixed
+
+Right click selection didn't worked on custom segments with a complex children hierarchy
+
 ## v2.2.2
 
 ### Fixed
