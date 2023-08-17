@@ -1,7 +1,8 @@
-import { render, Scenario, tad } from "@famiprog-foundation/tests-are-demo";
+import { Only, render, Scenario, tad } from "@famiprog-foundation/tests-are-demo";
 import { contextMenuTestIds } from "../components/ContextMenu/ContextMenu";
 import { Main } from "../stories/dragToCreate/DragToCreate.stories";
 import Timeline, { DRAG_TO_CREATE_ACTION_LABEL, DRAG_TO_CREATE_POPUP_CLOSE_TIME, DRAG_TO_CREATE_POPUP_LABEL_2, timelineTestids } from "../timeline";
+import { dragToCreateStoriesTestIds as testIds } from "../stories/dragToCreate/DragToCreate.stories";
 
 export class DragToCreateTestsAreDemo {
 
@@ -137,6 +138,51 @@ export class DragToCreateTestsAreDemo {
         await tad.assertWaitable.exists(tad.screenCapturing.getByTestId(timelineTestids.item + "_11"));
 
         tad.getObjectViaCheat(Timeline).setState({ dragToCreateMode: false });
+    }
+
+    @Scenario("WHEN forceDragToCreateMode = true/false, THEN action is not show and segments can/can't be created")
+    async whenForceDragToCreateModeTrueFalseThenActionIsNotShownAndSegmentsCanBeCreatedOrNot() {
+        // WHEN forceDragToCreate = true
+        await tad.cc("WHEN I set forceDragToCreate = true AND I drag to create");
+        await tad.userEventWaitable.click(tad.screenCapturing.getByTestId(testIds.forceDragToCreateModeTrueRadio));
+
+        // AND WHEN I drag and move
+        await startDragKeepInProgress(2, 100);
+        tad.screenCapturing.getByTestId(timelineTestids.row + "_2");
+
+        tad.cc("AND I perform");
+        const selector = tad.screenCapturing.getByTestId(timelineTestids.selector);
+        // THEN
+        tad.cc("THEN the drag to create rectangle appears on the row");
+        await tad.assertWaitable.exists(selector);
+        tad.cc("AND it is green");
+        await tad.assertWaitable.include(Array.from(selector.classList), "rct9k-selector-outer-add");
+
+        // AND WHEN I perform mouse up
+        await tad.showSpotlight({ message: "AND when I perform the mouse up", focusOnLastElementCaptured: true });
+        tad.getObjectViaCheat(Timeline).dragEnd();
+        
+        // THEN
+        tad.cc("THEN A segment is created");
+        await tad.assertWaitable.exists(tad.screenCapturing.getByTestId(timelineTestids.item + "_12"));
+
+        // AND 
+        await tad.userEventWaitable.click(tad.screenCapturing.getByTestId(timelineTestids.menuButton));
+        await tad.assertWaitable.notExists(tad.screenCapturing.queryByTestId(contextMenuTestIds.popup), "AND no 'Drag to create' action is shown");
+
+        // WHEN forceDragToCreate = false 
+        await tad.cc("WHEN I set forceDragToCreate = false AND I drag and drop");
+        tad.userEventWaitable.click(tad.screenCapturing.getByTestId(testIds.forceDragToCreateModeFalseRadio));
+
+        // THEN segments are not created at drag
+        await startDragKeepInProgress(2, 100);
+        tad.screenCapturing.getByTestId(timelineTestids.row + "_2");
+        tad.getObjectViaCheat(Timeline).dragEnd();
+        await tad.assertWaitable.notExists(tad.screenCapturing.queryByTestId(timelineTestids.item + "_13"));
+
+        // AND 
+        await tad.userEventWaitable.click(tad.screenCapturing.getByTestId(timelineTestids.menuButton));
+        await tad.assertWaitable.notExists(tad.screenCapturing.queryByTestId(contextMenuTestIds.popup), "AND no 'Drag to create' action is shown");
     }
 }
 

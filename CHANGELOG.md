@@ -1,5 +1,16 @@
 # Change Log
 
+## v2.2.4
+
+### Added
+
+* `forceDragToCreateMode` example in storybook
+* `forceDragToCreateMode` test case
+
+### Fixed
+
+* Drag to create rectangle was blue instead of green when `forceDragToCreateMode = true` 
+
 ## v2.2.3
 
 ### Fixed

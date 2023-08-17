@@ -409,14 +409,14 @@ export default class Timeline extends React.Component {
     forceDragToCreateMode: PropTypes.bool,
 
     /**
-     * Function called when dragToCreateMode == true on dragstart
+     * Function called when getDragToCreateMode == true on dragstart
      * @param { DragToCreateParam } param
      * @type { Function }
      */
     onDragToCreateStarted: PropTypes.func,
 
     /**
-     * Function called when dragToCreateMode == true on dragend
+     * Function called when getDragToCreateMode == true on dragend
      * @param { DragToCreateParam } param
      * @type { Function }
      */
@@ -1943,7 +1943,7 @@ export default class Timeline extends React.Component {
                   onContextMenu={() => false}>
                   <SelectBox
                     ref={this.select_ref_callback}
-                    className={this.state.dragToCreateMode ? 'rct9k-selector-outer-add' : ''}
+                    className={this.getDragToCreateMode() ? 'rct9k-selector-outer-add' : ''}
                   />
                   <Timebar
                     cursorTime={this.getCursor()}

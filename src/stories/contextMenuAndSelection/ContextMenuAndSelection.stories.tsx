@@ -8,12 +8,6 @@ import { IGanttAction, IGanttOnContextMenuShowParam, Item } from '../../types';
 import { d, someHumanResources, someTasks } from '../sampleData';
 import { contextMenuScenarios, selectionScenarios } from './ContextMenuAndSelectionScenarios';
 
-export const contextMenuStoryTestIds = createTestids('ContextMenuAndSelection', {
-    customRendererRadioSmall: '',
-    customRendererRadioMedium: '',
-    customRendererRadioLarge: ''
-})
-
 export default {
     title: 'Features/Context Menu And Selection',
     includeStories: /^[A-Z]/
