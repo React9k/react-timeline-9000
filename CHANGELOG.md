@@ -7,6 +7,10 @@
 * `forceDragToCreateMode` example in storybook
 * `forceDragToCreateMode` test case
 
+### Changed
+
+* [Modify selection trigger: from `click` to `mouseDown`](https://github.com/flower-platform/react-timeline-10000/pull/50)
+
 ### Fixed
 
 * Drag to create rectangle was blue instead of green when `forceDragToCreateMode = true` 

@@ -1390,7 +1390,7 @@ export default class Timeline extends React.Component {
       itemKey = isNaN(Number(itemKey)) ? itemKey : Number(itemKey);
       itemCallback && itemCallback(e, itemKey);
       // window.ontouchstart added to checks is we are on mobile
-      if (e.type == 'click' || (window.ontouchstart && e.type == 'tap') || e.type == 'contextmenu') {
+      if (e.type == 'mousedown' || (window.ontouchstart && e.type == 'tap')) {
         // Calculate new selection by delegating to selection component
         this._selectionHolder.addRemoveItems([itemKey], e);
       }
@@ -1407,7 +1407,7 @@ export default class Timeline extends React.Component {
       let snappedClickedTime = timeSnap(clickedTime, this.getTimelineSnap() * 60);
       rowCallback && rowCallback(e, row, clickedTime, snappedClickedTime);
 
-      if (e.type == 'click' || (window.ontouchstart && e.type == 'tap') || e.type == 'contextmenu') {
+      if (e.type == 'mousedown' || (window.ontouchstart && e.type == 'tap')) {
         this._selectionHolder.addRemoveItems([], e);
       }
     }
@@ -1471,7 +1471,10 @@ export default class Timeline extends React.Component {
             data-row-index={rowIndex}
             className="rct9k-row"
             onClick={e => this._handleItemRowEvent(e, Timeline.no_op, this.props.onRowClick)}
-            onMouseDown={e => (this.selecting = false)}
+            onMouseDown={e => {
+              this.selecting = false;
+              this._handleItemRowEvent(e, Timeline.no_op, Timeline.no_op);
+            }}
             onMouseMove={e => (this.selecting = true)}
             onMouseOver={e => {
               this.selecting = false;

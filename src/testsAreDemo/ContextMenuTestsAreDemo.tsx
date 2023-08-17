@@ -4,6 +4,7 @@ import { ContextMenu, addTaskActionIcon, addTaskActionLabel, addTaskNotPossibleA
 import { someHumanResources, someTasks } from "../stories/sampleData";
 import Timeline, { PARENT_ELEMENT, timelineTestids as testids } from "../timeline";
 import { getPixelAtTime, getTimeAtPixel } from "../utils/timeUtils";
+import { rightClick } from "../utils/testUtils";
 
 const CLICK_X =30;
 export class ContextMenuTestsAreDemo {
@@ -19,7 +20,8 @@ export class ContextMenuTestsAreDemo {
         // WHEN right click on a row
         const firstRow = tad.screenCapturing.getByTestId(testids.row + "_0");
         const clickPosition = { clientX: Math.round(firstRow.getBoundingClientRect().x) + CLICK_X, clientY: Math.round(firstRow.getBoundingClientRect().y) + 20 };
-        await tad.fireEventWaitable.contextMenu(firstRow, clickPosition);
+        await tad.showSpotlight({ message: "I right click on a row", focusOnLastElementCaptured: true });
+        rightClick(firstRow, clickPosition);
 
         // THEN CM is opened at the clicked position
         tad.demoForEndUserHide();
@@ -75,8 +77,9 @@ export class ContextMenuTestsAreDemo {
         const segmentBoundingRect = segment.getBoundingClientRect();
 
         // WHEN right click on a segment
-        await tad.fireEventWaitable.contextMenu(tad.screenCapturing.getByTestId(testids.item + "_0"), { clientX: segmentBoundingRect.x + segmentBoundingRect.width / 2, clientY: segmentBoundingRect.y + segmentBoundingRect.height / 2 });
-
+        await tad.showSpotlight({ message: "I right click on a segment", focusOnLastElementCaptured: true });
+        rightClick(segment, { clientX: segmentBoundingRect.x + segmentBoundingRect.width / 2, clientY: segmentBoundingRect.y + segmentBoundingRect.height / 2 });
+        
         // THEN the CM opens
         tad.demoForEndUserHideNext();
         const popup = tad.screenCapturing.getByTestId(contextMenuTestIds.popup);
@@ -103,8 +106,8 @@ export class ContextMenuTestsAreDemo {
     async whenCTRLRightClickOnAnotherSegment() {
         const segment = tad.screenCapturing.getByTestId(testids.item + "_3");
         const segmentBoundingRect = segment.getBoundingClientRect();
-        tad.cc("WHEN I CTRL + right click another segment");
-        await tad.fireEventWaitable.contextMenu(segment, { ctrlKey: true, clientX: segmentBoundingRect.x + segmentBoundingRect.width / 2, clientY: segmentBoundingRect.y + segmentBoundingRect.height / 2 });
+        await tad.showSpotlight({ message: "WHEN I CTRL + right click another segment", focusOnLastElementCaptured: true });
+        rightClick(segment, { ctrlKey: true, clientX: segmentBoundingRect.x + segmentBoundingRect.width / 2, clientY: segmentBoundingRect.y + segmentBoundingRect.height / 2 });
 
         // THEN the CM opens
         tad.demoForEndUserHideNext();
