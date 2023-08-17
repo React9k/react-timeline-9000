@@ -64,10 +64,10 @@ export interface IGanttActionParam extends IActionParam {
      * numeric/millis or moment object, cf. `timeline.useMoment`
      */
     time: number | object;
+    selection: (number | string)[];
 }
 
 export interface IGanttActionParamForRun extends IGanttActionParam, IActionParamForRun {
-    selection: (number | string)[];
 }
 
 export interface IGanttAction extends IAction {

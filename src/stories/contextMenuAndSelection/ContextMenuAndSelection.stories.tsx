@@ -98,7 +98,7 @@ export const selectionStoryTestIds = createTestids('SelectionStory', {
 });
 
 export const Selection = () => {
-    const [selectedItems, setSelectedItems] = useState<number[]>([]);
+    const [selectedItems, setSelectedItems] = useState<(number|string)[]>([]);
     const [isSelectionForced, setIsSelectionForced] = useState<boolean>(false);
     return (
       <>

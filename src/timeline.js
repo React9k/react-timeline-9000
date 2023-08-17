@@ -426,7 +426,7 @@ export default class Timeline extends React.Component {
      * Function called everytime the segments selection changes.
      * It receives as parameter the indexes of the selected items.
      *
-     * @type {(selectedItems: number[]) => void}
+     * @type {(selectedItems: (number | string)[]) => void}
      */
     onSelectionChange: PropTypes.func,
 

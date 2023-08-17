@@ -14,6 +14,7 @@
 ### Fixed
 
 * Drag to create rectangle was blue instead of green when `forceDragToCreateMode = true` 
+* [`selectedItems` parameter of `onSelectionChange` handler was `number[]` instead of `(number|string)[]`](https://github.com/flower-platform/react-timeline-10000/compare/master-flower-platform...flower-platform:react-timeline-10000:dana-RM31940-selectedItem-type-number-instead-of-number-or-string?expand=1)
 
 ## v2.2.3
 
