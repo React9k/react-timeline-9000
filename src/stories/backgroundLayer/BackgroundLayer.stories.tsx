@@ -5,7 +5,8 @@ import { HighlightedInterval } from '../../components/HighlightedInterval';
 import { Marker } from '../../components/Marker';
 import { someHumanResources, startOfCurrentMonth, endOfCurrentMonth, dateAndHourOfCurrentMonth } from '../sampleData';
 import { backgroundLayerScenarios } from './BackgroundLayerScenarios';
-import { Item } from '../../index';
+import { Item } from '../../types';
+import { Table, Column, DataCell} from 'fixed-data-table-2';
 export default {
   title: 'Features/Background Layer'
 };
@@ -20,6 +21,13 @@ export const Main = () => {
   return (
     <Timeline startDate={startOfCurrentMonth()}
       endDate={endOfCurrentMonth()} groups={someHumanResources} items={tasks}
+      table={<Table width={100} >
+                <Column
+                    columnKey="title"
+                    width={100}
+                    header={<DataCell>Title</DataCell>}
+                    cell={({rowIndex}) => <DataCell>{rowIndex < someHumanResources.length ? someHumanResources[rowIndex].title : ""}</DataCell>}/>
+            </Table>}
       backgroundLayer={
         <BackgroundLayer verticalGrid nowMarker highlightWeekends
           highlightedIntervals={[
@@ -49,6 +57,13 @@ export const CustomClassNamesAndStyles = () => {
   return (
     <Timeline startDate={startOfCurrentMonth()}
       endDate={endOfCurrentMonth()} groups={someHumanResources} items={tasks}
+      table={<Table width={100} >
+                <Column
+                    columnKey="title"
+                    width={100}
+                    header={<DataCell>Title</DataCell>}
+                    cell={({rowIndex}) => <DataCell>{rowIndex < someHumanResources.length ? someHumanResources[rowIndex].title : ""}</DataCell>}/>
+            </Table>}
       backgroundLayer={
         <BackgroundLayer verticalGrid verticalGridClassName='story-custom-vertical-grid-class' verticalGridStyle={{opacity: 0.5}}
           nowMarker nowMarkerClassName='story-custom-now-marker-class' nowMarkerStyle={{opacity: 0.7}}
@@ -69,7 +84,7 @@ export const CustomClassNamesAndStyles = () => {
 CustomClassNamesAndStyles.parameters = {
   scenarios: [
     backgroundLayerScenarios.verticalGridClassName,
-    backgroundLayerScenarios.nowMarkerClassName,
+    backgroundLayerScenarios.nowMaSrkerClassName,
     backgroundLayerScenarios.highlightWeekendsClassName,
     backgroundLayerScenarios.classNameForMarker,
     backgroundLayerScenarios.highlightedIntervalClassName

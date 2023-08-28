@@ -6,6 +6,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 
 import {Grid} from 'react-virtualized';
+import {timelineTestids} from '../timeline';
 
 /**
  * @extends Component<TimelineBody.propTypes>
@@ -26,8 +27,8 @@ class TimelineBody extends Component {
 
     // prettier-ignore
     const shallowChange = props.height !== nextProps.height
-      || props.width !== nextProps.width
-      || props.rowCount !== nextProps.rowCount;
+     || props.width !== nextProps.width
+     || props.rowCount !== nextProps.rowCount;
 
     if (props.forceRedrawFunc) {
       return shallowChange || props.forceRedrawFunc(props, nextProps);
@@ -36,11 +37,12 @@ class TimelineBody extends Component {
     return shallowChange;
   }
   render() {
-    const {width, columnWidth, height, rowHeight, rowCount, columnCount} = this.props;
+    const {width, columnWidth, height, rowHeight, rowCount, columnCount, onScroll} = this.props;
     const {grid_ref_callback, cellRenderer} = this.props;
 
     return (
       <Grid
+        containerProps={{'data-testid': timelineTestids.ganttBody}}
         ref={grid_ref_callback}
         autoContainerWidth
         cellRenderer={cellRenderer}
@@ -51,6 +53,8 @@ class TimelineBody extends Component {
         rowHeight={rowHeight}
         width={width}
         className="rct9k-grid"
+        onScroll={onScroll}
+        data-testid={timelineTestids.grid}
       />
     );
   }
@@ -118,7 +122,7 @@ TimelineBody.propTypes = {
 };
 
 TimelineBody.defaultProps = {
-  columnCount: 2,
+  columnCount: 1,
   shallowUpdateCheck: false,
   forceRedrawFunc: null
 };

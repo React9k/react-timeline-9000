@@ -3,8 +3,7 @@
 import React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import {Item, RowLayer} from '../index';
-import {timelineTestids} from '../timeline';
+import {Item, RowLayer} from '../types';
 
 /**
  * Render all items in a row
@@ -30,7 +29,8 @@ export function rowItemsRenderer(
   selectedItems = [],
   itemRendererDefaultProps,
   getStartFromItem,
-  getEndFromItem
+  getEndFromItem,
+  timelineTestids
 ) {
   const start_end_ms = vis_end.diff(vis_start, 'milliseconds');
   const pixels_per_ms = total_width / start_end_ms;

@@ -5,9 +5,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import moment from 'moment';
 import {intToPix} from '../utils/commonUtils';
-import {ColumnHeaderRenderer} from './ColumnRenderer';
 import {timebarFormat as defaultTimebarFormat} from '../consts/timebarConsts';
-import {Column} from '../index';
 
 /**
  * Timebar component - displays the current time on top of the timeline.
@@ -224,36 +222,12 @@ export default class Timebar extends React.Component {
   }
 
   /**
-   * It renders the header of a column in multi columns mode. Default renderer: props.groupTitleRenderer;
-   * which may be overriden per column: column.headerRender (react element or function).
-   * @param {object} column
-   * @param {number | string} index
-   */
-  renderColumnHeader(column, index) {
-    const columnWidth = column.width ? column.width : this.props.groupOffset;
-    return (
-      <div className="rct9k-timebar-group-title" key={index} style={{width: columnWidth}}>
-        {column.headerRenderer ? (
-          React.isValidElement(column.headerRenderer) ? (
-            column.headerRenderer
-          ) : (
-            <column.headerRenderer />
-          )
-        ) : (
-          <this.props.groupTitleRenderer column={column} />
-        )}
-      </div>
-    );
-  }
-
-  /**
    * Renders the timebar
    * @returns {Object} Timebar component
    */
   render() {
-    const {cursorTime, tableColumns} = this.props;
+    const {cursorTime} = this.props;
     const {topBarComponent, bottomBarComponent} = this.state;
-    const GroupTitleRenderer = this.props.groupTitleRenderer;
 
     // Only show the cursor on 1 of the top bar segments
     // Pick the segment that has the biggest size
@@ -264,18 +238,6 @@ export default class Timebar extends React.Component {
 
     return (
       <div className="rct9k-timebar" style={{width: this.props.width}}>
-        {/* Single column mode */}
-        {(!tableColumns || tableColumns.length == 0) && (
-          <div className="rct9k-timebar-group-title" style={{width: this.props.leftOffset}}>
-            <GroupTitleRenderer />
-          </div>
-        )}
-        {/* Multiple columns mode */}
-        {tableColumns &&
-          tableColumns.length > 0 &&
-          tableColumns.map((column, index) => {
-            return this.renderColumnHeader(column, index);
-          })}
         <div className="rct9k-timebar-outer" style={{width: this.props.width - this.props.leftOffset}}>
           <div className="rct9k-timebar-inner rct9k-timebar-inner-top">
             {_.map(topBarComponent, i => {
@@ -314,12 +276,6 @@ Timebar.propTypes = {
    * @type { any }
    */
   cursorTime: PropTypes.any,
-
-  /**
-   * As e.g. @see Timeline.props.groupTitleRenderer
-   * @type { Function }
-   */
-  groupTitleRenderer: PropTypes.func,
 
   /**
    * Start of the displayed interval, as moment object.
@@ -370,11 +326,6 @@ Timebar.propTypes = {
   timeFormats: PropTypes.object,
 
   /**
-   * @type { Array.<Column> }
-   */
-  tableColumns: PropTypes.arrayOf(PropTypes.object),
-
-  /**
    * It's passed by parent. The `vertical grid` uses the same intervals as the bottom timebar, it is redundant to calculated them again.
    * This callback passes these intervals to parent.
    * @type { Function }
@@ -384,10 +335,8 @@ Timebar.propTypes = {
 
 Timebar.defaultProps = {
   selectedRanges: [],
-  groupTitleRenderer: ColumnHeaderRenderer,
   leftOffset: 0,
   timeFormats: defaultTimebarFormat,
-  tableColumns: [],
   top_resolution: undefined,
   bottom_resolution: undefined,
   leftOffset: undefined,

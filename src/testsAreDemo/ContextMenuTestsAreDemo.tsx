@@ -57,7 +57,7 @@ export class ContextMenuTestsAreDemo {
         // Gantt works with times "snapped to grid" so the position for the new task should be snapped to grid 
         const timeline = tad.getObjectViaCheat(Timeline);
         const firstRow = tad.screenCapturing.getByTestId(testids.row + "_0");
-        const ganttLeftOffset = timeline.calculateLeftOffset() + PARENT_ELEMENT(timeline.props.componentId).getBoundingClientRect().left;
+        const ganttLeftOffset = PARENT_ELEMENT(timeline.props.componentId).getBoundingClientRect().left;
         const clickedX = firstRow.getBoundingClientRect().x + CLICK_X;
         const clickedXInGantt = clickedX - ganttLeftOffset;
         const clickedTime = getTimeAtPixel(clickedXInGantt, timeline.getStartDate(), timeline.getEndDate(), timeline.getTimelineWidth(undefined), timeline.getTimelineSnap());

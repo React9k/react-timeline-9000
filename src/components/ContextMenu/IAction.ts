@@ -27,9 +27,15 @@ export interface IOnContextMenuShowParam {
  * It will receive a parameter containing things like: current selection, a close menu function to be run after clicking the action
  */
 export interface IAction {
+    /**
+     * Should return true of false whether or not the action is visible for the selected items received as parameter
+     */
     isVisible?: (param: IActionParam) => boolean,
     icon?: SemanticShorthandItem<IconProps>,
     label?: string | ((param: IActionParam) => string),
+    /**
+     * Function that will be called when user will click this menu entry. Will receives as parameter the current selected items
+     */
     run?: (param: IActionParamForRun) => void,
     renderInMenu?: (param: IActionParamForRun) => React.ReactElement
 }

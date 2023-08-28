@@ -5,6 +5,7 @@ import { dragToCreateScenarios } from './DragToCreateScenarios';
 import { DragToCreateParam, Item } from '../../types';
 import { Form, Radio } from 'semantic-ui-react';
 import { createTestids } from '@famiprog-foundation/tests-are-demo';
+import { Table, Column, DataCell} from 'fixed-data-table-2';
 
 export default {
     title: 'Features/Drag to create',
@@ -45,6 +46,13 @@ export const Main = () => {
                 </Form.Field>
             </Form>
             <Timeline startDate={d('2018-09-20')} endDate={d('2018-09-21')} groups={groups} items={tasks} forceDragToCreateMode={forceDragToCreateMode ? forceDragToCreateMode === "true" : undefined}
+                table={<Table width={100}>
+                            <Column
+                                columnKey="title"
+                                width={100}
+                                header={<DataCell>Title</DataCell>}
+                                cell={({rowIndex}) => <DataCell>{rowIndex < someHumanResources.length ? someHumanResources[rowIndex].title : ""}</DataCell>}/>
+                        </Table>}
                 onDragToCreateEnded={(param: DragToCreateParam) => {
                     if (groups[param.groupIndex]) {
                         const task = {

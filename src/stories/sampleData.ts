@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Group, Item } from '../index';
+import { Group, Item } from '../types';
 
 ////////////////////////////////////////////////////////
 // utility functions used for hardcoding our sample data
@@ -15,11 +15,16 @@ export const dateAndHourOfCurrentMonth = (day, hour = 0) => d(moment().startOf('
 ////////////////////////////////////////////////////////
 // sample data
 ////////////////////////////////////////////////////////
-export const someHumanResources: Group[] = [
-  {id: 0, title: 'John Doe'},
-  {id: 1, title: 'Alex Randal'},
-  {id: 2, title: 'Mary Danton'},
-  {id: 3, title: 'Kim Price'}
+export type Employee = Group & {
+  job?: string,
+  team?: string
+} 
+
+export const someHumanResources: Employee[] = [
+  {id: 0, title: 'John Doe', job: 'HR manager', team: 'Team 1'},
+  {id: 1, title: 'Alex Randal', job: 'Recruiter', team: 'Team 2'},
+  {id: 2, title: 'Mary Danton', job: 'Developer', team: 'Team 3'},
+  {id: 3, title: 'Kim Price', job: 'Developer', team: 'Team 3'}
 ];
 
 // 10 rows, so it's easy to remember in stories: new tasks start from 11
@@ -36,3 +41,28 @@ export const someTasks: Item[] = [
   {key: 9, row: 2, title: 'Task MD2', start: d('2018-09-20 5:00'), end: d('2018-09-20 7:00')},
   {key: 10, row: 2, title: 'Task MD3', start: d('2018-09-20 13:00'), end: d('2018-09-20 14:00')}
 ];
+
+export const manyHumanResources: Employee[] = [...someHumanResources, { id: 4, title: 'George Walsh', job: 'Developer' }, 
+{ id: 5, title: 'Mary McDonald', job: 'Developer' },
+{ id: 6, title: 'Mary A. McDonald', job: 'Developer'},
+{ id: 7, title: 'John Rider', job: 'Developer'},
+{ id: 8, title: 'Tom Smith', job: 'Developer'},
+{ id: 9, title: 'David Johnson', job: 'Developer'},
+{ id: 10, title: 'James Johnson', job: 'Developer'},
+{ id: 11, title: 'Maria Garcia', job: 'Developer'},
+{ id: 12, title: 'Michael Smith', job: 'Developer'},
+{ id: 13, title: 'David Brown', job: 'Developer'},
+{ id: 14, title: 'Mary B. McDonald', job: 'Developer'},
+{ id: 15, title: 'John B. Rider', job: 'Developer'},
+{ id: 16, title: 'Tom B. Smith', job: 'Developer'},
+{ id: 17, title: 'David B. Johnson', job: 'Developer'},
+{ id: 18, title: 'James B. Johnson', job: 'Developer'},
+{ id: 19, title: 'Maria B. Garcia', job: 'Developer'},
+{ id: 20, title: 'Michael B. Smith', job: 'Developer'},
+{ id: 21, title: 'David B. Brown', job: 'Developer'},
+{ id: 22, title: 'Michael C. Smith', job: 'Developer'},
+{ id: 23, title: 'David C. Brown', job: 'Developer'},
+{ id: 24, title: 'Michael D. Smith', job: 'Developer'},
+{ id: 25, title: 'David D. Brown', job: 'Developer'},
+{ id: 26, title: 'Michael E. Smith', job: 'Developer'},
+{ id: 27, title: 'David E. Brown', job: 'Developer'}];

@@ -133,7 +133,7 @@
 }
 
 .rct9k-marker-overlay {
-  z-index: 2;
+  z-index: 4;
   height: 475px;
   position: absolute;
   width: 2px;
@@ -170,13 +170,35 @@
 .rct9k-row {
   /* white-space: nowrap; */
   box-sizing: border-box;
-  border: 1px solid black;
-  border-top: 0;
-  border-left: 0;
+  border: 1px solid #ccc !important;
+  border-top: 0 !important;
+  border-left: 0 !important;
+}
+
+.rct9k-row-even {
+  background-color: #f6f7f8;
 }
 
 .rct9k-grid {
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid #ccc;
+
+  /* This was added because we needed to have the highlighted intervals and markers behind the segments, 
+  but in front of the rows (because they are opaque, being colored). 
+  The only way to achive this via css is by having the z-index of the segments > z-index of the highlighted intervals and markers,
+  and the segments not being in a different stacking context than the highlighted intervals 
+  (for understanding the "stacking context" concept see https://www.joshwcomeau.com/css/stacking-contexts/)
+
+  As stated in the above article, "will-change" creates a stacking context for its children so 
+  even if segments.z-index > highlightedIntervals.z-index, the segments were displayed behind the highlighted intervals
+  
+  !!! We need to pay attention for this to not cause any performance issue: 
+  the "will-change: transform;" was set by the virtualized grid component to prevent a performance issue: https://github.com/bvaughn/react-virtualized/blob/e78651c3d844c6f639347d1fb796072783c175d2/CHANGELOG.md?plain=1#L1082
+  But strange thing: from our tests this seems to improve the performance of the scroll.  
+  
+  If we'll have problems in the future the solution to the initial problem will be to refactor the structure of our components (the dom)
+  so that the highlighted intervals and markers to be children of rct9k-grid (now they are siblings)
+  */
+  will-change: unset !important;
 }
 
 /**
@@ -189,18 +211,17 @@
 
 .ReactVirtualized__Grid {
   overflow-x: hidden;
-  z-index: 1;
 }
 
 .ReactVirtualized__Grid__innerScrollContainer:first-child {
-  border-top: 1px solid black;
+  border-top: 1px solid #ccc;
 }
 
 /* Timeline groups */
 .rct9k-group {
   text-align: center;
   box-sizing: border-box;
-  border: 1px solid black;
+  border: 1px solid #ccc;
   border-top: 0;
   border-right: 0;
   background-color: white;
@@ -208,7 +229,7 @@
 }
 
 .rct9k-group {
-  border-right: 2px solid black;
+  border-right: 2px solid #ccc;
 }
 
 .rct9k-timebar {
@@ -224,14 +245,15 @@
 .rct9k-timebar-group-title {
   height: 60px;
   background-color: white;
-  border: 1px solid black;
+  border: 1px solid #ccc;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
 }
 
 .rct9k-timebar-outer {
-  border-left: 0;
+  border-left: 1px solid #ccc;
+  background-image: linear-gradient(#fff, #efefef);
 }
 
 .rct9k-timebar-inner {
@@ -251,7 +273,7 @@
 }
 
 .rct9k-timebar-inner.rct9k-timebar-inner-bottom {
-  border-top: 1px solid black;
+  border-top: 1px solid #ccc;
 }
 
 .rct9k-timebar-item-selected {
@@ -259,7 +281,7 @@
 }
 
 .rct9k-timebar-group-title {
-  border-right: 2px solid black;
+  border-right: 2px solid #ccc;
 }
 
 .rct9k-timeline-div {
@@ -296,6 +318,12 @@
   flex-direction: column;
 }
 
+.Resizer.vertical {
+  width: 4px !important;
+  border-left-width: 1px !important;
+  border-right-width: 1px !important;
+}
+
 .rct9k-menu-div {
   position: absolute;
   right: 1px;
@@ -309,4 +337,12 @@
 
 .no-margin {
   margin: 0 !important;
+}
+
+.rct9k-timebar-inner.rct9k-timebar-inner-bottom {
+  border-top: 1px solid #ccc !important;
+}
+
+.rct9k-timebar-item {
+  border-left-color: #ccc !important;
 }

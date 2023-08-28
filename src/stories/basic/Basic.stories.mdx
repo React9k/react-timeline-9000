@@ -66,3 +66,11 @@ const start = item.start;
 // good
 const start = this.getStartFromItem(item);
 ```
+
+## Providing a table associated with the gantt
+
+**IMPORTANT**: By default the gantt diagram displayes without any table associated.
+
+If you want to display a table (like in the majority of our examples) you should set the <code>table</code> property:
+
+<ArgsTable of={Timeline} sort="none" include={["table"]}  />
