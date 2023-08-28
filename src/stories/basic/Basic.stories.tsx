@@ -99,3 +99,41 @@ AlternativeRowColoring.parameters = {
     timelineScenarios.propertyRowOddClassName
   ]
 };
+
+export const HorizontalScroll = () => {
+const tasks: Item[] = [
+    ...someTasks, // Tasks that are outside the display interval  
+    { key: 11, row: 4, title: 'Task GW1', start: d('2018-09-19 7:00'), end: d('2018-09-19 8:00') },
+    { key: 12, row: 4, title: 'Task GW2', start: d('2018-09-19 17:00'), end: d('2018-09-19 19:00') },
+	  { key: 14, row: 1, title: 'Task GW3', start: d('2018-09-21 12:00'), end: d('2018-09-21 14:00') },
+    { key: 15, row: 1, title: 'Task GW4', start: d('2018-09-21 15:00'), end: d('2018-09-21 17:00') },
+    { key: 16, row: 1, title: 'Task GW5', start: d('2018-09-19 12:00'), end: d('2018-09-19 14:00') },
+    { key: 17, row: 1, title: 'Task GW6', start: d('2018-09-19 9:00'), end: d('2018-09-19 12:00') },
+  ];
+  
+  return (
+    <>
+      {/* This is a trivial example to illustrate how Timeline "glues" to its "flex" parent. Notes: */}
+      {/* 1/ In other stories we don't have this, because we have a Storybook decorator that wraps w/ a div + CSS class. */}
+      {/* 2/ You'll probably have a better flex-box layout, i.e. not hardcoded. 3/ Use CSS classes and not styles. */}
+      <div style={{ display: 'flex', height: '400px' }}>
+        <Timeline startDate={d('2018-09-20')} endDate={d('2018-09-21')} minDate={d('2018-09-19')} maxDate={d('2018-09-22')} groups={someHumanResources} items={tasks}
+                  table={<Table width={100} >
+                            <Column
+                                columnKey="title"
+                                width={100}
+                                header={<DataCell>Title</DataCell>}
+                                cell={({rowIndex}) => <DataCell>{rowIndex < someHumanResources.length ? someHumanResources[rowIndex].title : ""}</DataCell>}/>
+                        </Table>}
+          />
+      </div>
+    </>
+  );
+};
+
+HorizontalScroll.parameters = {
+  scenarios: [
+    timelineScenarios.propertyMinDate,
+    timelineScenarios.propertyMaxDate
+  ]
+};

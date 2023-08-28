@@ -8,5 +8,7 @@ export const timelineScenarios = {
   whenClickOrDragToSelectThenItemsSelected: "WHEN click or drag to select THEN items are selected/deselected",
   propertyRowClassName: 'PROPERTY rowClassName',
   propertyRowEvenClassName: 'PROPERTY rowEvenClassName', 
-  propertyRowOddClassName: 'PROPERTY rowOddClassName'
+  propertyRowOddClassName: 'PROPERTY rowOddClassName',
+  propertyMinDate: 'PROPERTY minDate',
+  propertyMaxDate: 'PROPERTY maxDate',
 };

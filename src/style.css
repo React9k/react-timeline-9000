@@ -58,6 +58,26 @@
   background: #eeeeff;
 }
 
+.rct9k-horizontal-scrollbar-outter {
+  height: auto;
+  overflow-x: scroll;
+  width: 100%;
+}
+
+.rct9k-horizontal-scrollbar-inner {
+  height: 1px;
+}
+
+.rct9k-vertical-scrollbar-outter {
+  width: auto;
+  overflow-y: scroll;
+  height: 100%;
+}
+
+.rct9k-vertical-scrollbar-inner {
+  width: 1px;
+}
+
 .rct9k-background-layer-highlight-weekends {
   background: #fff7ee;
   opacity: 1;

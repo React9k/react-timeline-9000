@@ -8,7 +8,7 @@ import Measure from 'react-measure';
 import interact from 'interactjs';
 import _ from 'lodash';
 import {Button, Popup} from 'semantic-ui-react';
-import {Group, InteractOption, Item, RowLayer} from './index';
+import {Group, InteractOption, Item, RowLayer, getDurationFromPixels} from './index';
 
 import {TestsAreDemoCheat, createTestids} from '@famiprog-foundation/tests-are-demo';
 import {Marker} from './components/Marker';
@@ -41,12 +41,12 @@ import {
 import 'core-js/fn/string/starts-with';
 import SplitPane from 'react-split-pane';
 import 'fixed-data-table-2/dist/fixed-data-table.css';
-// TODO DB this is temporary. Created a copy because if we have used ItemRenderer file the default property for itemRenderer property
-// didn't work and it gets undefined
 import ItemRenderer from './components/ItemRenderer';
 import {SelectionHolder} from './utils/SelectionHolder';
 import {IGanttAction} from './types';
 import {ContextMenu} from './components/ContextMenu/ContextMenu';
+import moment from 'moment';
+import {Scrollbar} from './components/Scrollbar';
 
 const testids = createTestids('Timeline', {
   menuButton: '',
@@ -154,7 +154,7 @@ export default class Timeline extends React.Component {
      * By setting this property the gantt selection mechanism (mentioned above) is disabled, and the selected items are only the ones "dictated" by this property
      * @type { Array.<number | string> }
      */
-    selectedItems: PropTypes.arrayOf(PropTypes.number | PropTypes.string),
+    selectedItems: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.number, PropTypes.string])),
 
     /**
      * The component that is the item (segment) renderer. You can change the default component (i.e. `ItemRenderer`). We
@@ -233,16 +233,36 @@ export default class Timeline extends React.Component {
     rowOddClassName: PropTypes.string,
 
     /**
-     * Start of the displayed interval, as date (numeric/millis or moment object, cf. `useMoment`).
+     * The start of the displayed interval, as date (numeric/millis or moment object, cf. `useMoment`).
+     *
+     * This is only an initial value, because the display interval can change by horizontally srolling the diagram
      * @type {number | object}
      */
     startDate: PropTypes.oneOfType([PropTypes.number, PropTypes.object]).isRequired,
 
     /**
      * End of the displayed interval, as date (numeric/millis or moment object, cf. `useMoment`).
+     *
+     * This is only an initial value, because the display interval can change by horizontally srolling the diagram
      * @type { number | object }
      */
     endDate: PropTypes.oneOfType([PropTypes.number, PropTypes.object]).isRequired,
+
+    /**
+     * The minimum start of the display interval that can be reached by horizontally scrolling the gantt diagram
+     * If not provided, the `startDate` will also be the the minimum. So no scroll will be possible beyond `startDate`
+     *
+     * @type { number | object }
+     */
+    minDate: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
+
+    /**
+     * The maximum end of the display interval that can be reached by horizontally scrolling the gantt diagram.
+     * If not provided, the `endDate` will also be the the maximum. So no scroll will be possible beyond `endDate`
+     *
+     * @type { number | object }
+     */
+    maxDate: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
 
     /** If `false`, then when you "talk" dates/times to the Timeline, then you use
      * plain timestamps (i.e. number of millis, e.g. `new Date().valueOf()`). And this everywhere where
@@ -459,6 +479,8 @@ export default class Timeline extends React.Component {
     // in rtl9k:
     // useMoment: true,
     useMoment: false,
+    minDate: undefined,
+    maxDate: undefined,
     selectedItems: undefined,
     snap: undefined,
     timebarFormat: undefined,
@@ -531,7 +553,10 @@ export default class Timeline extends React.Component {
       scrollTop: 0,
       openedContextMenuCoordinates: undefined,
       openedContextMenuRow: undefined,
-      openedContextMenuTime: undefined
+      openedContextMenuTime: undefined,
+      startDate: this.props.startDate,
+      endDate: this.props.endDate,
+      hasVerticalScrollbar: false
     };
 
     // These functions need to be bound because they are passed as parameters.
@@ -559,6 +584,7 @@ export default class Timeline extends React.Component {
     this.updateDimensions = this.updateDimensions.bind(this);
     this.grid_ref_callback = this.grid_ref_callback.bind(this);
     this.table_ref_callback = this.table_ref_callback.bind(this);
+    this.horizontalScroll_ref_callback = this.horizontalScroll_ref_callback.bind(this);
     this.select_ref_callback = this.select_ref_callback.bind(this);
     this.selectionHolder_ref_callback = this.selectionHolder_ref_callback.bind(this);
     this.menuButton_ref_callback = this.menuButton_ref_callback.bind(this);
@@ -584,13 +610,18 @@ export default class Timeline extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setTimeMap(
-      nextProps.items,
-      convertDateToMoment(nextProps.startDate, nextProps.useMoment),
-      convertDateToMoment(nextProps.endDate, nextProps.useMoment),
-      nextProps.useMoment
-    );
+    if (this.props.startDate != nextProps.startDate || this.props.endDate != nextProps.endDate) {
+      this.setState({startDate: this.props.startDate, endDate: this.props.endDate});
+    } else {
+      this.setTimeMap(
+        nextProps.items,
+        convertDateToMoment(nextProps.startDate, nextProps.useMoment),
+        convertDateToMoment(nextProps.endDate, nextProps.useMoment),
+        nextProps.useMoment
+      );
+    }
     this.fillInTimelineWithEmptyRows(nextProps.groups);
+
     // @TODO
     // investigate if we need this, only added to refresh the grid
     // when double click -> add an item
@@ -615,6 +646,16 @@ export default class Timeline extends React.Component {
       const canResize = Timeline.isBitSet(Timeline.TIMELINE_MODES.RESIZE, timelineMode);
       this.setUpDragging(canSelect, canDrag, canResize);
     }
+
+    if (prevState.startDate != this.state.startDate || prevState.endDate != this.state.endDate) {
+      this.setTimeMap(
+        this.props.items,
+        convertDateToMoment(this.state.startDate, this.props.useMoment),
+        convertDateToMoment(this.state.endDate, this.props.useMoment),
+        this.props.useMoment
+      );
+      this.refreshGrid();
+    }
   }
 
   /**
@@ -633,7 +674,7 @@ export default class Timeline extends React.Component {
    * @return {moment}
    */
   getStartDate() {
-    return convertDateToMoment(this.props.startDate, this.props.useMoment);
+    return convertDateToMoment(this.state.startDate, this.props.useMoment);
   }
 
   /**
@@ -642,7 +683,33 @@ export default class Timeline extends React.Component {
    * @return {moment}
    */
   getEndDate() {
-    return convertDateToMoment(this.props.endDate, this.props.useMoment);
+    return convertDateToMoment(this.state.endDate, this.props.useMoment);
+  }
+
+  /**
+   * Min of the displayed interval (as moment object)
+   *
+   * @returns {moment}
+   */
+  getMinDate() {
+    if (this.props.minDate) {
+      return convertDateToMoment(this.props.minDate, this.props.useMoment);
+    } else {
+      return this.getStartDate();
+    }
+  }
+
+  /**
+   * Max of the displayed interval (as moment object)
+   *
+   * @returns {moment}
+   */
+  getMaxDate() {
+    if (this.props.maxDate) {
+      return convertDateToMoment(this.props.maxDate, this.props.useMoment);
+    } else {
+      return this.getEndDate();
+    }
   }
 
   /**
@@ -773,8 +840,18 @@ export default class Timeline extends React.Component {
         this.itemRowMap[item.key] = rowInt;
         this.rowItemMap[rowInt].push(item);
       });
+    });
+
+    let maxVisibleItems = _.filter(items, i => {
+      return (
+        this.getEndFromItem(i, useMoment) > this.getMinDate() && this.getStartFromItem(i, useMoment) < this.getMaxDate()
+      );
+    });
+    let maxVisibleItemsRows = _.groupBy(maxVisibleItems, 'row');
+    _.forEach(maxVisibleItemsRows, (maxVisibleItems, row) => {
+      const rowInt = parseInt(row);
       this.rowHeightCache[rowInt] = getMaxOverlappingItems(
-        visibleItems,
+        maxVisibleItems,
         this.getStartFromItem,
         this.getEndFromItem,
         useMoment
@@ -807,6 +884,9 @@ export default class Timeline extends React.Component {
       totalItemsHeight += (that.rowHeightCache[group.id] || 1) * that.props.itemHeight;
     });
     let heightToFillIn = this._grid.props.height - totalItemsHeight;
+
+    this.setState({hasVerticalScrollbar: heightToFillIn < 0});
+
     let fillInGroups = [];
 
     let groupId = groups.length;
@@ -1577,6 +1657,10 @@ export default class Timeline extends React.Component {
     this._table = reactComponent;
   }
 
+  horizontalScroll_ref_callback(reactComponent) {
+    this._horizontalScroll = reactComponent;
+  }
+
   /**
    * Testing pourpose
    * @param {*} splitPane
@@ -1811,6 +1895,16 @@ export default class Timeline extends React.Component {
     );
   }
 
+  onHorizontalScroll(scrollPosition) {
+    const displayIntervalInMiliseconds = this.getEndDate().diff(this.getStartDate(), 'milliseconds');
+    this.setState({startDate: this.props.useMoment ? moment(scrollPosition) : scrollPosition});
+    this.setState({
+      endDate: this.props.useMoment
+        ? moment(scrollPosition + displayIntervalInMiliseconds)
+        : scrollPosition + displayIntervalInMiliseconds
+    });
+  }
+
   renderGanttPart({bodyHeight, timebarHeight}) {
     const {
       showCursorTime,
@@ -1900,7 +1994,8 @@ export default class Timeline extends React.Component {
                   <TimelineBody
                     width={this.state.gridWidth}
                     columnWidth={() => this.state.gridWidth}
-                    height={bodyHeight}
+                    //TODO DB: remove this hardcode
+                    height={bodyHeight - 10}
                     rowHeight={this.rowHeight}
                     rowCount={this.state.groups.length}
                     columnCount={1}
@@ -1910,6 +2005,14 @@ export default class Timeline extends React.Component {
                     forceRedrawFunc={forceRedrawFunc}
                     onScroll={this.handleScrollGantt}
                   />
+                  <Scrollbar
+                    minScrollPosition={this.getMinDate().valueOf()}
+                    maxScrollPosition={this.getMaxDate().valueOf()}
+                    scrollPosition={this.getStartDate().valueOf()}
+                    pageSize={this.getEndDate().valueOf() - this.getStartDate().valueOf()}
+                    onScroll={scrollPosition => {
+                      this.onHorizontalScroll(scrollPosition);
+                    }}></Scrollbar>
                   {this.renderContextMenu()}
                   {backgroundLayer &&
                     React.cloneElement(backgroundLayer, {
