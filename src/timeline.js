@@ -46,7 +46,7 @@ import {SelectionHolder} from './utils/SelectionHolder';
 import {IGanttAction} from './types';
 import {ContextMenu} from './components/ContextMenu/ContextMenu';
 import moment from 'moment';
-import {Scrollbar} from './components/Scrollbar';
+import {SCROLLBAR_SIZE, Scrollbar} from './components/Scrollbar';
 
 const testids = createTestids('Timeline', {
   menuButton: '',
@@ -64,7 +64,7 @@ const testids = createTestids('Timeline', {
 export const timelineTestids = testids;
 
 const EMPTY_GROUP_KEY = 'empty-group';
-//TODO DB this was added by bogdan. From my understanding it reprezents the table vertical scrollbar width
+// This was added by bogdan. From my understanding it reprezents the table vertical scrollbar width
 // If we don't take in consideration this, a horizontal scrollbar appears
 export const TABLE_OFFSET = 15;
 export const DEFAULT_ITEM_HEIGHT = 40;
@@ -556,7 +556,8 @@ export default class Timeline extends React.Component {
       openedContextMenuTime: undefined,
       startDate: this.props.startDate,
       endDate: this.props.endDate,
-      hasVerticalScrollbar: false
+      hasHorizontalScrollbar: false,
+      touchPositionX: undefined
     };
 
     // These functions need to be bound because they are passed as parameters.
@@ -592,6 +593,9 @@ export default class Timeline extends React.Component {
     this.mouseMoveFunc = this.mouseMoveFunc.bind(this);
     this.mouseDownFunc = this.mouseDownFunc.bind(this);
     this.mouseUpFunc = this.mouseUpFunc.bind(this);
+    this.onTouchStart = this.onTouchStart.bind(this);
+    this.onTouchMove = this.onTouchMove.bind(this);
+    this.onTouchEnd = this.onTouchEnd.bind(this);
     this.getCursor = this.getCursor.bind(this);
     this.setVerticalGridLines = this.setVerticalGridLines.bind(this);
     this.handleScrollTable = this.handleScrollTable.bind(this);
@@ -885,8 +889,6 @@ export default class Timeline extends React.Component {
     });
     let heightToFillIn = this._grid.props.height - totalItemsHeight;
 
-    this.setState({hasVerticalScrollbar: heightToFillIn < 0});
-
     let fillInGroups = [];
 
     let groupId = groups.length;
@@ -1014,6 +1016,10 @@ export default class Timeline extends React.Component {
   // because the documnetation fails to be generated
   onDragStartSelect(clientX, clientY) {
     const nearestRowObject = getNearestRowObject(clientX, clientY);
+    if (nearestRowObject == null) {
+      // this happens when you start dragging from e.g. timebar
+      return;
+    }
     const startY = adjustRowTopPositionToViewport(nearestRowObject, nearestRowObject.getBoundingClientRect().y);
     // Add 2 to startY because on some occasions/browsers, when using document.elementsFromPonint(), it will return the wrong row if startY is used.
     // Adding 2 to it ensures that the point isn't shared with other row.
@@ -1049,6 +1055,10 @@ export default class Timeline extends React.Component {
     const magicalConstant = 2;
     const {startX, startY} = this._selectBox;
     const startRowObject = getNearestRowObject(startX, startY);
+    if (startRowObject == null) {
+      // this happens when you start dragging from e.g. timebar
+      return;
+    }
     const startXRowObject = startRowObject.getBoundingClientRect().x + 1;
     // select only row without group
     if (startXElement < startXRowObject) {
@@ -1639,7 +1649,7 @@ export default class Timeline extends React.Component {
     var tableRowHeight = this.rowHeight({index});
     let group = _.find(this.state.groups, g => g.id == index);
     if (group.rowHeight && group.key.startsWith(EMPTY_GROUP_KEY)) {
-      tableRowHeight = Math.round(tableRowHeight) - 2;
+      tableRowHeight = Math.round(tableRowHeight) + (this.state.hasHorizontalScrollbar ? SCROLLBAR_SIZE : 0) - 2;
     }
     return tableRowHeight;
   }
@@ -1765,6 +1775,51 @@ export default class Timeline extends React.Component {
       }
       this.setState({rightClickDraggingState: undefined});
     }
+  }
+
+  /**
+   * Toghether with `onTouchMove` and `onTouchEnd` implements the horizontal scroll by dragging the gantt diagram on mobile devices
+   *
+   * @param {*} e
+   */
+  onTouchStart(e) {
+    // We need only to threat touch events on TimelineBody and highligted intervals surface,
+    // but because TimelineBody is based on a third party component adding the handlers
+    // directly on these components was not possible easily (It needed to extend this Grid adding by adding a wrapper div on which to add the touch handlers)
+    // so we added the handler on the parent component and check inside of it to exclude other children like the scrollbar, or the timebar
+    if (
+      e.target.classList.contains('rct9k-horizontal-scrollbar-outter') ||
+      e.target.classList.contains('rct9k-timebar-item')
+    ) {
+      return;
+    }
+
+    const touch = e.touches[0];
+    this.setState({touchPositionX: touch.clientX});
+  }
+
+  /**
+   * Toghether with `onTouchStart` and `onTouchStart` implements the horizontal scroll by dragging the gantt diagram on mobile devices
+   *
+   * @param {*} e
+   */
+  onTouchMove(e) {
+    if (this.state.touchPositionX != undefined) {
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - this.state.touchPositionX;
+      this.setState({touchPositionX: touch.clientX});
+      this._scrollbar.scrollwithDelta(
+        getDurationFromPixels(deltaX, this.getStartDate(), this.getEndDate(), this.getTimelineWidth()).asMilliseconds()
+      );
+    }
+  }
+
+  /**
+   * Toghether with `onTouchStart` and `onTouchMove` implements the horizontal scroll by dragging the gantt diagram on mobile devices
+   *
+   */
+  onTouchEnd() {
+    this.setState({touchPositionX: undefined});
   }
 
   /**
@@ -1963,7 +2018,10 @@ export default class Timeline extends React.Component {
                       this.setState({dragCancel: true});
                       this._selectBox.end();
                     }
-                  }}>
+                  }}
+                  onTouchStart={this.onTouchStart}
+                  onTouchMove={this.onTouchMove}
+                  onTouchEnd={this.onTouchEnd}>
                   <SelectBox
                     ref={this.select_ref_callback}
                     className={this.getDragToCreateMode() ? 'rct9k-selector-outer-add' : ''}
@@ -1981,7 +2039,7 @@ export default class Timeline extends React.Component {
                   {markers.map(m => (
                     <Marker
                       key={m.key}
-                      height={this.state.screenHeight}
+                      height={this.state.screenHeight - (this.state.hasHorizontalScrollbar ? SCROLLBAR_SIZE : 0)}
                       top={0}
                       date={0}
                       shouldUpdate={true}
@@ -1994,8 +2052,7 @@ export default class Timeline extends React.Component {
                   <TimelineBody
                     width={this.state.gridWidth}
                     columnWidth={() => this.state.gridWidth}
-                    //TODO DB: remove this hardcode
-                    height={bodyHeight - 10}
+                    height={bodyHeight - (this.state.hasHorizontalScrollbar ? SCROLLBAR_SIZE : 0)}
                     rowHeight={this.rowHeight}
                     rowCount={this.state.groups.length}
                     columnCount={1}
@@ -2010,9 +2067,14 @@ export default class Timeline extends React.Component {
                     maxScrollPosition={this.getMaxDate().valueOf()}
                     scrollPosition={this.getStartDate().valueOf()}
                     pageSize={this.getEndDate().valueOf() - this.getStartDate().valueOf()}
+                    hasArrows={true}
                     onScroll={scrollPosition => {
                       this.onHorizontalScroll(scrollPosition);
-                    }}></Scrollbar>
+                    }}
+                    onVisibilityChange={isScrollbarVisible =>
+                      this.setState({hasHorizontalScrollbar: isScrollbarVisible})
+                    }
+                    ref={node => (this._scrollbar = node)}></Scrollbar>
                   {this.renderContextMenu()}
                   {backgroundLayer &&
                     React.cloneElement(backgroundLayer, {
@@ -2020,7 +2082,7 @@ export default class Timeline extends React.Component {
                       endDateTimeline: this.getEndDate(),
                       width: this.state.gridWidth,
                       leftOffset: 0,
-                      height: bodyHeight,
+                      height: bodyHeight - (this.state.hasHorizontalScrollbar ? SCROLLBAR_SIZE : 0),
                       topOffset: timebarHeight,
                       verticalGridLines: this.state.verticalGridLines
                     })}

@@ -62,7 +62,7 @@ export const HorizontalScrollBar = () => {
                     <Scrollbar pageSize={divWidth1} minScrollPosition={0} maxScrollPosition={divContentWidth1}
                         onScroll={(scrollPosition) => div1.current.scrollLeft = scrollPosition}/>
                     <Scrollbar pageSize={divWidth2} minScrollPosition={0} maxScrollPosition={divContentWidth2}
-                        onScroll={(scrollPosition) => div2.current.scrollLeft = scrollPosition}/>
+                        onScroll={(scrollPosition) => div2.current.scrollLeft = scrollPosition} hasArrows={true}/>
                 </SplitPane>
             </div>
         </>
@@ -124,7 +124,7 @@ export const VerticalScrollBar = () => {
                         <Scrollbar direction={Direction.VERTICAL} pageSize={divHeight1} minScrollPosition={0} maxScrollPosition={divContentHeight1}
                             onScroll={(scrollPosition) => div1.current.scrollTop = scrollPosition}/>
                         <Scrollbar direction={Direction.VERTICAL} pageSize={divHeight2} minScrollPosition={0} maxScrollPosition={divContentHeight2}
-                            onScroll={(scrollPosition) => div2.current.scrollTop = scrollPosition}/>
+                            onScroll={(scrollPosition) => div2.current.scrollTop = scrollPosition} hasArrows={true}/>
                     </SplitPane>
                 </div>
             </div>
