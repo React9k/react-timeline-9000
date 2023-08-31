@@ -1,8 +1,49 @@
 # Change Log
 
-## Unreleased
+## v2.2.4
+
+### Added
+
+* `forceDragToCreateMode` example in storybook
+* `forceDragToCreateMode` test case
+
+### Changed
+
+* [Modify selection trigger: from `click` to `mouseDown`](https://github.com/flower-platform/react-timeline-10000/pull/50)
+
+### Fixed
+
+* Drag to create rectangle was blue instead of green when `forceDragToCreateMode = true` 
+* [`selectedItems` parameter of `onSelectionChange` handler was `number[]` instead of `(number|string)[]`](https://github.com/flower-platform/react-timeline-10000/compare/master-flower-platform...flower-platform:react-timeline-10000:dana-RM31940-selectedItem-type-number-instead-of-number-or-string?expand=1)
+
+## v2.2.3
+
+### Fixed
+
+Right click selection didn't worked on custom segments with a complex children hierarchy
+
+## v2.2.2
+
+### Fixed
+
+* [Various small issues](https://github.com/flower-platform/react-timeline-10000/pull/47/files)
+  * drag to create popup auto-closing 
+  * visual improvements of the selected and hovered segments style
+  * Error in console when running an action without `run` property defined 
+  * Right clicking on one segments caused drag to select on the entire row
+  * A semantic-ui `Icon` can be passed to IAction.icon 
+  * On Firefox a thin blue line appeared on top of segments
+  * Improve storybook documentation for "drag to create" feature
+
+## v2.2.1
+
+### Added
 
 * [In some places, key of type string was not supported](https://github.com/flower-platform/react-timeline-10000/pull/40). Now keys of type `number | string` are supported.
+
+### Fixed
+
+* [Bug related to `key of type string was not supported`](https://github.com/flower-platform/react-timeline-10000/pull/45)
 
 ## v2.2.0
 

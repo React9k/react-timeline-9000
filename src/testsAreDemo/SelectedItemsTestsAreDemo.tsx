@@ -3,6 +3,7 @@ import { assert } from "chai";
 import { Selection, selectionStoryTestIds } from "../stories/contextMenuAndSelection/ContextMenuAndSelection.stories";
 import { someTasks } from "../stories/sampleData";
 import Timeline, { timelineTestids as testids } from "../timeline";
+import { rightClick } from "../utils/testUtils";
 
 /**
 * @author Daniela Buzatu
@@ -32,21 +33,21 @@ export class SelectedItemsTestsAreDemo {
         await tad.userEventWaitable.click(tad.screenCapturing.getByTestId(testids.row + "_1"));
 
         // WHEN right click, THEN element is selected
-        await tad.fireEventWaitable.contextMenu(tad.screenCapturing.getByTestId(testids.item + "_4"));
+        rightClick(tad.screenCapturing.getByTestId(testids.item + "_4"));
         await this.assertOnlyExpectedSegmentsAreSelected([4], true);
 
         // WHEN right click again on another element, THEN the new element is selected
-        await tad.fireEventWaitable.contextMenu(tad.screenCapturing.getByTestId(testids.item + "_5"));
+        rightClick(tad.screenCapturing.getByTestId(testids.item + "_5"));
         await this.assertOnlyExpectedSegmentsAreSelected([5], true);
 
         // WHEN right click again on same element, THEN the same element is selected
-        await tad.fireEventWaitable.contextMenu(tad.screenCapturing.getByTestId(testids.item + "_5"));
+        rightClick(tad.screenCapturing.getByTestId(testids.item + "_5"));
         await this.assertOnlyExpectedSegmentsAreSelected([5], true);
 
         // GIVEN many segments are selected, WHEN right click one of them THEN the selection doesn't change
         await tad.userEventWaitable.click(tad.screenCapturing.getByTestId(testids.item + "_1"));
         await tad.userEventWaitable.click(tad.screenCapturing.getByTestId(testids.item + "_2"), { ctrlKey: true });
-        await tad.fireEventWaitable.contextMenu(tad.screenCapturing.getByTestId(testids.item + "_1"));
+        rightClick(tad.screenCapturing.getByTestId(testids.item + "_1"));
         await this.assertOnlyExpectedSegmentsAreSelected([1, 2], true);
         
         // restore selection for the next scenario
@@ -83,20 +84,19 @@ export class SelectedItemsTestsAreDemo {
         await this.assertOnlyExpectedSegmentsAreSelected([0, 3], true);
 
         // WHEN right click + CTRL on another element, THEN the new element is added to selection
-        await tad.fireEventWaitable.contextMenu(tad.screenCapturing.getByTestId(testids.item + "_4"), { ctrlKey: true });
+        rightClick(tad.screenCapturing.getByTestId(testids.item + "_4"), { ctrlKey: true });
         await this.assertOnlyExpectedSegmentsAreSelected([0, 3, 4], true);
 
         // WHEN right click + CTRL on same element, THEN the selection doesn't change
-        tad.cc("Right click With CTRL Key pressed");
-        await tad.fireEventWaitable.contextMenu(tad.screenCapturing.getByTestId(testids.item + "_4"), { ctrlKey: true });
+        rightClick(tad.screenCapturing.getByTestId(testids.item + "_4"), { ctrlKey: true });
         await this.assertOnlyExpectedSegmentsAreSelected([0, 3, 4], true);
 
         // WHEN right click + SHIFT on another element, THEN the new element is added to selection
-        await tad.fireEventWaitable.contextMenu(tad.screenCapturing.getByTestId(testids.item + "_5"), { shiftKey: true });
+        rightClick(tad.screenCapturing.getByTestId(testids.item + "_5"), { shiftKey: true });
         await this.assertOnlyExpectedSegmentsAreSelected([0, 3, 4, 5], true);
 
         // WHEN right click + SHIFT on same element, THEN the selection doesn't change
-        await tad.fireEventWaitable.contextMenu(tad.screenCapturing.getByTestId(testids.item + "_5"), { shiftKey: true });
+        rightClick(tad.screenCapturing.getByTestId(testids.item + "_5"), { shiftKey: true });
         await this.assertOnlyExpectedSegmentsAreSelected([0, 3, 4, 5], true);
 
         // restore selection for the next scenario
@@ -130,11 +130,11 @@ export class SelectedItemsTestsAreDemo {
         await this.assertOnlyExpectedSegmentsAreSelected([0], true);
 
         // WHEN I right click outside + Ctrl key, THEN selection doesn't change
-        await tad.fireEventWaitable.contextMenu(tad.screenCapturing.getByTestId(testids.row + "_1"), { ctrlKey: true });
+        rightClick(tad.screenCapturing.getByTestId(testids.row + "_1"), { ctrlKey: true });
         await this.assertOnlyExpectedSegmentsAreSelected([0], true);
 
         // WHEN I click outside + Shift key, THEN selection doesn't change
-        await tad.fireEventWaitable.contextMenu(tad.screenCapturing.getByTestId(testids.row + "_1"), { shiftKey: true });
+        rightClick(tad.screenCapturing.getByTestId(testids.row + "_1"), { shiftKey: true });
         await this.assertOnlyExpectedSegmentsAreSelected([0], true);
         tad.demoForEndUserShow();
     }
@@ -151,10 +151,9 @@ export class SelectedItemsTestsAreDemo {
          //=======HIDDEN TESTS (Not interesting for the user)==========
          // GIVEN a segment is selected
          tad.demoForEndUserHide();
-         await tad.fireEventWaitable.contextMenu(tad.screenCapturing.getByTestId(testids.item + "_2"));
+         rightClick(tad.screenCapturing.getByTestId(testids.item + "_2"));
          // WHEN right click on row, THEN no segment is selected
-         await tad.fireEventWaitable.contextMenu(tad.screenCapturing.getByTestId(testids.row + "_1"));
-         await tad.showSpotlight({ message: "No segment is selected", focusOnLastElementCaptured: false });
+         rightClick(tad.screenCapturing.getByTestId(testids.row + "_1"));
          await this.assertOnlyExpectedSegmentsAreSelected([], true);
          tad.demoForEndUserShow();
     }
@@ -324,13 +323,13 @@ export class SelectedItemsTestsAreDemo {
 
     async assertOnlyExpectedSegmentsAreSelected(expectedSelectedSegments: number[], demoForEndUserHide?) {
         for (var i = 0; i < someTasks.length; i++) {
-            const segment = tad.screenCapturing.getByTestId(testids.item + "_" + i).getElementsByClassName("rct9k-items-inner")[0];
+            const segment = tad.screenCapturing.getByTestId(testids.item + "_" + i);
             if (expectedSelectedSegments.indexOf(i) >= 0) {
                 tad.cc("Segment " + i + " is selected (has resize anchors, brighter color and shadow effect)");
-                await tad.assertWaitable.include(Array.from(segment.classList), "rct9k-items-selected");
+                await tad.assertWaitable.include(Array.from(segment.classList), "rct9k-items-outer-selected");
             } else {
                 tad.demoForEndUserHide();
-                await tad.assertWaitable.notInclude(Array.from(segment.classList), "rct9k-items-selected");
+                await tad.assertWaitable.notInclude(Array.from(segment.classList), "rct9k-items-outer-selected");
                 !demoForEndUserHide && tad.demoForEndUserShow();
             }
         }

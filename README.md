@@ -167,5 +167,4 @@ Required props:
 | Timeline items                        | 3     |
 | Timeline items when dragging/resizing | 4     |
 | Selection box (for multi-select)      | 5     |
-| Group column                          | 6     |
 

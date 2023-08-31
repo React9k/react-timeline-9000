@@ -1,7 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import Color from 'color';
-import {Item} from '../index';
+import PropTypes from 'prop-types';
+import React from 'react';
+import {Item} from '../utils/itemUtils';
 
 const ITEM_RENDERER_CLS = 'rct9k-item-renderer';
 const ITEM_RENDERER_GLOW_CLS = 'rct9k-item-glow';
@@ -61,7 +61,7 @@ export default class ItemRenderer extends React.Component {
     /**
      * A number between 0 and 1; it represents the percentage by which `color` is lightened to obtain the second color used in the gradient.
      * @type { number }
-     * /
+     */
     gradientBrightness: PropTypes.number,
 
     /**
@@ -199,7 +199,12 @@ export default class ItemRenderer extends React.Component {
       ...this.props.style,
       color: this.getTextColor(),
       height: this.getHeight(),
-      background: this.getBackgroundGradient()
+      background: this.getBackgroundGradient(),
+      /**
+       * This was added as a workarround for: a blue line that appeared on top of the segments on Firefox:
+       * https://redmine.xops-online.com/issues/31861?issue_count=43&issue_position=1&next_issue_id=31842
+       */
+      backgroundRepeat: 'no-repeat'
     };
     return style;
   }

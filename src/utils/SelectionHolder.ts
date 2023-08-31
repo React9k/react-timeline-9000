@@ -64,7 +64,7 @@ export class SelectionHolder extends React.Component<SelectionHolderProps, Selec
       return;
     }
 
-    if (event.type == "contextmenu") {
+    if (event.type == "mousedown" && event.button == 2) {
       if (itemsKeys.length == 1 && this.state.selectedItems.includes(itemsKeys[0])) {
         // right click on a selected item => doesn't change the selection
         return;

@@ -1,0 +1,18 @@
+import { Meta, ArgsTable } from '@storybook/addon-docs';
+import Timeline from '../../timeline';
+import Column from '../../timeline';
+import { encodeApiDocURIForSubpath, parametersDocPage } from '../StorybookUtils';
+
+<Meta title="Features/Table/Doc"  />
+
+## Custom table
+ By default the gantt diagram doesn't have any associated table.
+ 
+You can add one table that will be displayed in the left side of the gantt diagram by setting the <code><a href={encodeApiDocURIForSubpath("/class/src/timeline.js~Timeline.html#propTypes")}>Timeline.table</a></code> property. It should be a <a href="https://github.com/schrodinger/fixed-data-table-2">fixed-data-table</a> component. You can check <a href="https://schrodinger.github.io/fixed-data-table-2/example-object-data.html">this page</a> for examples of table customizations. 
+  
+It is mandatory to have set a <code>width</code> for this table  
+
+**IMPORTANT:** The cell renderer of your custom table should take in consideration that there could be empty rows (without any data behind) added by gantt just for filling in the remaining empty space
+
+## `Timeline`
+  <ArgsTable of={Timeline} sort="none" include={["table"]}/>

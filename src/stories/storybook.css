@@ -30,3 +30,15 @@
 .story-custom-vertical-grid-class {
   border-left: 1px solid #209ad8 !important;
 }
+
+.story-custom-row {
+  border-bottom: 1px solid #94b9cf !important;
+}
+
+.story-custom-row-even {
+  background-color: #dbe8f0 !important;
+}
+
+.story-custom-row-odd {
+  background-color: #f4f7f8 !important;
+}

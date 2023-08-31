@@ -7,12 +7,7 @@ import Timeline from '../../timeline';
 import { IGanttAction, IGanttOnContextMenuShowParam, Item } from '../../types';
 import { d, someHumanResources, someTasks } from '../sampleData';
 import { contextMenuScenarios, selectionScenarios } from './ContextMenuAndSelectionScenarios';
-
-export const contextMenuStoryTestIds = createTestids('ContextMenuAndSelection', {
-    customRendererRadioSmall: '',
-    customRendererRadioMedium: '',
-    customRendererRadioLarge: ''
-})
+import { Table, Column, DataCell } from 'fixed-data-table-2';
 
 export default {
     title: 'Features/Context Menu And Selection',
@@ -43,10 +38,15 @@ export const ContextMenu = () => {
                                     isVisible: param => param.selection.length == 1,
                                     run: param => {
                                         param.dontCloseContextMenuAfterRunAutomatically = true;
+                                        // This timeout is just for exemplify a delayed closing of the CM 
                                         setTimeout(() => {
+                                            param.closeContextMenu();
                                             const selectedTask = tasks.find((task) => task.key == param.selection[0]);
-                                            let newTitle = prompt("Task new title:", selectedTask.title);
-                                            newTitle && setTasks(tasks.map((task) => task == selectedTask ? { ...task, title: newTitle } : task));
+                                            // This timeout for the menu to actual close before the prompt is shown
+                                            setTimeout(() => {
+                                                let newTitle = prompt("Task new title:", selectedTask.title);
+                                                newTitle && setTasks(tasks.map((task) => task == selectedTask ? { ...task, title: newTitle } : task));
+                                            }, 10);
                                         }, 10);
                                     }
                                 },
@@ -57,7 +57,9 @@ export const ContextMenu = () => {
                                      * e.g. maybe containing a color picker (for an action that changes the color of a segment)*/
                                     renderInMenu: (param) => {
                                         return <Menu.Item onClick={() => { 
-                                                        setTasks(tasks.filter(task => !param.selection.includes(task.key)));}}>        
+                                                            setTasks(tasks.filter(task => !param.selection.includes(task.key)));
+                                                            param.closeContextMenu();
+                                                        }}>        
                                                     <span style={{color: "red"}}>{deleteActionLabel}</span> 
                                                     <Icon name={deleteActionIcon} color={deleteActionIconColor}/>      
                                                 </Menu.Item>
@@ -67,12 +69,13 @@ export const ContextMenu = () => {
                             // We can filter the actions that will be displayed directly here in the actions provider    
                             if (contextMenuShowParam.actionParam.row < someHumanResources.length) {
                                 actions.splice(0, 0, {
-                                    icon: addTaskActionIcon,
+                                    icon: <Icon name={addTaskActionIcon} />,
                                     label: param => addTaskActionLabel + someHumanResources[param.row].title,
                                     run: param => { 
                                         let end = moment(param.time); 
-                                        end.hours(end.hours() + 3); 
-                                        setTasks([...tasks, { key: tasks.length, row: param.row, title: 'NEW TASK', start: param.time, end: end}]);
+                                        end.hours(end.hours() + 3);
+                                        const maxKey = tasks.reduce((maxKey, task) => maxKey > (task.key as number) ?  maxKey : (task.key as number), 0);
+                                        setTasks([...tasks, { key: maxKey + 1, row: param.row, title: 'NEW TASK', start: param.time, end: end}]);
                                     }
                                 });
                             } else {
@@ -80,7 +83,15 @@ export const ContextMenu = () => {
                         	}
 
                             return actions;
-                        }} />
+                        }} 
+                        table={<Table width={100} >
+                                    <Column
+                                        columnKey="title"
+                                        width={100}
+                                        header={<DataCell>Title</DataCell>}
+                                        cell={({rowIndex}) => <DataCell>{rowIndex < someHumanResources.length ? someHumanResources[rowIndex].title : ""}</DataCell>}/>
+                                </Table>}
+                        />
                 </div>
             </>);
 };
@@ -96,7 +107,7 @@ export const selectionStoryTestIds = createTestids('SelectionStory', {
 });
 
 export const Selection = () => {
-    const [selectedItems, setSelectedItems] = useState<number[]>([]);
+    const [selectedItems, setSelectedItems] = useState<(number|string)[]>([]);
     const [isSelectionForced, setIsSelectionForced] = useState<boolean>(false);
     return (
       <>
@@ -112,7 +123,14 @@ export const Selection = () => {
             2.setting selectedItems property */}
         <div style={{ display: 'flex', height: '400px' }}>
           <Timeline startDate={d('2018-09-20')} endDate={d('2018-09-21')} groups={someHumanResources} items={someTasks} 
-                    selectedItems={isSelectionForced ? [0, 1] : undefined} onSelectionChange={selectedItems => setSelectedItems(selectedItems)}/>
+                    selectedItems={isSelectionForced ? [0, 1] : undefined} onSelectionChange={selectedItems => setSelectedItems(selectedItems)}
+                    table={<Table width={100} >
+                                    <Column
+                                        columnKey="title"
+                                        width={100}
+                                        header={<DataCell>Title</DataCell>}
+                                        cell={({rowIndex}) => <DataCell>{rowIndex < someHumanResources.length ? someHumanResources[rowIndex].title : ""}</DataCell>}/>
+                                </Table>}/>
         </div>
       </>
     );

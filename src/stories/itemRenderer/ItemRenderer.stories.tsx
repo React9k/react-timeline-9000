@@ -6,7 +6,8 @@ import {d, someHumanResources, someTasks} from '../sampleData';
 import {itemRendererScenarios} from './ItemRendererScenarios';
 import {timelineScenarios} from '../TimelineScenarios';
 import { ComponentStory } from '@storybook/react';
-import { Item } from '../../index';
+import { Item } from '../../types';
+import { Table, Column, DataCell} from 'fixed-data-table-2';
 
 export default {
   title: 'Features/Item Renderer'
@@ -66,7 +67,14 @@ export const Main = () => {
           </>
         }
       />
-      <Timeline startDate={d('2018-09-20')} endDate={d('2018-09-21')} groups={someHumanResources} items={tasks} />
+      <Timeline startDate={d('2018-09-20')} endDate={d('2018-09-21')} groups={someHumanResources} items={tasks} 
+          table={<Table width={100}>
+                    <Column
+                        columnKey="title"
+                        width={100}
+                        header={<DataCell>Title</DataCell>}
+                        cell={({rowIndex}) => <DataCell>{rowIndex < someHumanResources.length ? someHumanResources[rowIndex].title : ""}</DataCell>}/>
+                </Table>}/>
     </>
   );
 };
@@ -100,6 +108,13 @@ export const DefaultPropsForItemRenderer = () => {
         endDate={d('2018-09-21')}
         groups={someHumanResources}
         items={someTasks}
+        table={<Table width={100} >
+                  <Column
+                      columnKey="title"
+                      width={100}
+                      header={<DataCell>Title</DataCell>}
+                      cell={({rowIndex}) => <DataCell>{rowIndex < someHumanResources.length ? someHumanResources[rowIndex].title : ""}</DataCell>}/>
+              </Table>}
         itemRendererDefaultProps={{
           className: 'story-custom-item-class',
           color: 'red'
@@ -209,6 +224,13 @@ export const CustomItemRenderer = () => {
         endDate={d('2018-09-21')}
         groups={someHumanResources}
         items={someTasks}
+        table={<Table width={100} >
+                  <Column
+                      columnKey="title"
+                      width={100}
+                      header={<DataCell>Title</DataCell>}
+                      cell={({rowIndex}) => <DataCell>{rowIndex < someHumanResources.length ? someHumanResources[rowIndex].title : ""}</DataCell>}/>
+              </Table>}
         itemRenderer={CustomItemRenderer}
       />
     </>

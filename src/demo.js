@@ -1,27 +1,34 @@
 'use strict';
 
-import React, {Component} from 'react';
-import moment from 'moment';
+import {Cell} from 'fixed-data-table-2';
+import React, {Fragment} from 'react';
 import _ from 'lodash';
+import moment from 'moment';
+import {Component} from 'react';
 
 import Timeline from './timeline';
-import {
-  CustomItemRenderer,
-  CustomGroupRenderer,
-  CustomCellRenderer,
-  CustomColumnHeaderRenderer
-} from './demo/customRenderers';
 
-import {Layout, Form, InputNumber, Button, DatePicker, Checkbox, Switch, Icon} from 'antd';
+import {Button, Checkbox, DatePicker, Form, Icon, InputNumber, Switch} from 'antd';
 import 'antd/dist/antd.css';
-import './style.css';
 import './stories/storybook.css';
+import './style.css';
+import {ItemRenderer} from '.';
+import {Table, Column, DataCell} from 'fixed-data-table-2';
+import {CustomItemRenderer} from './demo/customRenderers';
 
 const {TIMELINE_MODES} = Timeline;
 
 const ITEM_DURATIONS = [moment.duration(6, 'hours'), moment.duration(12, 'hours'), moment.duration(18, 'hours')];
 
 const COLORS = ['#0099cc', '#f03a36', '#06ad96', '#fce05b', '#dd5900', '#cc6699'];
+
+const headerStyle = {
+  color: '#000',
+  fontSize: '12px',
+  lineHeight: '1',
+  background: '#CCFFEE',
+  border: 'none'
+};
 
 // Moment timezones can be enabled using the following
 // import moment from 'moment-timezone';
@@ -44,7 +51,7 @@ export default class DemoTimeline extends Component {
       endDate,
       message: '',
       timelineMode: TIMELINE_MODES.SELECT | TIMELINE_MODES.DRAG | TIMELINE_MODES.RESIZE,
-      multipleColumnsMode: false,
+      useTable: true,
       useMoment: true
     };
     this.reRender = this.reRender.bind(this);
@@ -55,7 +62,7 @@ export default class DemoTimeline extends Component {
     this.toggleDraggable = this.toggleDraggable.bind(this);
     this.toggleResizable = this.toggleResizable.bind(this);
     this.toggleUseMoment = this.toggleUseMoment.bind(this);
-    this.toggleMultipleColumnsMode = this.toggleMultipleColumnsMode.bind(this);
+    this.toggleUseTable = this.toggleUseTable.bind(this);
   }
 
   componentWillMount() {
@@ -111,34 +118,9 @@ export default class DemoTimeline extends Component {
       }
     }
 
-    const tableColumns = [
-      // default renderers
-      {
-        width: 100,
-        headerLabel: 'Title',
-        labelProperty: 'title'
-      },
-      // custom renderers: react elements
-      {
-        width: 250,
-        cellRenderer: <Checkbox>Checkbox</Checkbox>,
-        headerRenderer: (
-          <span>
-            <Icon type="check-circle" /> Custom check
-          </span>
-        )
-      },
-      // custom renderers: class component
-      {
-        width: 100,
-        headerRenderer: CustomColumnHeaderRenderer,
-        cellRenderer: CustomCellRenderer
-      }
-    ];
-
     // this.state = {selectedItems: [11, 12], groups, items: list};
     this.forceUpdate();
-    this.setState({items: list, groups, tableColumns, useMoment});
+    this.setState({items: list, groups, useMoment});
   }
 
   handleRowClick = (e, rowNumber, clickedTime, snappedClickedTime) => {
@@ -179,10 +161,12 @@ export default class DemoTimeline extends Component {
     const {useMoment} = this.state;
     this.reRender(!useMoment);
   }
-  toggleMultipleColumnsMode() {
-    const {multipleColumnsMode} = this.state;
-    this.setState({multipleColumnsMode: !multipleColumnsMode});
+
+  toggleUseTable() {
+    const {useTable} = this.state;
+    this.setState({useTable: !useTable});
   }
+
   handleItemClick = (e, key) => {
     const message = `Item Click ${key}`;
     const {selectedItems} = this.state;
@@ -303,8 +287,7 @@ export default class DemoTimeline extends Component {
       useCustomRenderers,
       timelineMode,
       useMoment,
-      multipleColumnsMode,
-      tableColumns
+      useTable
     } = this.state;
     const rangeValue = [startDate, endDate];
 
@@ -313,6 +296,7 @@ export default class DemoTimeline extends Component {
     const resizeable = (TIMELINE_MODES.RESIZE & timelineMode) === TIMELINE_MODES.RESIZE;
 
     const rowLayers = [];
+
     for (let i = 0; i < rows; i += 1) {
       if (i % 5 === 0 && i !== 0) {
         continue;
@@ -344,7 +328,6 @@ export default class DemoTimeline extends Component {
         curDate.add(bandDuration, 'days');
       }
     }
-
     return (
       <div className="demo">
         <div style={{margin: 24}}>
@@ -403,8 +386,8 @@ export default class DemoTimeline extends Component {
               </Checkbox>
             </Form.Item>
             <Form.Item>
-              <Checkbox onChange={this.toggleMultipleColumnsMode} checked={multipleColumnsMode}>
-                Multiple columns mode
+              <Checkbox onChange={this.toggleUseTable} checked={useTable}>
+                Use table
               </Checkbox>
             </Form.Item>
           </Form>
@@ -420,7 +403,43 @@ export default class DemoTimeline extends Component {
           useMoment={useMoment}
           startDate={useMoment ? startDate : startDate.valueOf()}
           endDate={useMoment ? endDate : endDate.valueOf()}
-          tableColumns={multipleColumnsMode ? tableColumns : []}
+          table={
+            useTable ? (
+              <Table rowHeight={50} width={300} isColumnResizing={true}>
+                <Column
+                  key={0}
+                  columnKey={0}
+                  width={100}
+                  header={<DataCell style={headerStyle}>Title</DataCell>}
+                  cell={({rowIndex}) => <DataCell>{rowIndex < groups.length ? groups[rowIndex].title : ''}</DataCell>}
+                />
+                <Column
+                  key={1}
+                  columnKey={1}
+                  width={100}
+                  header={
+                    <DataCell style={headerStyle}>
+                      <Icon type="check-circle" /> <span>Custom check</span>
+                    </DataCell>
+                  }
+                  cell={({rowIndex}) => (
+                    <DataCell>{rowIndex < groups.length ? <Checkbox> Checkbox </Checkbox> : ''}</DataCell>
+                  )}
+                />
+                <Column
+                  key={2}
+                  columnKey={2}
+                  width={100}
+                  header={<DataCell style={headerStyle}>Description</DataCell>}
+                  cell={({rowIndex}) => (
+                    <DataCell>{rowIndex < groups.length ? groups[rowIndex].description : ''}</DataCell>
+                  )}
+                />
+              </Table>
+            ) : (
+              undefined
+            )
+          }
           rowLayers={rowLayers}
           selectedItems={selectedItems}
           timelineMode={timelineMode}
@@ -432,9 +451,7 @@ export default class DemoTimeline extends Component {
           onRowClick={this.handleRowClick}
           onRowContextClick={this.handleRowContextClick}
           onRowDoubleClick={this.handleRowDoubleClick}
-          itemRenderer={useCustomRenderers ? CustomItemRenderer : undefined}
-          groupRenderer={useCustomRenderers ? CustomGroupRenderer : undefined}
-          groupTitleRenderer={useCustomRenderers ? () => <div>Group title</div> : undefined}
+          itemRenderer={useCustomRenderers ? CustomItemRenderer : ItemRenderer}
         />
       </div>
     );

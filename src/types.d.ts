@@ -1,18 +1,5 @@
 import { IAction, IActionParam, IActionParamForRun, IOnContextMenuShowParam } from "./components/ContextMenu/IAction"
 
-/**
- * Most of the JS classes/functions have type information as JSDoc (included in the corresponding comments).
- * For some types this was not possible (e.g. because we didn't have actual classes), hence we define them here.
- * They are "included" by the class Timeline.
- */
-export type Column = {
-    labelProperty: string,
-    cellRenderer: Function | JSX.Element,
-    headerLabel: string,
-    headerRenderer: Function | JSX.Element,
-    width: number
-}
-
 export type Group = {
     id: number,
     title?: string
@@ -64,10 +51,10 @@ export interface IGanttActionParam extends IActionParam {
      * numeric/millis or moment object, cf. `timeline.useMoment`
      */
     time: number | object;
+    selection: (number | string)[];
 }
 
 export interface IGanttActionParamForRun extends IGanttActionParam, IActionParamForRun {
-    selection: (number | string)[];
 }
 
 export interface IGanttAction extends IAction {

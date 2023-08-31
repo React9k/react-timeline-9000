@@ -1,6 +1,6 @@
 {
   "name": "@crispico/react-timeline-10000",
-  "version": "2.2.0",
+  "version": "2.2.4",
   "description": "Performance focused timeline for react",
   "private": false,
   "types": "./types/index.d.ts",
@@ -16,7 +16,8 @@
     "storybook-build": "yarn tsc && yarn docs && build-storybook",
     "storybook-move": "rm -r ../flower-platform.github.io/foundation-react-gantt; mv storybook-static ../flower-platform.github.io/foundation-react-gantt",
     "storybook-build-move": "yarn storybook-build && yarn storybook-move",
-    "tsc": "tsc && cp src/types.d.ts types/types.d.ts"
+    "tsc": "tsc && cp src/types.d.ts types/types.d.ts",
+    "dev": "vite"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,json,css}": [
@@ -41,12 +42,13 @@
   "homepage": "https://github.com/flower-platform/react-timeline-10000",
   "devDependencies": {
     "@babel/cli": "^7.0.0",
-    "@famiprog-foundation/tests-are-demo": "^0.10.3",
+    "@famiprog-foundation/tests-are-demo": "^0.10.5",
     "@storybook/addon-actions": "^6.3.11",
     "@storybook/addon-essentials": "^6.3.11",
     "@storybook/addon-links": "^6.3.11",
     "@storybook/addon-storysource": "^6.5.12",
     "@storybook/react": "^6.3.11",
+    "@vitejs/plugin-react": "^4.0.3",
     "antd": "^3.6.5",
     "babel-loader": "^8.2.5",
     "chai": "^4.1.2",
@@ -75,6 +77,8 @@
     "ts-loader": "^9.4.2",
     "typescript": "~4.6.0",
     "uglifyjs-webpack-plugin": "^2.2.0",
+    "vite": "^4.4.7",
+    "vite-plugin-node-polyfills": "^0.9.0",
     "webpack": "^5.67.0",
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^4.7.3",
@@ -84,11 +88,13 @@
     "@babel/plugin-transform-runtime": "^7.21.0",
     "color": "^4.2.3",
     "core-js": "^2.4.0",
+    "fixed-data-table-2": "^1.2.17",
     "interactjs": "^1.6.2",
     "lodash": "^4.17.19",
     "moment": "^2.22.2",
     "pretty-format": "^29.5.0",
     "react-measure": "^2.5.2",
+    "react-split-pane": "^0.1.92",
     "react-virtualized": "^9.19.1",
     "typedoc": "^0.24.8"
   },
