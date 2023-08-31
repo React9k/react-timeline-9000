@@ -11,6 +11,11 @@
   position: relative;
 }
 
+.rct9k-background-layer-highlight-weekends {
+  background: #fff7ee;
+  opacity: 1;
+}
+
 .rct9k-background-layer-vertical-grid {
   position: absolute;
   overflow: hidden;
@@ -49,18 +54,81 @@
   font-size: small;
 }
 
-.rct9k-timebar-item:first-child {
-  border: 0 !important;
-}
-
 .rct9k-highlighted-interval {
   position: absolute;
   background: #eeeeff;
 }
 
-.rct9k-background-layer-highlight-weekends {
-  background: #fff7ee;
-  opacity: 1;
+.rct9k-horizontal-scrollbar-outter {
+  overflow-x: scroll;
+  overflow-y: hidden;
+  width: 100%;
+}
+
+.rct9k-horizontal-scrollbar-inner {
+  height: 1px;
+}
+
+.rct9k-horizontal-scrollbar-outter.rct9k-scrollbar-with-arrows::-webkit-scrollbar-button:horizontal:decrement {
+  background: url(resources/horizontal-decrement-arrow.png), #acacac;
+  background-repeat: no-repeat, repeat-x;
+  background-position: 3px 2px, 0 0;
+}
+
+.rct9k-horizontal-scrollbar-outter.rct9k-scrollbar-with-arrows::-webkit-scrollbar-button:horizontal:decrement:hover {
+  background: url(resources/horizontal-decrement-arrow.png), #919699;
+  background-repeat: no-repeat, repeat-x;
+  background-position: 3px 2px, 0 0;
+}
+
+.rct9k-horizontal-scrollbar-outter.rct9k-scrollbar-with-arrows::-webkit-scrollbar-button:horizontal:increment {
+  background: url(resources/horizontal-increment-arrow.png), #acacac;
+  background-repeat: no-repeat, repeat-x;
+  background-position: 5px 2px, 0 0;
+}
+
+.rct9k-horizontal-scrollbar-outter.rct9k-scrollbar-with-arrows::-webkit-scrollbar-button:horizontal:increment:hover {
+  background: url(resources/horizontal-increment-arrow.png), #919699;
+  background-repeat: no-repeat, repeat-x;
+  background-position: 5px 2px, 0 0;
+}
+
+.rct9k-vertical-scrollbar-outter {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  height: 100%;
+}
+
+.rct9k-vertical-scrollbar-inner {
+  width: 1px;
+}
+
+.rct9k-vertical-scrollbar-outter.rct9k-scrollbar-with-arrows::-webkit-scrollbar-button:vertical:decrement {
+  background: url(resources/vertical-decrement-arrow.png), #acacac;
+  background-repeat: no-repeat, repeat-x;
+  background-position: 2px 4px, 0 0;
+}
+
+.rct9k-vertical-scrollbar-outter.rct9k-scrollbar-with-arrows::-webkit-scrollbar-button:vertical:decrement:hover {
+  background: url(resources/vertical-decrement-arrow.png), #919699;
+  background-repeat: no-repeat, repeat-x;
+  background-position: 2px 4px, 0 0;
+}
+
+.rct9k-vertical-scrollbar-outter.rct9k-scrollbar-with-arrows::-webkit-scrollbar-button:vertical:increment {
+  background: url(resources/vertical-increment-arrow.png), #acacac;
+  background-repeat: no-repeat, repeat-x;
+  background-position: 2px 5px, 0 0;
+}
+
+.rct9k-vertical-scrollbar-outter.rct9k-scrollbar-with-arrows::-webkit-scrollbar-button:vertical:increment:hover {
+  background: url(resources/vertical-increment-arrow.png), #919699;
+  background-repeat: no-repeat, repeat-x;
+  background-position: 2px 5px, 0 0;
+}
+
+.rct9k-timebar-item:first-child {
+  border: 0 !important;
 }
 
 .rct9k-timeline-div {

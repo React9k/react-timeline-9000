@@ -49,6 +49,8 @@ export default class DemoTimeline extends Component {
       snap: 60,
       startDate,
       endDate,
+      minDate: moment('2018-07-31'),
+      maxDate: moment('2018-10-30'),
       message: '',
       timelineMode: TIMELINE_MODES.SELECT | TIMELINE_MODES.DRAG | TIMELINE_MODES.RESIZE,
       useTable: true,
@@ -92,8 +94,7 @@ export default class DemoTimeline extends Component {
         // let start = last_moment;
         let start = moment(
           Math.floor(
-            Math.random() * (this.state.endDate.valueOf() - this.state.startDate.valueOf()) +
-              this.state.startDate.valueOf()
+            Math.random() * (this.state.maxDate.valueOf() - this.state.minDate.valueOf()) + this.state.minDate.valueOf()
           )
         );
         let end = start.clone().add(duration);
@@ -281,6 +282,8 @@ export default class DemoTimeline extends Component {
       snap,
       startDate,
       endDate,
+      minDate,
+      maxDate,
       items,
       groups,
       message,
@@ -290,6 +293,7 @@ export default class DemoTimeline extends Component {
       useTable
     } = this.state;
     const rangeValue = [startDate, endDate];
+    const minMaxRangeValue = [minDate, maxDate];
 
     const selectable = (TIMELINE_MODES.SELECT & timelineMode) === TIMELINE_MODES.SELECT;
     const draggable = (TIMELINE_MODES.DRAG & timelineMode) === TIMELINE_MODES.DRAG;
@@ -351,6 +355,16 @@ export default class DemoTimeline extends Component {
                 }}
               />
             </Form.Item>
+            <Form.Item label="Min Max Range">
+              <DatePicker.RangePicker
+                allowClear={false}
+                value={minMaxRangeValue}
+                showTime
+                onChange={e => {
+                  this.setState({minDate: e[0], maxDate: e[1]}, () => this.reRender());
+                }}
+              />
+            </Form.Item>
             <Form.Item>
               <Button type="primary" onClick={() => this.reRender()}>
                 Regenerate
@@ -403,6 +417,8 @@ export default class DemoTimeline extends Component {
           useMoment={useMoment}
           startDate={useMoment ? startDate : startDate.valueOf()}
           endDate={useMoment ? endDate : endDate.valueOf()}
+          minDate={useMoment ? minDate : minDate.valueOf()}
+          maxDate={useMoment ? maxDate : maxDate.valueOf()}
           table={
             useTable ? (
               <Table rowHeight={50} width={300} isColumnResizing={true}>
