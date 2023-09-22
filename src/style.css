@@ -21,12 +21,14 @@
   overflow: hidden;
   z-index: 3;
 }
+
 .rct9k-items-inner {
   display: inline-block;
   margin: 3px;
   padding: 3px;
   width: 100%;
 }
+
 .rct9k-marker-overlay {
   z-index: 2;
   height: 475px;
@@ -35,9 +37,11 @@
   background: red;
   pointer-events: none;
 }
+
 .rct9k-item-renderer-inner {
   pointer-events: none;
 }
+
 .rct9k-row {
   /* white-space: nowrap; */
   box-sizing: border-box;
@@ -60,6 +64,8 @@
 
 /* Timeline groups */
 .rct9k-group {
+  display: flex;
+  align-items: center;
   text-align: center;
   box-sizing: border-box;
   border: 1px solid black;
@@ -67,6 +73,22 @@
   border-right: 0;
   background-color: white;
   z-index: 6;
+}
+
+.rct9k-group__resizeHandle {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  cursor: col-resize;
+  width: 12px;
+  height: 100%;
+}
+
+.rct9k-group__resizeHandle > div {
+  background-color: orange;
+  width: 2px;
+  height: 100%;
 }
 
 .rct9k-timebar {
@@ -81,14 +103,17 @@
   border: 1px solid black;
   box-sizing: border-box;
 }
+
 .rct9k-timebar-outer {
   border-left: none;
 }
+
 .rct9k-timebar-inner {
   height: 30px;
   white-space: nowrap;
   overflow: hidden;
 }
+
 .rct9k-timebar-item {
   text-align: center;
   display: inline-block;
@@ -96,6 +121,7 @@
   white-space: nowrap;
   box-sizing: border-box;
 }
+
 .rct9k-timebar-item-selected {
   background-color: lightblue;
 }
