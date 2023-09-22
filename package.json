@@ -87,6 +87,7 @@
     "interactjs": "^1.6.2",
     "lodash": "^4.17.19",
     "moment": "^2.22.2",
+    "react-draggable": "^4.4.5",
     "react-virtualized": "^9.19.1"
   },
   "peerDependencies": {

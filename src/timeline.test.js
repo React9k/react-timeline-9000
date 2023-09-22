@@ -3,9 +3,9 @@ import React from 'react';
 import {shallow} from 'enzyme';
 import {expect} from 'chai';
 
-import setup from 'setupTests';
+import setup from './setupTests';
 
-import Timeline from 'timeline';
+import Timeline from './timeline';
 
 // describe('<Timeline/>', function() {
 //   it('should have text', function() {

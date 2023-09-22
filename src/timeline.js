@@ -1,42 +1,42 @@
 'use strict';
 
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 import ReactDOM from 'react-dom';
-import {Grid, AutoSizer, defaultCellRangeRenderer} from 'react-virtualized';
+import {AutoSizer} from 'react-virtualized';
 
-import moment from 'moment';
 import interact from 'interactjs';
-import _ from 'lodash';
+import _, {debounce} from 'lodash';
 
-import {pixToInt, intToPix, sumStyle} from './utils/commonUtils';
-import {
-  rowItemsRenderer,
-  rowLayerRenderer,
-  getNearestRowNumber,
-  getNearestRowObject,
-  getMaxOverlappingItems,
-  getTrueBottom,
-  getVerticalMarginBorder,
-  getRowObjectRowNumber
-} from './utils/itemUtils';
-import {
-  timeSnap,
-  getTimeAtPixel,
-  getPixelAtTime,
-  getSnapPixelFromDelta,
-  pixelsPerMillisecond,
-  convertDateToMoment,
-  convertMomentToDateType
-} from './utils/timeUtils';
-import Timebar from './components/timebar';
-import SelectBox from './components/selector';
-import {DefaultGroupRenderer, DefaultItemRenderer} from './components/renderers';
 import TimelineBody from './components/body';
 import Marker from './components/marker';
+import {DefaultGroupRenderer, DefaultItemRenderer} from './components/renderers';
+import SelectBox from './components/selector';
+import Timebar from './components/timebar';
+import {intToPix, pixToInt} from './utils/commonUtils';
+import {
+  getMaxOverlappingItems,
+  getNearestRowNumber,
+  getNearestRowObject,
+  getRowObjectRowNumber,
+  getTrueBottom,
+  getVerticalMarginBorder,
+  rowItemsRenderer,
+  rowLayerRenderer
+} from './utils/itemUtils';
+import {
+  convertDateToMoment,
+  convertMomentToDateType,
+  getPixelAtTime,
+  getSnapPixelFromDelta,
+  getTimeAtPixel,
+  pixelsPerMillisecond,
+  timeSnap
+} from './utils/timeUtils';
 
 // startsWith polyfill for IE11 support
 import 'core-js/fn/string/starts-with';
+import Draggable, {DraggableCore} from 'react-draggable';
 
 const SINGLE_COLUMN_LABEL_PROPERTY = 'title';
 
@@ -81,7 +81,9 @@ export default class Timeline extends React.Component {
         // or a function or a class component that generates a React element.
         headerLabel: PropTypes.string,
         headerRenderer: PropTypes.oneOfType([PropTypes.func, PropTypes.element]),
-        width: PropTypes.number // width of the column in px
+        width: PropTypes.number, // width of the column in px
+        minWidth: PropTypes.number,
+        maxWidth: PropTypes.number
       })
     ),
     rowLayers: PropTypes.arrayOf(
@@ -184,7 +186,12 @@ export default class Timeline extends React.Component {
   constructor(props) {
     super(props);
     this.selecting = false;
-    this.state = {selection: [], cursorTime: null};
+    this.state = {
+      selection: [],
+      cursorTime: null,
+      gridWidth: 0,
+      timelineWidth: 0
+    };
 
     // These functions need to be bound because they are passed as parameters.
     // getStartFromItem and getEndFromItem are used in rowItemsRenderer function
@@ -213,6 +220,12 @@ export default class Timeline extends React.Component {
     this.throttledMouseMoveFunc = _.throttle(this.throttledMouseMoveFunc.bind(this), 20);
     this.mouseMoveFunc = this.mouseMoveFunc.bind(this);
     this.getCursor = this.getCursor.bind(this);
+
+    this.tableColumnWidthOverrides = [];
+    this.debouncedUpdateDimensions = debounce(this.updateDimensions, 100, {
+      maxWait: 200,
+      trailing: true
+    }).bind(this);
 
     const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, this.props.timelineMode);
     const canDrag = Timeline.isBitSet(Timeline.TIMELINE_MODES.DRAG, this.props.timelineMode);
@@ -254,6 +267,20 @@ export default class Timeline extends React.Component {
       const canDrag = Timeline.isBitSet(Timeline.TIMELINE_MODES.DRAG, timelineMode);
       const canResize = Timeline.isBitSet(Timeline.TIMELINE_MODES.RESIZE, timelineMode);
       this.setUpDragging(canSelect, canDrag, canResize);
+    }
+
+    if (
+      this.tableColumnWidthOverrides.length === 0 ||
+      prevProps.tableColumns.length !== this.props.tableColumns.length ||
+      (this.props.tableColumns?.length > 0 && this.props.tableColumns?.length !== this.tableColumnWidthOverrides.length)
+    ) {
+      this.tableColumnWidthOverrides = this.props.tableColumns.map(x => Math.max(this.props.groupOffset, x.width));
+
+      if (this.tableColumnWidthOverrides.length === 0) {
+        this.tableColumnWidthOverrides.push(this.props.groupOffset);
+      }
+
+      this.updateDimensions();
     }
   }
 
@@ -357,11 +384,10 @@ export default class Timeline extends React.Component {
    * Re-renders the grid when the window or container is resized
    */
   updateDimensions() {
-    clearTimeout(this.resizeTimeout);
-    this.resizeTimeout = setTimeout(() => {
+    setTimeout(() => {
       this.forceUpdate();
       this._grid.recomputeGridSize();
-    }, 100);
+    }, 0);
   }
 
   /**
@@ -467,8 +493,14 @@ export default class Timeline extends React.Component {
    * @returns {number} The width in pixels
    */
   getTimelineWidth(totalWidth) {
-    if (totalWidth !== undefined) return totalWidth - this.calculateLeftOffset();
-    return this._grid.props.width - this.calculateLeftOffset();
+    let width = totalWidth;
+    if (!width) {
+      if (this._grid) {
+        width = this._grid.props.width;
+      }
+    }
+
+    return width - this.calculateLeftOffset();
   }
 
   /**
@@ -488,7 +520,16 @@ export default class Timeline extends React.Component {
    * @param {Object?} config Config to pass wo react-virtualized's compute func
    */
   refreshGrid = (config = {}) => {
-    this._grid.recomputeGridSize(config);
+    this.setState(
+      {
+        ...this.state,
+        gridWidth: config.width,
+        timelineWidth: config.width - this.calculateLeftOffset()
+      },
+      () => {
+        this._grid.recomputeGridSize(config);
+      }
+    );
   };
 
   setUpDragging(canSelect, canDrag, canResize) {
@@ -888,7 +929,7 @@ export default class Timeline extends React.Component {
   /**
    * @param {number} width container width (in px)
    */
-  cellRenderer(width) {
+  cellRenderer() {
     /**
      * @param  {} columnIndex Always 1
      * @param  {} key Unique key within array of cells
@@ -896,9 +937,13 @@ export default class Timeline extends React.Component {
      * @param  {} rowIndex Vertical (row) index of cell
      * @param  {} style Style object to be applied to cell (to position it);
      */
+
     const {timelineMode, onItemHover, onItemLeave, rowLayers} = this.props;
     const canSelect = Timeline.isBitSet(Timeline.TIMELINE_MODES.SELECT, timelineMode);
+
     return ({columnIndex, key, parent, rowIndex, style}) => {
+      const width = window.innerWidth - this.calculateLeftOffset();
+
       // the items column is the last column in the grid; itemCol is the index of this column
       let itemCol = this.props.tableColumns && this.props.tableColumns.length > 0 ? this.props.tableColumns.length : 1;
       if (itemCol == columnIndex) {
@@ -972,14 +1017,46 @@ export default class Timeline extends React.Component {
         let group = _.find(this.props.groups, g => g.id == rowIndex);
         return (
           <div data-row-index={rowIndex} key={key} style={style} className="rct9k-group">
-            {React.isValidElement(ColumnRenderer) && ColumnRenderer}
-            {!React.isValidElement(ColumnRenderer) && (
-              <ColumnRenderer group={group} labelProperty={labelProperty} rowIndex={rowIndex} />
-            )}
+            <div style={{flexGrow: 1}}>
+              {React.isValidElement(ColumnRenderer) && ColumnRenderer}
+              {!React.isValidElement(ColumnRenderer) && (
+                <ColumnRenderer group={group} labelProperty={labelProperty} rowIndex={rowIndex} />
+              )}
+            </div>
+
+            <DraggableCore
+              axis="x"
+              bounds={{
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 4 * this.props.groupOffset
+              }}
+              grid={[32, 1024]}
+              onDrag={(e, data) => this.handleColumnDrag(e, data, columnIndex)}
+              allowAnyClick={false}>
+              <div className="rct9k-group__resizeHandle">
+                <div></div>
+                <div></div>
+              </div>
+            </DraggableCore>
           </div>
         );
       }
     };
+  }
+
+  handleColumnDrag(e, data, columnIndex) {
+    if (data.deltaX === 0 && data.deltaY !== 0) {
+      return;
+    }
+
+    this.tableColumnWidthOverrides[columnIndex] = Math.max(
+      this.props.groupOffset,
+      Math.min(this.props.groupOffset * 4, (this.tableColumnWidthOverrides[columnIndex] || 0) + data.deltaX)
+    );
+
+    this.debouncedUpdateDimensions();
   }
 
   getCursor() {
@@ -1052,16 +1129,21 @@ export default class Timeline extends React.Component {
    * @returns left offset
    */
   calculateLeftOffset() {
-    const {tableColumns, groupOffset} = this.props;
-    if (!tableColumns || tableColumns.length == 0) {
-      return groupOffset;
+    if (!!this.props.tableColumns && this.props.tableColumns.length > 0) {
+      return (
+        this.props.tableColumns
+          .map((c, i) => {
+            return this.tableColumnWidthOverrides[i] || c.width || this.props.groupOffset;
+          })
+          .reduce((a, b) => a + b, 0) || this.props.groupOffset
+      );
     }
 
-    let totalOffset = 0;
-    tableColumns.forEach(column => {
-      totalOffset += column.width ? column.width : groupOffset;
-    });
-    return totalOffset;
+    if (this.tableColumnWidthOverrides.length > 0) {
+      return this.tableColumnWidthOverrides.reduce((a, b) => a + b, 0) || this.props.groupOffset;
+    }
+
+    return this.props.groupOffset;
   }
 
   render() {
@@ -1086,30 +1168,25 @@ export default class Timeline extends React.Component {
     if (bottomResolution) varTimebarProps['bottom_resolution'] = bottomResolution;
     if (topResolution) varTimebarProps['top_resolution'] = topResolution;
 
-    function getColumnWidth(column) {
-      return column.width ? column.width : groupOffset;
-    }
+    // function getColumnWidth(column) {
+    //   return column.width ? column.width : groupOffset;
+    // }
 
     function columnWidth(width) {
       return ({index}) => {
-        // The width of the first column when tableColumns is not defined is groupOffset.
-        if (index == 0 && (!that.props.tableColumns || that.props.tableColumns.length == 0)) return groupOffset;
+        if (index === 0 && (!that.props.tableColumns || that.props.tableColumns.length === 0)) {
+          return that.tableColumnWidthOverrides[0] || groupOffset;
+        }
 
-        // The width of the last column is width minus the left offset.
-        // The left offset is groupOffset when tableColumns is not defined or
-        // the sum of the widths of all tableColumns.
-        let leftOffset = groupOffset;
-        if (that.props.tableColumns && that.props.tableColumns.length > 0) {
+        if (!!that.props.tableColumns && that.props.tableColumns.length > 0) {
           if (index < that.props.tableColumns.length) {
-            return getColumnWidth(that.props.tableColumns[index]);
+            return that.tableColumnWidthOverrides[index] || groupOffset;
           } else {
-            leftOffset = 0;
-            that.props.tableColumns.forEach(column => {
-              leftOffset += getColumnWidth(column);
-            });
+            return width + that.calculateLeftOffset();
           }
         }
-        return width - leftOffset;
+
+        return width - that.calculateLeftOffset();
       };
     }
 
@@ -1155,7 +1232,12 @@ export default class Timeline extends React.Component {
                 leftOffset={this.calculateLeftOffset()}
                 selectedRanges={this.state.selection}
                 groupTitleRenderer={groupTitleRenderer}
-                tableColumns={tableColumns}
+                tableColumns={tableColumns.map((col, colIndex) => {
+                  return {
+                    ...col,
+                    width: this.tableColumnWidthOverrides[colIndex] || groupOffset
+                  };
+                })}
                 groupOffset={groupOffset}
                 {...varTimebarProps}
               />
@@ -1169,7 +1251,7 @@ export default class Timeline extends React.Component {
                 rowHeight={this.rowHeight}
                 rowCount={this.props.groups.length}
                 columnCount={(tableColumns && tableColumns.length > 0 ? tableColumns.length : 1) + 1}
-                cellRenderer={this.cellRenderer(this.getTimelineWidth(width))}
+                cellRenderer={this.cellRenderer(this.state.timelineWidth)}
                 grid_ref_callback={this.grid_ref_callback}
                 shallowUpdateCheck={shallowUpdateCheck}
                 forceRedrawFunc={forceRedrawFunc}

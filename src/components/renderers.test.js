@@ -3,7 +3,7 @@ import React from 'react';
 import {shallow, mount} from 'enzyme';
 import {expect} from 'chai';
 
-import setup from 'setupTests';
+import setup from '../setupTests';
 import {DefaultItemRenderer, DefaultGroupRenderer} from './renderers';
 
 describe('Item renderer', () => {
